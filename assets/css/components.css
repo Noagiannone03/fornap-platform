@@ -250,6 +250,80 @@
 }
 
 /* ========================================
+   NAVBAR SKELETON - POUR ÉVITER LE FLASH AU CHARGEMENT
+   ======================================== */
+.navbar-skeleton {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.skeleton-btn {
+    height: 36px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 25%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-btn-outline {
+    width: 110px; /* Taille approximative de "Se connecter" */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.skeleton-btn-primary {
+    width: 130px; /* Taille approximative de "Devenir membre" */
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.2) 75%
+    );
+    background-size: 200% 100%;
+}
+
+@keyframes skeletonShimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* États de chargement et de transition */
+.navbar-auth.loading,
+.navbar-member.loading {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.navbar-loading .navbar-skeleton {
+    display: flex;
+}
+
+/* Transitions fluides pour éviter les sauts */
+.navbar-auth,
+.navbar-member {
+    transition: opacity 0.3s ease;
+}
+
+.navbar-auth.hidden,
+.navbar-member.hidden {
+    display: none;
+}
+
+/* Amélioration de la transition */
+.fornap-navbar.navbar-loading {
+    /* Styles spéciaux pendant le chargement si nécessaire */
+}
+
+/* ========================================
    RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
@@ -266,5 +340,13 @@
     .modal-content {
         margin: var(--space-4);
         max-height: calc(100vh - 2rem);
+    }
+
+    .skeleton-btn-outline {
+        width: 90px;
+    }
+    
+    .skeleton-btn-primary {
+        width: 100px;
     }
 }

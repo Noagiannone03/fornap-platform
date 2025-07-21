@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop FORNAP - Votre boutique exclusive</title>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="shop-styles.css">
+    
+    <!-- Snipcart CSS -->
+    <link rel="preconnect" href="https://app.snipcart.com">
+    <link rel="preconnect" href="https://cdn.snipcart.com">
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
+</head>
+<body>
+    <!-- Placeholder pour la navbar - sera remplacée par le composant -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- ========================================
+         CONTENU PRINCIPAL SHOP
+         ======================================== -->
+    <main class="main-content shop-main">
+        
+        <!-- Section Hero du Shop -->
+        <section class="shop-hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="shop-title">Boutique FORNAP</h1>
+                    <p class="shop-subtitle">Découvrez notre sélection exclusive de produits premium pour la communauté FORNAP</p>
+                    
+                    <!-- Filtres rapides -->
+                    <div class="quick-filters">
+                        <button class="filter-btn active" data-category="all">Tout</button>
+                        <button class="filter-btn" data-category="vetements">Vêtements</button>
+                        <button class="filter-btn" data-category="accessoires">Accessoires</button>
+                        <button class="filter-btn" data-category="tech">Tech</button>
+                        <button class="filter-btn" data-category="bureau">Bureau</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Produits Phares - Slider Principal -->
+        <section class="featured-products">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Produits Phares</h2>
+                    <p class="section-subtitle">Nos bestsellers sélectionnés pour vous</p>
+                </div>
+                
+                <div class="featured-slider" id="featuredSlider">
+                    <div class="slider-container">
+                        <div class="slider-track" id="featuredTrack">
+                            
+                            <!-- Produit Phare 1 -->
+                            <div class="product-card featured" data-category="vetements">
+                                <div class="product-image-container" onclick="window.location.href='product-detail.html?product=sweat-fornap-premium'" style="cursor: pointer;">
+                                    <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Sweat FORNAP Premium" class="product-image">
+                                    <div class="product-badges">
+                                        <span class="badge bestseller">Bestseller</span>
+                                        <span class="badge limited">Édition Limitée</span>
+                                    </div>
+                                    <div class="product-overlay">
+                                        <button class="quick-view-btn">Voir le détail</button>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-name" onclick="window.location.href='product-detail.html?product=sweat-fornap-premium'" style="cursor: pointer;">Sweat FORNAP Premium</h3>
+                                    <p class="product-category">Vêtements</p>
+                                    <div class="product-rating">
+                                        <span class="stars">★★★★★</span>
+                                        <span class="rating-count">(124 avis)</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span class="price-current">89,99€</span>
+                                        <span class="price-original">109,99€</span>
+                                    </div>
+                                    <div class="size-selector">
+                                        <span class="size-label">Taille:</span>
+                                        <select class="size-select">
+                                            <option value="S">S</option>
+                                            <option value="M" selected>M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                        </select>
+                                    </div>
+                                    <button 
+                                        class="btn btn-primary add-to-cart snipcart-add-item"
+                                        data-item-id="sweat-fornap-premium"
+                                        data-item-price="89.99"
+                                        data-item-url="/pages/shop/shop.html"
+                                        data-item-description="Sweat premium FORNAP en coton bio, coupe moderne"
+                                        data-item-image="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                                        data-item-name="Sweat FORNAP Premium"
+                                        data-item-custom1-name="Taille"
+                                        data-item-custom1-options="S|M|L|XL"
+                                        data-item-custom1-value="M">
+                                        Ajouter au panier
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Produit Phare 2 -->
+                            <div class="product-card featured" data-category="accessoires">
+                                <div class="product-image-container" onclick="window.location.href='product-detail.html?product=casquette-fornap-pro'" style="cursor: pointer;">
+                                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Casquette FORNAP Pro" class="product-image">
+                                    <div class="product-badges">
+                                        <span class="badge new">Nouveau</span>
+                                    </div>
+                                    <div class="product-overlay">
+                                        <button class="quick-view-btn">Voir le détail</button>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-name" onclick="window.location.href='product-detail.html?product=casquette-fornap-pro'" style="cursor: pointer;">Casquette FORNAP Pro</h3>
+                                    <p class="product-category">Accessoires</p>
+                                    <div class="product-rating">
+                                        <span class="stars">★★★★☆</span>
+                                        <span class="rating-count">(67 avis)</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span class="price-current">34,99€</span>
+                                    </div>
+                                    <button 
+                                        class="btn btn-primary add-to-cart snipcart-add-item"
+                                        data-item-id="casquette-fornap-pro"
+                                        data-item-price="34.99"
+                                        data-item-url="/pages/shop/shop.html"
+                                        data-item-description="Casquette FORNAP ajustable avec logo brodé"
+                                        data-item-image="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
+                                        data-item-name="Casquette FORNAP Pro">
+                                        Ajouter au panier
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Produit Phare 3 -->
+                            <div class="product-card featured" data-category="tech">
+                                <div class="product-image-container" onclick="window.location.href='product-detail.html?product=powerbank-fornap-10000'" style="cursor: pointer;">
+                                    <img src="https://images.unsplash.com/photo-1625842268584-8f3296236761?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Powerbank FORNAP 10000mAh" class="product-image">
+                                    <div class="product-badges">
+                                        <span class="badge sale">-25%</span>
+                                    </div>
+                                    <div class="product-overlay">
+                                        <button class="quick-view-btn">Voir le détail</button>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-name" onclick="window.location.href='product-detail.html?product=powerbank-fornap-10000'" style="cursor: pointer;">Powerbank FORNAP 10000mAh</h3>
+                                    <p class="product-category">Tech</p>
+                                    <div class="product-rating">
+                                        <span class="stars">★★★★★</span>
+                                        <span class="rating-count">(203 avis)</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span class="price-current">44,99€</span>
+                                        <span class="price-original">59,99€</span>
+                                    </div>
+                                    <button 
+                                        class="btn btn-primary add-to-cart snipcart-add-item"
+                                        data-item-id="powerbank-fornap-10000"
+                                        data-item-price="44.99"
+                                        data-item-url="/pages/shop/shop.html"
+                                        data-item-description="Powerbank FORNAP 10000mAh avec charge rapide"
+                                        data-item-image="https://images.unsplash.com/photo-1625842268584-8f3296236761?auto=format&fit=crop&w=600&q=80"
+                                        data-item-name="Powerbank FORNAP 10000mAh">
+                                        Ajouter au panier
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Produit Phare 4 -->
+                            <div class="product-card featured" data-category="bureau">
+                                <div class="product-image-container" onclick="window.location.href='product-detail.html?product=mug-fornap-ceramic'" style="cursor: pointer;">
+                                    <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Mug FORNAP Ceramic" class="product-image">
+                                    <div class="product-badges">
+                                        <span class="badge exclusive">Exclusif</span>
+                                    </div>
+                                    <div class="product-overlay">
+                                        <button class="quick-view-btn">Voir le détail</button>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-name" onclick="window.location.href='product-detail.html?product=mug-fornap-ceramic'" style="cursor: pointer;">Mug FORNAP Ceramic</h3>
+                                    <p class="product-category">Bureau</p>
+                                    <div class="product-rating">
+                                        <span class="stars">★★★★☆</span>
+                                        <span class="rating-count">(89 avis)</span>
+                                    </div>
+                                    <div class="product-price">
+                                        <span class="price-current">19,99€</span>
+                                    </div>
+                                    <button 
+                                        class="btn btn-primary add-to-cart snipcart-add-item"
+                                        data-item-id="mug-fornap-ceramic"
+                                        data-item-price="19.99"
+                                        data-item-url="/pages/shop/shop.html"
+                                        data-item-description="Mug en céramique FORNAP avec logo gravé"
+                                        data-item-image="https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=600&q=80"
+                                        data-item-name="Mug FORNAP Ceramic">
+                                        Ajouter au panier
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation slider -->
+                    <div class="slider-nav">
+                        <button class="slider-btn prev" onclick="moveSlider('featured', -1)">‹</button>
+                        <button class="slider-btn next" onclick="moveSlider('featured', 1)">›</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Catégories de Produits -->
+        <section class="product-categories">
+            <div class="container">
+                
+                <!-- Vêtements -->
+                <div class="category-section" data-category="vetements">
+                    <div class="category-header">
+                        <h2 class="category-title">Vêtements</h2>
+                        <button class="see-all-btn" onclick="showCategory('vetements')">Voir tout ›</button>
+                    </div>
+                    
+                    <div class="category-slider" id="vetementSlider">
+                        <div class="slider-container">
+                            <div class="slider-track" id="vetementTrack">
+                                
+                                <div class="product-card" data-category="vetements">
+                                    <div class="product-image-container" onclick="window.location.href='product-detail.html?product=tshirt-fornap-classic'" style="cursor: pointer;">
+                                        <img src="https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="T-shirt FORNAP Classic" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name" onclick="window.location.href='product-detail.html?product=tshirt-fornap-classic'" style="cursor: pointer;">T-shirt FORNAP Classic</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">29,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="tshirt-fornap-classic"
+                                            data-item-price="29.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="T-shirt FORNAP en coton bio"
+                                            data-item-image="https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="T-shirt FORNAP Classic"
+                                            data-item-custom1-name="Taille"
+                                            data-item-custom1-options="S|M|L|XL">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="vetements">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Polo FORNAP Business" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Polo FORNAP Business</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">49,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="polo-fornap-business"
+                                            data-item-price="49.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Polo FORNAP coupe business"
+                                            data-item-image="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Polo FORNAP Business"
+                                            data-item-custom1-name="Taille"
+                                            data-item-custom1-options="S|M|L|XL">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="vetements">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1565084888279-aca607ecce0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Veste FORNAP Tech" class="product-image">
+                                        <div class="product-badges">
+                                            <span class="badge new">Nouveau</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Veste FORNAP Tech</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">129,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="veste-fornap-tech"
+                                            data-item-price="129.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Veste FORNAP imperméable et respirante"
+                                            data-item-image="https://images.unsplash.com/photo-1565084888279-aca607ecce0c?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Veste FORNAP Tech"
+                                            data-item-custom1-name="Taille"
+                                            data-item-custom1-options="S|M|L|XL">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="vetements">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Jean FORNAP Slim" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Jean FORNAP Slim</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">79,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="jean-fornap-slim"
+                                            data-item-price="79.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Jean FORNAP coupe slim en denim premium"
+                                            data-item-image="https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Jean FORNAP Slim"
+                                            data-item-custom1-name="Taille"
+                                            data-item-custom1-options="28|30|32|34|36|38|40">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="slider-nav">
+                            <button class="slider-btn prev" onclick="moveSlider('vetement', -1)">‹</button>
+                            <button class="slider-btn next" onclick="moveSlider('vetement', 1)">›</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accessoires -->
+                <div class="category-section" data-category="accessoires">
+                    <div class="category-header">
+                        <h2 class="category-title">Accessoires</h2>
+                        <button class="see-all-btn" onclick="showCategory('accessoires')">Voir tout ›</button>
+                    </div>
+                    
+                    <div class="category-slider" id="accessoireSlider">
+                        <div class="slider-container">
+                            <div class="slider-track" id="accessoireTrack">
+                                
+                                <div class="product-card" data-category="accessoires">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Sac FORNAP Laptop" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Sac FORNAP Laptop</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">89,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="sac-fornap-laptop"
+                                            data-item-price="89.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Sac FORNAP pour laptop jusqu'à 15 pouces"
+                                            data-item-image="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Sac FORNAP Laptop">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="accessoires">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Montre FORNAP Smart" class="product-image">
+                                        <div class="product-badges">
+                                            <span class="badge limited">Limité</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Montre FORNAP Smart</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">199,99€</span>
+                                            <span class="price-original">249,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="montre-fornap-smart"
+                                            data-item-price="199.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Montre connectée FORNAP avec suivi d'activité"
+                                            data-item-image="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Montre FORNAP Smart">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="accessoires">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Lunettes FORNAP Blue Light" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Lunettes FORNAP Blue Light</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">59,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="lunettes-fornap-blue-light"
+                                            data-item-price="59.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Lunettes FORNAP protection lumière bleue"
+                                            data-item-image="https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Lunettes FORNAP Blue Light">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="slider-nav">
+                            <button class="slider-btn prev" onclick="moveSlider('accessoire', -1)">‹</button>
+                            <button class="slider-btn next" onclick="moveSlider('accessoire', 1)">›</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tech -->
+                <div class="category-section" data-category="tech">
+                    <div class="category-header">
+                        <h2 class="category-title">Tech</h2>
+                        <button class="see-all-btn" onclick="showCategory('tech')">Voir tout ›</button>
+                    </div>
+                    
+                    <div class="category-slider" id="techSlider">
+                        <div class="slider-container">
+                            <div class="slider-track" id="techTrack">
+                                
+                                <div class="product-card" data-category="tech">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Écouteurs FORNAP Pro" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Écouteurs FORNAP Pro</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">149,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="ecouteurs-fornap-pro"
+                                            data-item-price="149.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Écouteurs FORNAP sans fil avec réduction de bruit"
+                                            data-item-image="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Écouteurs FORNAP Pro">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="tech">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Clavier FORNAP Mechanical" class="product-image">
+                                        <div class="product-badges">
+                                            <span class="badge popular">Populaire</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Clavier FORNAP Mechanical</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">119,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="clavier-fornap-mechanical"
+                                            data-item-price="119.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Clavier mécanique FORNAP rétroéclairé RGB"
+                                            data-item-image="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Clavier FORNAP Mechanical">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="tech">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1527814050087-3793815479db?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Souris FORNAP Gaming" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Souris FORNAP Gaming</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">69,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="souris-fornap-gaming"
+                                            data-item-price="69.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Souris gaming FORNAP haute précision"
+                                            data-item-image="https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Souris FORNAP Gaming">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="slider-nav">
+                            <button class="slider-btn prev" onclick="moveSlider('tech', -1)">‹</button>
+                            <button class="slider-btn next" onclick="moveSlider('tech', 1)">›</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bureau -->
+                <div class="category-section" data-category="bureau">
+                    <div class="category-header">
+                        <h2 class="category-title">Bureau</h2>
+                        <button class="see-all-btn" onclick="showCategory('bureau')">Voir tout ›</button>
+                    </div>
+                    
+                    <div class="category-slider" id="bureauSlider">
+                        <div class="slider-container">
+                            <div class="slider-track" id="bureauTrack">
+                                
+                                <div class="product-card" data-category="bureau">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Carnet FORNAP Premium" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Carnet FORNAP Premium</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">24,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="carnet-fornap-premium"
+                                            data-item-price="24.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Carnet FORNAP couverture cuir, 200 pages"
+                                            data-item-image="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Carnet FORNAP Premium">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="bureau">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Stylo FORNAP Signature" class="product-image">
+                                        <div class="product-badges">
+                                            <span class="badge luxury">Luxe</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Stylo FORNAP Signature</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">79,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="stylo-fornap-signature"
+                                            data-item-price="79.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Stylo plume FORNAP gravé, étui inclus"
+                                            data-item-image="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Stylo FORNAP Signature">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="product-card" data-category="bureau">
+                                    <div class="product-image-container">
+                                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Tapis FORNAP Desk Mat" class="product-image">
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-name">Tapis FORNAP Desk Mat</h3>
+                                        <div class="product-price">
+                                            <span class="price-current">39,99€</span>
+                                        </div>
+                                        <button 
+                                            class="btn btn-primary add-to-cart snipcart-add-item"
+                                            data-item-id="tapis-fornap-desk-mat"
+                                            data-item-price="39.99"
+                                            data-item-url="/pages/shop/shop.html"
+                                            data-item-description="Tapis de bureau FORNAP imperméable XXL"
+                                            data-item-image="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80"
+                                            data-item-name="Tapis FORNAP Desk Mat">
+                                            Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="slider-nav">
+                            <button class="slider-btn prev" onclick="moveSlider('bureau', -1)">‹</button>
+                            <button class="slider-btn next" onclick="moveSlider('bureau', 1)">›</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section Newsletter -->
+        <section class="newsletter-section">
+            <div class="container">
+                <div class="newsletter-card">
+                    <h2>Restez informé des nouveautés</h2>
+                    <p>Recevez en premier nos offres exclusives et nouveaux produits</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Votre email" class="newsletter-input" required>
+                        <button type="submit" class="btn btn-primary">S'abonner</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bouton panier flottant -->
+    <div class="floating-cart">
+        <button class="floating-cart-btn snipcart-checkout" id="floating-cart">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count" id="cart-count">0</span>
+        </button>
+    </div>
+
+    <!-- Plus de modal aperçu rapide - redirection directe vers page détail -->
+
+    <!-- Placeholder pour le footer - sera remplacé par le composant -->
+    <div id="footer-placeholder"></div>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/components.js"></script>
+    <script src="shop-scripts.js"></script>
+    
+    <!-- Initialisation des composants FORNAP -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger navbar et footer
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            
+            if (navbarPlaceholder) {
+                navbarPlaceholder.innerHTML = FornapComponents.generateNavbar('shop', '../../');
+                FornapComponents.initializeNavbar('../../');
+            }
+            
+            if (footerPlaceholder) {
+                footerPlaceholder.innerHTML = FornapComponents.generateFooter('../../');
+            }
+        });
+    </script>
+    
+    <!-- Snipcart JavaScript -->
+    <script>
+        window.SnipcartSettings = {
+            publicApiKey: "N2U4MGM2Y2MtMzU0Mi00YjNiLWI5NGUtMWVkMzk0Y2U4ZGRhNjM4ODg3MTI5NTQxMjU0OTk0", // Clé API FORNAP
+            loadStrategy: "on-user-interaction",
+            currency: "eur",
+            version: "3.7.1"
+        };
+
+        (function(){var c,d;(d=(c=window.SnipcartSettings).version)!=null||(c.version="3.0");var s,S;(S=(s=window.SnipcartSettings).timeoutDuration)!=null||(s.timeoutDuration=2750);var l,p;(p=(l=window.SnipcartSettings).domain)!=null||(l.domain="cdn.snipcart.com");var w,u;(u=(w=window.SnipcartSettings).protocol)!=null||(w.protocol="https");var m,g;(g=(m=window.SnipcartSettings).loadCSS)!=null||(m.loadCSS=!0);var y=window.SnipcartSettings.version.includes("v3.0.0-ci")||window.SnipcartSettings.version!="3.0"&&window.SnipcartSettings.version.localeCompare("3.4.0",void 0,{numeric:!0,sensitivity:"base"})===-1,f=["focus","mouseover","touchmove","scroll","keydown"];window.LoadSnipcart=o;document.readyState==="loading"?document.addEventListener("DOMContentLoaded",r):r();function r(){window.SnipcartSettings.loadStrategy?window.SnipcartSettings.loadStrategy==="on-user-interaction"&&(f.forEach(function(t){return document.addEventListener(t,o)}),setTimeout(o,window.SnipcartSettings.timeoutDuration)):o()}var a=!1;function o(){if(a)return;a=!0;let t=document.getElementsByTagName("head")[0],n=document.querySelector("#snipcart"),i=document.querySelector('src[src^="'.concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,'"][src$="snipcart.js"]')),e=document.querySelector('link[href^="'.concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,'"][href$="snipcart.css"]'));n||(n=document.createElement("div"),n.id="snipcart",n.setAttribute("hidden","true"),document.body.appendChild(n)),h(n),i||(i=document.createElement("script"),i.src="".concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,"/themes/v").concat(window.SnipcartSettings.version,"/default/snipcart.js"),i.async=!0,t.appendChild(i)),!e&&window.SnipcartSettings.loadCSS&&(e=document.createElement("link"),e.rel="stylesheet",e.type="text/css",e.href="".concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,"/themes/v").concat(window.SnipcartSettings.version,"/default/snipcart.css"),t.prepend(e)),f.forEach(function(v){return document.removeEventListener(v,o)})}function h(t){!y||(t.dataset.apiKey=window.SnipcartSettings.publicApiKey,window.SnipcartSettings.addProductBehavior&&(t.dataset.configAddProductBehavior=window.SnipcartSettings.addProductBehavior),window.SnipcartSettings.modalStyle&&(t.dataset.configModalStyle=window.SnipcartSettings.modalStyle),window.SnipcartSettings.currency&&(t.dataset.currency=window.SnipcartSettings.currency),window.SnipcartSettings.templatesUrl&&(t.dataset.templatesUrl=window.SnipcartSettings.templatesUrl))}})();
+    </script>
+</body>
+</html>

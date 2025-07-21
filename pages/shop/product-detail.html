@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="product-title">Produit - FORNAP Shop</title>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="shop-styles.css">
+    <link rel="stylesheet" href="product-detail-styles.css">
+    
+    <!-- Snipcart CSS -->
+    <link rel="preconnect" href="https://app.snipcart.com">
+    <link rel="preconnect" href="https://cdn.snipcart.com">
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
+</head>
+<body>
+    <!-- Placeholder pour la navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- ========================================
+         CONTENU PRINCIPAL PRODUIT
+         ======================================== -->
+    <main class="main-content product-main">
+        
+        <!-- Breadcrumb -->
+        <section class="breadcrumb-section">
+            <div class="container">
+                <nav class="breadcrumb">
+                    <a href="../../index.html" class="breadcrumb-link">Accueil</a>
+                    <span class="breadcrumb-separator">›</span>
+                    <a href="shop.html" class="breadcrumb-link">Boutique</a>
+                    <span class="breadcrumb-separator">›</span>
+                    <span class="breadcrumb-current" id="breadcrumb-product">Produit</span>
+                </nav>
+            </div>
+        </section>
+
+        <!-- Détail Produit -->
+        <section class="product-detail-section">
+            <div class="container">
+                
+                <!-- Message de chargement -->
+                <div class="loading-state" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <h3>Chargement du produit...</h3>
+                </div>
+
+                <!-- Contenu produit -->
+                <div class="product-detail-content hidden" id="product-content">
+                    
+                    <div class="product-detail-grid">
+                        
+                        <!-- Galerie Images -->
+                        <div class="product-gallery">
+                            <div class="main-image-container">
+                                <img id="main-product-image" src="" alt="" class="main-product-image">
+                                <div class="product-badges" id="product-badges">
+                                    <!-- Badges dynamiques -->
+                                </div>
+                            </div>
+                            
+                            <!-- Thumbnails (si plusieurs images) -->
+                            <div class="image-thumbnails" id="image-thumbnails">
+                                <!-- Miniatures dynamiques -->
+                            </div>
+                        </div>
+
+                        <!-- Informations Produit -->
+                        <div class="product-info">
+                            
+                            <!-- Header -->
+                            <div class="product-header">
+                                <h1 class="product-name" id="product-name">Nom du produit</h1>
+                                <p class="product-category" id="product-category">Catégorie</p>
+                                
+                                <div class="product-rating" id="product-rating">
+                                    <span class="stars" id="product-stars">★★★★★</span>
+                                    <span class="rating-count" id="rating-count">(0 avis)</span>
+                                </div>
+                            </div>
+
+                            <!-- Prix -->
+                            <div class="product-pricing">
+                                <div class="price-container">
+                                    <span class="price-current" id="product-price">0€</span>
+                                    <span class="price-original hidden" id="product-original-price">0€</span>
+                                    <span class="price-savings hidden" id="price-savings">Vous économisez 0€</span>
+                                </div>
+                                <div class="price-details">
+                                    <span class="price-note">Prix TTC, livraison non comprise</span>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="product-description">
+                                <h3>Description</h3>
+                                <div class="description-content" id="product-description">
+                                    <p>Description détaillée du produit...</p>
+                                </div>
+                            </div>
+
+                            <!-- Options Produit -->
+                            <div class="product-options" id="product-options">
+                                <!-- Options dynamiques (taille, couleur, etc.) -->
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="product-actions">
+                                
+                                <!-- Sélecteur quantité -->
+                                <div class="quantity-selector">
+                                    <label for="product-quantity">Quantité:</label>
+                                    <div class="quantity-controls">
+                                        <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                                        <input type="number" id="product-quantity" value="1" min="1" max="10" class="quantity-input">
+                                        <button type="button" class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                                    </div>
+                                </div>
+
+                                <!-- Bouton Ajout Panier -->
+                                <button 
+                                    class="btn btn-primary btn-large add-to-cart-main snipcart-add-item"
+                                    id="main-add-to-cart"
+                                    data-item-id=""
+                                    data-item-price=""
+                                    data-item-url=""
+                                    data-item-description=""
+                                    data-item-image=""
+                                    data-item-name=""
+                                    data-item-quantity="1">
+                                    <span class="btn-icon">🛒</span>
+                                    Ajouter au panier
+                                </button>
+
+                                <!-- Actions secondaires -->
+                                <div class="secondary-actions">
+                                    <button class="btn btn-outline wishlist-btn" onclick="toggleWishlist()">
+                                        <span class="heart-icon">♡</span>
+                                        Ajouter aux favoris
+                                    </button>
+                                    <button class="btn btn-outline share-btn" onclick="shareProduct()">
+                                        <span class="share-icon">↗</span>
+                                        Partager
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Informations Livraison -->
+                            <div class="shipping-info">
+                                <h4>🚚 Livraison</h4>
+                                <ul class="shipping-details">
+                                    <li>📦 Livraison gratuite dès 50€ d'achat</li>
+                                    <li>⚡ Expédition sous 24h (jours ouvrés)</li>
+                                    <li>📍 Livraison en France métropolitaine</li>
+                                    <li>🔒 Paiement sécurisé</li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Message d'erreur -->
+                <div class="error-state hidden" id="error-state">
+                    <div class="error-content">
+                        <h2>❌ Produit introuvable</h2>
+                        <p>Le produit demandé n'existe pas ou a été supprimé.</p>
+                        <button class="btn btn-primary" onclick="window.location.href='shop.html'">
+                            Retour à la boutique
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section Détails Supplémentaires -->
+        <section class="product-extra-details" id="product-extra-details">
+            <div class="container">
+                
+                <div class="details-tabs">
+                    <button class="tab-btn active" onclick="showTab('specifications')">Caractéristiques</button>
+                    <button class="tab-btn" onclick="showTab('reviews')">Avis clients</button>
+                    <button class="tab-btn" onclick="showTab('shipping')">Livraison & Retour</button>
+                </div>
+
+                <div class="tab-content">
+                    
+                    <!-- Caractéristiques -->
+                    <div class="tab-panel active" id="specifications-panel">
+                        <h3>Caractéristiques techniques</h3>
+                        <div class="specifications-grid" id="specifications-content">
+                            <div class="spec-item">
+                                <span class="spec-label">Matériau:</span>
+                                <span class="spec-value">Coton bio 100%</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Entretien:</span>
+                                <span class="spec-value">Lavage machine 30°C</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Origine:</span>
+                                <span class="spec-value">Made in France</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avis clients -->
+                    <div class="tab-panel" id="reviews-panel">
+                        <h3>Avis clients</h3>
+                        <div class="reviews-summary">
+                            <div class="rating-overview">
+                                <span class="average-rating">4.8</span>
+                                <div class="stars-large">★★★★★</div>
+                                <p>Basé sur 124 avis</p>
+                            </div>
+                        </div>
+                        
+                        <div class="reviews-list">
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <span class="reviewer-name">Marie L.</span>
+                                    <span class="review-date">12/12/2024</span>
+                                    <div class="review-stars">★★★★★</div>
+                                </div>
+                                <p class="review-text">Excellent produit, très bonne qualité. Je recommande !</p>
+                            </div>
+                            
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <span class="reviewer-name">Thomas D.</span>
+                                    <span class="review-date">10/12/2024</span>
+                                    <div class="review-stars">★★★★☆</div>
+                                </div>
+                                <p class="review-text">Bon rapport qualité-prix, livraison rapide.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Livraison & Retour -->
+                    <div class="tab-panel" id="shipping-panel">
+                        <h3>Livraison & Retour</h3>
+                        <div class="shipping-grid">
+                            <div class="shipping-option">
+                                <h4>🚚 Livraison Standard</h4>
+                                <p>3-5 jours ouvrés - 5,99€<br>
+                                <strong>Gratuite dès 50€ d'achat</strong></p>
+                            </div>
+                            <div class="shipping-option">
+                                <h4>⚡ Livraison Express</h4>
+                                <p>24-48h - 9,99€<br>
+                                Commande avant 14h</p>
+                            </div>
+                            <div class="shipping-option">
+                                <h4>🔄 Retours</h4>
+                                <p>30 jours pour changer d'avis<br>
+                                Retour gratuit</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Produits Recommandés -->
+        <section class="recommended-products">
+            <div class="container">
+                <h2 class="section-title">Produits Similaires</h2>
+                
+                <div class="recommended-slider" id="recommended-slider">
+                    <div class="slider-container">
+                        <div class="slider-track" id="recommendedTrack">
+                            <!-- Produits recommandés dynamiques -->
+                        </div>
+                    </div>
+                    
+                    <div class="slider-nav">
+                        <button class="slider-btn prev" onclick="moveRecommendedSlider(-1)">‹</button>
+                        <button class="slider-btn next" onclick="moveRecommendedSlider(1)">›</button>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bouton panier flottant -->
+    <div class="floating-cart">
+        <button class="floating-cart-btn snipcart-checkout" id="floating-cart">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count hidden" id="cart-count">0</span>
+        </button>
+    </div>
+
+    <!-- Placeholder pour le footer -->
+    <div id="footer-placeholder"></div>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/components.js"></script>
+    <script src="shop-scripts.js"></script>
+    <script src="product-detail-scripts.js"></script>
+    
+    <!-- Initialisation des composants FORNAP -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger navbar et footer
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            
+            if (navbarPlaceholder) {
+                navbarPlaceholder.innerHTML = FornapComponents.generateNavbar('shop', '../../');
+                FornapComponents.initializeNavbar('../../');
+            }
+            
+            if (footerPlaceholder) {
+                footerPlaceholder.innerHTML = FornapComponents.generateFooter('../../');
+            }
+            
+            // Initialiser la page produit
+            initializeProductDetail();
+        });
+    </script>
+    
+    <!-- Snipcart JavaScript -->
+    <script>
+        window.SnipcartSettings = {
+            publicApiKey: "N2U4MGM2Y2MtMzU0Mi00YjNiLWI5NGUtMWVkMzk0Y2U4ZGRhNjM4ODg3MTI5NTQxMjU0OTk0",
+            loadStrategy: "on-user-interaction",
+            currency: "eur",
+            version: "3.7.1"
+        };
+
+        (function(){var c,d;(d=(c=window.SnipcartSettings).version)!=null||(c.version="3.0");var s,S;(S=(s=window.SnipcartSettings).timeoutDuration)!=null||(s.timeoutDuration=2750);var l,p;(p=(l=window.SnipcartSettings).domain)!=null||(l.domain="cdn.snipcart.com");var w,u;(u=(w=window.SnipcartSettings).protocol)!=null||(w.protocol="https");var m,g;(g=(m=window.SnipcartSettings).loadCSS)!=null||(m.loadCSS=!0);var y=window.SnipcartSettings.version.includes("v3.0.0-ci")||window.SnipcartSettings.version!="3.0"&&window.SnipcartSettings.version.localeCompare("3.4.0",void 0,{numeric:!0,sensitivity:"base"})===-1,f=["focus","mouseover","touchmove","scroll","keydown"];window.LoadSnipcart=o;document.readyState==="loading"?document.addEventListener("DOMContentLoaded",r):r();function r(){window.SnipcartSettings.loadStrategy?window.SnipcartSettings.loadStrategy==="on-user-interaction"&&(f.forEach(function(t){return document.addEventListener(t,o)}),setTimeout(o,window.SnipcartSettings.timeoutDuration)):o()}var a=!1;function o(){if(a)return;a=!0;let t=document.getElementsByTagName("head")[0],n=document.querySelector("#snipcart"),i=document.querySelector('src[src^="'.concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,'"][src$="snipcart.js"]')),e=document.querySelector('link[href^="'.concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,'"][href$="snipcart.css"]'));n||(n=document.createElement("div"),n.id="snipcart",n.setAttribute("hidden","true"),document.body.appendChild(n)),h(n),i||(i=document.createElement("script"),i.src="".concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,"/themes/v").concat(window.SnipcartSettings.version,"/default/snipcart.js"),i.async=!0,t.appendChild(i)),!e&&window.SnipcartSettings.loadCSS&&(e=document.createElement("link"),e.rel="stylesheet",e.type="text/css",e.href="".concat(window.SnipcartSettings.protocol,"://").concat(window.SnipcartSettings.domain,"/themes/v").concat(window.SnipcartSettings.version,"/default/snipcart.css"),t.prepend(e)),f.forEach(function(v){return document.removeEventListener(v,o)})}function h(t){!y||(t.dataset.apiKey=window.SnipcartSettings.publicApiKey,window.SnipcartSettings.addProductBehavior&&(t.dataset.configAddProductBehavior=window.SnipcartSettings.addProductBehavior),window.SnipcartSettings.modalStyle&&(t.dataset.configModalStyle=window.SnipcartSettings.modalStyle),window.SnipcartSettings.currency&&(t.dataset.currency=window.SnipcartSettings.currency),window.SnipcartSettings.templatesUrl&&(t.dataset.templatesUrl=window.SnipcartSettings.templatesUrl))}})();
+    </script>
+</body>
+</html> 

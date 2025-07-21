@@ -49,15 +49,17 @@ class FornapComponents {
         try {
             if (isAuthenticated) {
                 localStorage.setItem('fornap_auth_state', 'true');
+                localStorage.setItem('fornap_auth_timestamp', Date.now().toString());
             } else {
                 localStorage.removeItem('fornap_auth_state');
+                localStorage.removeItem('fornap_auth_timestamp');
             }
         } catch (e) {
             console.warn('Erreur sauvegarde état auth:', e);
         }
         
-        // Mettre à jour toutes les navbars existantes
-        FornapComponents.syncNavbarState(isAuthenticated);
+        // Mettre à jour toutes les navbars existantes avec animation fluide
+        FornapComponents.syncNavbarStateSmooth(isAuthenticated);
 
         // Notifier tous les callbacks
         instance.authStateCallbacks.forEach(callback => {
@@ -97,6 +99,61 @@ class FornapComponents {
     }
 
     /**
+     * Met à jour l'affichage de la navbar avec animation fluide (évite le flash)
+     */
+    static syncNavbarStateSmooth(isAuthenticated) {
+        const navbarAuth = document.getElementById('navbarAuth');
+        const navbarMember = document.getElementById('navbarMember');
+        const navbarSkeleton = document.getElementById('navbarSkeleton');
+
+        if (navbarAuth && navbarMember) {
+            // Masquer le skeleton s'il existe
+            if (navbarSkeleton) {
+                navbarSkeleton.style.display = 'none';
+                navbarSkeleton.remove(); // Supprimer complètement le skeleton
+            }
+
+            // Animation fluide avec GSAP si disponible, sinon transition CSS
+            if (typeof gsap !== 'undefined') {
+                if (isAuthenticated) {
+                    // Transition vers état connecté
+                    gsap.to(navbarAuth, { 
+                        opacity: 0, 
+                        duration: 0.2, 
+                        onComplete: () => {
+                            navbarAuth.classList.add('hidden');
+                            navbarMember.classList.remove('hidden');
+                            gsap.fromTo(navbarMember, 
+                                { opacity: 0 },
+                                { opacity: 1, duration: 0.3 }
+                            );
+                        }
+                    });
+                } else {
+                    // Transition vers état déconnecté
+                    gsap.to(navbarMember, { 
+                        opacity: 0, 
+                        duration: 0.2, 
+                        onComplete: () => {
+                            navbarMember.classList.add('hidden');
+                            navbarAuth.classList.remove('hidden');
+                            gsap.fromTo(navbarAuth, 
+                                { opacity: 0 },
+                                { opacity: 1, duration: 0.3 }
+                            );
+                        }
+                    });
+                }
+            } else {
+                // Fallback sans animation
+                FornapComponents.syncNavbarState(isAuthenticated);
+            }
+            
+            console.log('✅ État navbar mis à jour (smooth):', isAuthenticated ? 'connecté' : 'déconnecté');
+        }
+    }
+
+    /**
      * Génère la navbar FORNAP avec état initial correct
      * @param {string} activePage - Page active pour le style
      * @param {string} basePath - Chemin de base pour les liens ('' pour racine, '../' pour sous-dossiers)
@@ -105,24 +162,52 @@ class FornapComponents {
     static generateNavbar(activePage = '', basePath = '') {
         const instance = FornapComponents.init();
         
-        // Déterminer l'état initial basé sur l'état global ou localStorage
+        // Amélioration du pré-chargement de l'état d'authentification
         let initialAuthState = instance.authState;
+        let showLoadingState = false;
+        
         if (initialAuthState === null) {
-            // Essayer de deviner l'état depuis localStorage ou autre indicateur
+            // Essayer de deviner l'état depuis localStorage
             try {
                 const lastAuthState = localStorage.getItem('fornap_auth_state');
-                initialAuthState = lastAuthState === 'true';
+                const lastAuthTimestamp = localStorage.getItem('fornap_auth_timestamp');
+                const currentTime = Date.now();
+                
+                // Vérifier si l'état sauvegardé est récent (moins de 30 minutes)
+                if (lastAuthState && lastAuthTimestamp && 
+                    (currentTime - parseInt(lastAuthTimestamp)) < 30 * 60 * 1000) {
+                    initialAuthState = lastAuthState === 'true';
+                    showLoadingState = false; // État connu, pas besoin de skeleton
+                } else {
+                    // Si l'état est trop ancien ou inexistant, montrer déconnecté par défaut
+                    initialAuthState = false;
+                    showLoadingState = false; // Montrer les boutons auth directement
+                }
             } catch (e) {
                 initialAuthState = false;
+                showLoadingState = false; // En cas d'erreur, montrer auth
             }
         }
 
         // Classes pour l'état initial (éviter le saut visuel)
-        const authHidden = initialAuthState ? 'hidden' : '';
+        // Si on est connecté : masquer auth, montrer member
+        // Si on n'est pas connecté mais état connu : montrer auth, masquer member  
+        // Si état inconnu (loading) : montrer skeleton, masquer les deux
+        const authHidden = initialAuthState ? 'hidden' : (showLoadingState ? 'hidden' : '');
         const memberHidden = initialAuthState ? '' : 'hidden';
+        const loadingClass = showLoadingState ? 'navbar-loading' : '';
+        
+        // Debug log
+        console.log('🔍 État navbar initial:', {
+            initialAuthState,
+            showLoadingState,
+            authHidden,
+            memberHidden,
+            loadingClass
+        });
 
         return `
-        <nav class="fornap-navbar">
+        <nav class="fornap-navbar ${loadingClass}">
             <div class="container">
                 <div class="navbar-content">
                     <!-- Logo -->
@@ -150,7 +235,7 @@ class FornapComponents {
                            class="navbar-link ${activePage === 'coworking' ? 'active' : ''}">
                             Coworking
                         </a>
-                        <a href="#shop" 
+                        <a href="${basePath}pages/shop/shop.html" 
                            class="navbar-link ${activePage === 'shop' ? 'active' : ''}">
                             Boutique
                         </a>
@@ -158,6 +243,14 @@ class FornapComponents {
                     
                     <!-- Actions Utilisateur -->
                     <div class="navbar-actions">
+                        <!-- Skeleton de chargement (affiché pendant l'initialisation) -->
+                        ${showLoadingState ? `
+                        <div class="navbar-skeleton" id="navbarSkeleton">
+                            <div class="skeleton-btn skeleton-btn-outline"></div>
+                            <div class="skeleton-btn skeleton-btn-primary"></div>
+                        </div>
+                        ` : ''}
+                        
                         <!-- Utilisateur non connecté -->
                         <div class="navbar-auth ${authHidden}" id="navbarAuth">
                             <button onclick="window.location.href='${basePath}pages/login.html'" 
@@ -297,13 +390,25 @@ class FornapComponents {
             });
         }
 
-        // Boutons d'authentification
-        const loginBtn = document.getElementById('loginBtn');
+        // Boutons d'authentification - CORRECTION DES IDS
         const dashboardBtn = document.getElementById('dashboardBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Boutons de la section non connectée (navbar-auth)
+        const navbarAuthButtons = document.querySelectorAll('#navbarAuth button');
+        const loginButton = document.querySelector('#navbarAuth button[onclick*="login"]');
+        const memberButton = document.querySelector('#navbarAuth button[onclick*="membership"]');
 
-        if (loginBtn && authCallbacks.onLogin) {
-            loginBtn.addEventListener('click', authCallbacks.onLogin);
+        // Gestion des boutons de connexion/inscription
+        if (navbarAuthButtons.length > 0 && authCallbacks.onLogin) {
+            navbarAuthButtons.forEach(btn => {
+                if (btn.textContent.includes('connecter')) {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        authCallbacks.onLogin();
+                    });
+                }
+            });
         }
 
         if (dashboardBtn) {
@@ -313,18 +418,36 @@ class FornapComponents {
         }
 
         if (logoutBtn && authCallbacks.onLogout) {
-            logoutBtn.addEventListener('click', authCallbacks.onLogout);
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                authCallbacks.onLogout();
+            });
         }
 
         // Gérer le clic sur le lien "Nos Forfaits"
         const forfaitsLink = document.getElementById('forfaitsLink');
         if (forfaitsLink) {
-            forfaitsLink.addEventListener('click', (event) => {
+            forfaitsLink.addEventListener('click', async (event) => {
                 event.preventDefault(); // Empêcher le comportement par défaut du lien
                 
-                // Vérifier si l'utilisateur est connecté
-                const instance = FornapComponents.init();
-                const isAuthenticated = instance.authState || false;
+                // CORRECTION : Vérifier l'état d'authentification réel depuis FornapAuth
+                let isAuthenticated = false;
+                try {
+                    // Vérifier si FornapAuth est initialisé et s'il y a un utilisateur connecté
+                    if (window.FornapAuth && window.FornapAuth.getCurrentUser) {
+                        const currentUser = await window.FornapAuth.getCurrentUser();
+                        isAuthenticated = !!currentUser;
+                    } else {
+                        // Fallback sur l'instance components si FornapAuth pas dispo
+                        const instance = FornapComponents.init();
+                        isAuthenticated = instance.authState || false;
+                    }
+                } catch (error) {
+                    console.warn('Erreur vérification auth state:', error);
+                    isAuthenticated = false;
+                }
+                
+                console.log('🔍 État authentification pour forfaits:', isAuthenticated ? 'connecté' : 'déconnecté');
                 
                 if (isAuthenticated) {
                     // Si connecté, aller directement au processus de paiement
@@ -332,6 +455,7 @@ class FornapComponents {
                     window.location.href = basePath + 'pages/payment.html';
                 } else {
                     // Si pas connecté, aller à la page des forfaits normalement
+                    console.log('🎯 Utilisateur déconnecté -> Redirection vers page forfaits');
                     const href = forfaitsLink.dataset.href;
                     if (href) {
                         window.location.href = href;

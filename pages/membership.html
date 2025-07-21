@@ -441,12 +441,18 @@
                 btn.addEventListener('click', contactUs);
             });
 
-            // FAQ events
+            // FAQ events - Supprimer les onclick conflicts et utiliser seulement les event listeners
             document.querySelectorAll('.faq-item').forEach(item => {
-                item.addEventListener('click', () => toggleFAQ(item));
+                // Supprimer les onclick attributes pour éviter les conflits
+                item.removeAttribute('onclick');
+                
+                item.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    toggleFAQ(item);
+                });
             });
 
-            // Rendre les fonctions disponibles globalement pour les événements inline
+            // Rendre les fonctions disponibles globalement
             window.toggleFAQ = toggleFAQ;
         }
     </script>

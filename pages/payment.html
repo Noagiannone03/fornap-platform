@@ -1085,6 +1085,7 @@
                 
                 setTimeout(() => {
                     showSection('planSection');
+                    applyPreselectedPlan(); // Appliquer le forfait présélectionné après création de compte
                 }, 1000);
 
             } catch (error) {
@@ -1109,11 +1110,12 @@
                 const user = await FornapAuth.signIn(email, password);
                 
                 hideLoadingModal();
-                showMessage('Connexion réussie !', 'success');
+                showMessage('Connexion réussie ! Redirection vers votre dashboard...', 'success');
                 
-                // Continuer vers la sélection des forfaits
+                // CORRECTION : Les utilisateurs existants vont au dashboard, pas au processus de paiement
+                // Le processus de paiement est uniquement pour les nouveaux comptes
                 setTimeout(() => {
-                    showSection('planSection');
+                    window.location.href = 'dashboard.html';
                 }, 1000);
 
             } catch (error) {
@@ -1408,29 +1410,47 @@
                         return;
                     }
                     
-                    // Aller directement à la sélection des forfaits avec présélection
-                    showSection('planSection');
+                    // CORRECTION : Commencer par l'accueil, pas la sélection directe
+                    // L'utilisateur doit d'abord s'authentifier ou créer un compte
+                    showSection('welcomeSection');
                     
-                    // Présélectionner visuellement le forfait
-                    setTimeout(() => {
-                        const selectedCard = document.querySelector(`[data-plan="${plan.id}"]`);
-                        if (selectedCard) {
-                            selectedCard.classList.add('preselected');
-                            gsap.to(selectedCard, {
-                                scale: 1.05,
-                                borderColor: '#28A745',
-                                backgroundColor: '#F8F9FA',
-                                duration: 0.5,
-                                ease: "back.out(1.7)"
-                            });
-                        }
-                        showMessage(`Forfait ${plan.name} présélectionné`, 'success');
-                    }, 500);
+                    // Stocker le plan pour l'utiliser plus tard dans le parcours
+                    window.preselectedPlan = plan;
+                    
+                    // Afficher un message informatif
+                    showMessage(`Forfait ${plan.name} sélectionné - Veuillez vous connecter ou créer un compte`, 'info');
                     
                 } catch (error) {
                     console.error('Erreur parsing forfait présélectionné:', error);
                     sessionStorage.removeItem('selectedPlan');
                 }
+            }
+        }
+
+        // Fonction pour présélectionner le forfait après authentification
+        function applyPreselectedPlan() {
+            if (window.preselectedPlan) {
+                const plan = window.preselectedPlan;
+                
+                // Présélectionner visuellement le forfait
+                setTimeout(() => {
+                    const selectedCard = document.querySelector(`[data-plan="${plan.id}"]`);
+                    if (selectedCard) {
+                        selectedCard.classList.add('preselected');
+                        gsap.to(selectedCard, {
+                            scale: 1.05,
+                            borderColor: '#28A745',
+                            backgroundColor: '#F8F9FA',
+                            duration: 0.5,
+                            ease: "back.out(1.7)"
+                        });
+                    }
+                    showMessage(`Forfait ${plan.name} présélectionné`, 'success');
+                }, 500);
+                
+                // Nettoyer
+                window.preselectedPlan = null;
+                sessionStorage.removeItem('selectedPlan');
             }
         }
 
@@ -1537,7 +1557,7 @@
             });
         }
 
-        // Validation en temps réel
+        // Validation en temps réel et gestion des interactions
         function setupValidation() {
             // Champs signup
             const signupFields = [
@@ -1583,6 +1603,85 @@
                     professionBtn.disabled = !professionInput.value.trim();
                 });
             }
+        }
+
+        // Configuration des interactions des éléments de sélection
+        function setupInteractiveElements() {
+            // Méthodes de paiement
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    // Réinitialiser tous les éléments
+                    document.querySelectorAll('.payment-method').forEach(method => {
+                        method.classList.remove('active');
+                    });
+                    
+                    // Activer l'élément sélectionné
+                    const selectedMethod = e.target.closest('.payment-method');
+                    if (selectedMethod) {
+                        selectedMethod.classList.add('active');
+                        gsap.to(selectedMethod, { 
+                            scale: 1.02, 
+                            duration: 0.2, 
+                            ease: "back.out(1.7)",
+                            onComplete: () => {
+                                gsap.to(selectedMethod, { scale: 1, duration: 0.2 });
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Choix de motivation - avec gestion améliorée des clics
+            document.querySelectorAll('.choice-option[data-value]').forEach(option => {
+                const radio = option.querySelector('input[type="radio"]');
+                
+                // Gestion du clic sur l'option entière
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    if (radio && !radio.checked) {
+                        // Décocher tous les autres radios du même groupe
+                        document.querySelectorAll(`input[name="${radio.name}"]`).forEach(r => {
+                            r.checked = false;
+                            const opt = r.closest('.choice-option');
+                            if (opt) {
+                                opt.classList.remove('selected');
+                                gsap.to(opt, { scale: 1, duration: 0.2 });
+                            }
+                        });
+                        
+                        // Cocher ce radio et appliquer les animations
+                        radio.checked = true;
+                        option.classList.add('selected');
+                        
+                        // Trigger l'événement change manuellement
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                        
+                        // Animation de sélection
+                        gsap.to(option, { 
+                            scale: 1.05, 
+                            duration: 0.2, 
+                            ease: "back.out(1.7)",
+                            onComplete: () => {
+                                gsap.to(option, { scale: 1.02, duration: 0.2 });
+                            }
+                        });
+                    }
+                });
+                
+                // Hover effects améliorés
+                option.addEventListener('mouseenter', () => {
+                    if (!radio.checked) {
+                        gsap.to(option, { scale: 1.01, duration: 0.2 });
+                    }
+                });
+                
+                option.addEventListener('mouseleave', () => {
+                    if (!radio.checked) {
+                        gsap.to(option, { scale: 1, duration: 0.2 });
+                    }
+                });
+            });
             
             // Validation radio buttons avec animations
             document.querySelectorAll('input[name="motivation"]').forEach(radio => {
@@ -1592,13 +1691,6 @@
                         btn.disabled = false;
                         gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
                     }
-                    
-                    // Animation de sélection
-                    const option = radio.closest('.choice-option');
-                    document.querySelectorAll('.choice-option').forEach(opt => {
-                        gsap.to(opt, { scale: 1, duration: 0.2 });
-                    });
-                    gsap.to(option, { scale: 1.02, duration: 0.2, ease: "back.out(1.7)" });
                 });
             });
             
@@ -1609,12 +1701,6 @@
                         btn.disabled = false;
                         gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
                     }
-                    
-                    const option = radio.closest('.choice-option');
-                    document.querySelectorAll('.choice-option').forEach(opt => {
-                        gsap.to(opt, { scale: 1, duration: 0.2 });
-                    });
-                    gsap.to(option, { scale: 1.02, duration: 0.2, ease: "back.out(1.7)" });
                 });
             });
         }
@@ -1674,6 +1760,7 @@
 
                 // Configuration
                 setupValidation();
+                setupInteractiveElements();
                 formatPaymentInputs();
                 updateProgress();
 
@@ -2844,6 +2931,50 @@
             .final-container {
                 padding: var(--space-6);
             }
+        }
+
+        /* AMÉLIORATIONS DES ÉLÉMENTS INTERACTIFS */
+        .choice-option.selected .choice-content,
+        .choice-option input:checked ~ .choice-content {
+            border-color: var(--succes);
+            background: var(--gris-tres-clair);
+            transform: scale(1.02);
+        }
+
+        .choice-option.selected .choice-icon,
+        .choice-option input:checked ~ .choice-content .choice-icon {
+            transform: scale(1.1);
+        }
+
+        .payment-method.active {
+            transform: scale(1.02);
+        }
+
+        .payment-method.active .method-content {
+            border-color: var(--succes) !important;
+            background: var(--gris-tres-clair);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+        }
+
+        /* Amélioration des transitions */
+        .choice-content,
+        .method-content {
+            transition: all 0.3s ease;
+        }
+
+        .choice-icon {
+            transition: transform 0.2s ease;
+        }
+
+        /* États de focus améliorés */
+        .choice-option:focus-within .choice-content {
+            outline: 3px solid rgba(40, 167, 69, 0.3);
+            outline-offset: 2px;
+        }
+
+        .payment-method:focus-within .method-content {
+            outline: 3px solid rgba(40, 167, 69, 0.3);
+            outline-offset: 2px;
         }
 
         /* ANIMATIONS D'ENTRÉE */
