@@ -28,7 +28,7 @@ class FornapComponents {
                            class="navbar-link ${activePage === 'home' ? 'active' : ''}">
                             Accueil
                         </a>
-                        <a href="${basePath}membership.html" 
+                        <a href="${basePath}pages/membership.html" 
                            class="navbar-link ${activePage === 'membership' ? 'active' : ''}">
                             Nos Forfaits
                         </a>
@@ -51,7 +51,7 @@ class FornapComponents {
                         <!-- Utilisateur non connecté -->
                         <div class="navbar-auth" id="navbarAuth">
                             <button id="loginBtn" class="btn btn-outline">Se connecter</button>
-                            <button onclick="window.location.href='${basePath}membership.html'" 
+                            <button onclick="window.location.href='${basePath}pages/membership.html'" 
                                     class="btn btn-primary">Devenir membre</button>
                         </div>
                         
@@ -100,7 +100,7 @@ class FornapComponents {
                             <li><a href="#coworking">Coworking</a></li>
                             <li><a href="#events">Événements</a></li>
                             <li><a href="#shop">Boutique</a></li>
-                            <li><a href="${basePath}membership.html">Adhésion</a></li>
+                            <li><a href="${basePath}pages/membership.html">Adhésion</a></li>
                         </ul>
                     </div>
                     

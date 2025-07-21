@@ -24,7 +24,7 @@
                     <h1>Bienvenue chez FORNAP</h1>
                     <p class="hero-subtitle">Votre espace innovant alliant coworking, événements, boutique et communauté. Rejoignez une expérience unique où créativité et collaboration se rencontrent.</p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-large" onclick="window.location.href='membership.html'">Découvrir nos forfaits</button>
+                        <button class="btn btn-primary btn-large" onclick="window.location.href='pages/membership.html'">Découvrir nos forfaits</button>
                         <button class="btn btn-secondary btn-large" onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })">En savoir plus</button>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                     <div class="cta-card">
                         <h3>Prêt à nous rejoindre ?</h3>
                         <p>Choisissez votre forfait et devenez membre de la communauté FORNAP dès aujourd'hui</p>
-                        <button class="btn btn-primary btn-large" onclick="window.location.href='membership.html'">
+                        <button class="btn btn-primary btn-large" onclick="window.location.href='pages/membership.html'">
                             Voir les forfaits
                         </button>
                     </div>
@@ -96,7 +96,7 @@
                         <div class="auth-links">
                             <p>
                                 Pas encore membre ? 
-                                <a href="membership.html">Choisir un forfait</a>
+                                <a href="pages/membership.html">Choisir un forfait</a>
                             </p>
                             <p>
                                 <a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a>
@@ -506,5 +506,52 @@
             }
         }
     </style>
+
+    <!-- Placeholder pour le footer - sera remplacé par le composant -->
+    <div id="footer-placeholder"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         COMPOSANTS FORNAP
+         ======================================== -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/auth-service.js"></script>
+    <script src="assets/js/components.js"></script>
+
+    <script>
+        // Initialisation des composants FORNAP
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Initialisation composants FORNAP - Index');
+
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('home', '');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('');
+            }
+
+            // Initialiser les événements après injection
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('', {
+                    onLogin: () => {
+                        console.log('Login demandé');
+                    },
+                    onLogout: handleLogout
+                });
+            }, 100);
+        });
+    </script>
 </body>
 </html>

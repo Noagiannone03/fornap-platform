@@ -6,7 +6,8 @@
     <title>Nos Forfaits - FORNAP</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
 </head>
 <body>
     <!-- Placeholder pour la navbar - sera remplacée par le composant -->
@@ -448,7 +449,7 @@
                             
                             showMessage('Redirection vers votre dashboard...', 'info');
                             setTimeout(() => {
-                                window.location.href = 'pages/dashboard.html';
+                                window.location.href = 'dashboard.html';
                             }, 1000);
                         });
                         
@@ -474,7 +475,7 @@
             }
         });
 
-        // Gestion des forfaits - REDIRECTION DIRECTE
+        // Gestion des forfaits - FLOW CORRIGÉ
         function handlePlanSelection(e) {
             const card = e.target.closest('.pricing-card');
             const planId = card.dataset.plan;
@@ -493,11 +494,36 @@
                 return;
             }
 
+            // Réinitialiser les sélections
+            document.querySelectorAll('.pricing-card').forEach(c => {
+                c.classList.remove('selected');
+            });
+            
+            // Sélectionner la nouvelle carte
+            card.classList.add('selected');
+            
             // Stocker le forfait sélectionné
+            selectedPlan = plan;
             sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
             
-            // Rediriger directement vers la page de création de compte
-            window.location.href = `profile-setup.html?plan=${plan.id}&price=${plan.price}`;
+            // Afficher les informations du forfait sélectionné
+            updateSelectedPlanDisplay(plan);
+            
+            showMessage(`Forfait ${plan.name} sélectionné`, 'success');
+        }
+
+        function updateSelectedPlanDisplay(plan) {
+            const planInfo = document.getElementById('selectedPlanInfo');
+            const planName = document.getElementById('selectedPlanName');
+            const planPrice = document.getElementById('selectedPlanPrice');
+            const planPeriod = document.getElementById('selectedPlanPeriod');
+            
+            if (planInfo && planName && planPrice && planPeriod) {
+                planName.textContent = plan.name;
+                planPrice.textContent = plan.price + '€';
+                planPeriod.textContent = plan.period;
+                planInfo.classList.remove('hidden');
+            }
         }
 
         function startMembershipFlow() {
@@ -512,10 +538,16 @@
             }
 
             console.log('🎯 Démarrage du processus d\'adhésion');
+            console.log('📋 Forfait sélectionné:', selectedPlan);
             
-            // Stocker le forfait sélectionné et rediriger vers la page de paiement
+            // Stocker le forfait sélectionné
             sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlan));
-            window.location.href = 'payment.html';
+            
+            // Rediriger vers la page de paiement (flow corrigé)
+            showMessage('Redirection vers la création de compte...', 'info');
+            setTimeout(() => {
+                window.location.href = 'payment.html';
+            }, 1000);
         }
 
         function contactUs() {
@@ -569,11 +601,11 @@
 
             // Navigation
             document.getElementById('loginBtn')?.addEventListener('click', () => {
-                window.location.href = 'index.html#auth';
+                                            window.location.href = '../index.html#auth';
             });
             
             document.getElementById('dashboardBtn')?.addEventListener('click', () => {
-                window.location.href = 'pages/dashboard.html';
+                                                window.location.href = 'dashboard.html';
             });
             
             document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
@@ -834,7 +866,10 @@
     <!-- ========================================
          COMPOSANTS FORNAP
          ======================================== -->
-    <script src="assets/js/components.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
 
     <script>
         // Initialisation des composants FORNAP
@@ -844,18 +879,18 @@
             // Injecter la navbar
             const navbarPlaceholder = document.getElementById('navbar-placeholder');
             if (navbarPlaceholder) {
-                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('membership', '');
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('membership', '../');
             }
 
             // Injecter le footer
             const footerPlaceholder = document.getElementById('footer-placeholder');
             if (footerPlaceholder) {
-                footerPlaceholder.outerHTML = FornapComponents.generateFooter('');
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
             }
 
             // Initialiser les événements après injection
             setTimeout(() => {
-                FornapComponents.initNavbarEvents('', {
+                FornapComponents.initNavbarEvents('../', {
                     onLogin: () => {
                         // TODO: Implémenter la modal de connexion
                         console.log('Login demandé');

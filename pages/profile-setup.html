@@ -6,7 +6,8 @@
     <title>Finaliser votre profil - FORNAP</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
 </head>
 <body>
     <!-- Placeholder pour la navbar - sera remplacée par le composant -->
@@ -693,7 +694,7 @@
                 sessionStorage.clear();
                 
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                                                window.location.href = '../index.html';
                 }, 1500);
                 
             } catch (error) {
@@ -703,6 +704,40 @@
         }
 
         // Pré-remplir les champs si des données existent
+        function displayMembershipInfo() {
+            const membershipData = sessionStorage.getItem('membershipData');
+            const selectedPlan = sessionStorage.getItem('selectedPlan');
+            
+            if (membershipData || selectedPlan) {
+                const data = membershipData ? JSON.parse(membershipData) : JSON.parse(selectedPlan);
+                
+                // Créer une belle bannière d'information
+                const existingBanner = document.querySelector('.membership-banner');
+                if (!existingBanner) {
+                    const banner = document.createElement('div');
+                    banner.className = 'membership-banner';
+                    banner.innerHTML = `
+                        <div class="banner-content">
+                            <div class="banner-icon">🎉</div>
+                            <div class="banner-text">
+                                <h4>Félicitations ! Votre abonnement ${data.planName || data.name} est activé</h4>
+                                <p>Finalisez maintenant votre profil pour personnaliser votre expérience FORNAP</p>
+                            </div>
+                            <div class="banner-price">
+                                <span class="price">${data.planPrice || data.price}€${data.period || '/mois'}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insérer après la section hero
+                    const heroSection = document.querySelector('.hero');
+                    if (heroSection) {
+                        heroSection.after(banner);
+                    }
+                }
+            }
+        }
+
         function prefillFormData() {
             // Récupérer les données stockées
             const storedProfile = sessionStorage.getItem('profileData');
@@ -744,21 +779,45 @@
             }
         }
 
+        // Vérifier les données de paiement avant l'authentification
+        function verifyPaymentData() {
+            const paymentData = sessionStorage.getItem('paymentData');
+            const membershipData = sessionStorage.getItem('membershipData');
+            
+            if (!paymentData && !membershipData) {
+                console.log('⚠️ Aucune donnée de paiement trouvée');
+                showMessage('Accès non autorisé. Veuillez d\'abord souscrire un abonnement.', 'error');
+                setTimeout(() => window.location.href = '../pages/membership.html', 3000);
+                return false;
+            }
+            
+            console.log('✅ Données de paiement vérifiées');
+            return true;
+        }
+
         // Gestion de l'authentification
         auth.onAuthStateChanged(function(user) {
             console.log('Changement état auth:', user ? user.email : 'déconnecté');
             currentUser = user;
             
+            // Vérifier d'abord les données de paiement
+            if (!verifyPaymentData()) {
+                return;
+            }
+            
             if (!user) {
                 console.log('⚠️ Utilisateur non connecté');
-                showMessage('Session expirée. Redirection...', 'warning');
-                setTimeout(() => window.location.href = 'index.html', 3000);
+                showMessage('Veuillez vous connecter pour finaliser votre profil.', 'warning');
+                setTimeout(() => window.location.href = 'payment.html', 3000);
             } else {
                 // Pré-remplir les données disponibles
                 if (user.email) {
                     profileData.personal.email = user.email;
                 }
                 prefillFormData();
+                
+                // Afficher les informations du forfait sélectionné
+                displayMembershipInfo();
             }
         });
 
@@ -1034,8 +1093,181 @@
             display: block;
         }
 
+        /* Bannière d'information membership */
+        .membership-banner {
+            background: linear-gradient(135deg, var(--noir-principal) 0%, #333 100%);
+            color: var(--blanc-principal);
+            padding: var(--space-6) 0;
+            border-top: 4px solid var(--succes);
+            border-bottom: 4px solid var(--succes);
+            margin-bottom: var(--space-8);
+            animation: slideInDown 0.8s ease;
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-4);
+        }
+
+        .banner-icon {
+            font-size: var(--text-4xl);
+            animation: bounce 2s infinite;
+        }
+
+        .banner-text {
+            flex: 1;
+        }
+
+        .banner-text h4 {
+            color: var(--blanc-principal);
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-2);
+            font-weight: var(--font-bold);
+        }
+
+        .banner-text p {
+            color: var(--gris-clair);
+            margin: 0;
+            font-size: var(--text-base);
+        }
+
+        .banner-price {
+            background: var(--succes);
+            color: var(--blanc-principal);
+            padding: var(--space-3) var(--space-6);
+            border: 2px solid var(--blanc-principal);
+            font-weight: var(--font-bold);
+            font-size: var(--text-lg);
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+                transform: translate3d(0, 0, 0);
+            }
+            40%, 43% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -10px, 0);
+            }
+            70% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -5px, 0);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Amélioration de l'apparence générale */
+        .hero {
+            background: linear-gradient(135deg, var(--blanc-principal) 0%, var(--gris-tres-clair) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%23000" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="%23000" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="%23000" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero p {
+            position: relative;
+            z-index: 2;
+        }
+
+        .form-section {
+            background: var(--blanc-principal);
+            position: relative;
+        }
+
+        .form-container {
+            background: var(--gris-tres-clair);
+            border: 3px solid var(--noir-principal);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--succes) 0%, var(--noir-principal) 50%, var(--succes) 100%);
+        }
+
+        /* Amélioration des étapes */
+        .step-header {
+            position: relative;
+            padding: var(--space-8) var(--space-6) var(--space-6);
+            background: linear-gradient(135deg, var(--blanc-principal) 0%, var(--gris-tres-clair) 100%);
+        }
+
+        .step-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--noir-principal);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            .banner-content {
+                flex-direction: column;
+                gap: var(--space-4);
+                text-align: center;
+            }
+
+            .banner-price {
+                padding: var(--space-2) var(--space-4);
+                font-size: var(--text-base);
+            }
+
             .progress-steps {
                 grid-template-columns: 1fr;
                 gap: var(--space-2);
@@ -1080,13 +1312,20 @@
             .step-header h2 {
                 font-size: var(--text-xl);
             }
+
+            .banner-text h4 {
+                font-size: var(--text-base);
+            }
         }
     </style>
 
     <!-- ========================================
          COMPOSANTS FORNAP
          ======================================== -->
-    <script src="assets/js/components.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
 
     <script>
         // Initialisation des composants FORNAP
@@ -1096,18 +1335,18 @@
             // Injecter la navbar
             const navbarPlaceholder = document.getElementById('navbar-placeholder');
             if (navbarPlaceholder) {
-                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('profile-setup', '');
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('profile-setup', '../');
             }
 
             // Injecter le footer
             const footerPlaceholder = document.getElementById('footer-placeholder');
             if (footerPlaceholder) {
-                footerPlaceholder.outerHTML = FornapComponents.generateFooter('');
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
             }
 
             // Initialiser les événements après injection
             setTimeout(() => {
-                FornapComponents.initNavbarEvents('', {
+                FornapComponents.initNavbarEvents('../', {
                     onLogin: () => {
                         console.log('Login demandé');
                     },

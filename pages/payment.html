@@ -6,7 +6,8 @@
     <title>Paiement - FORNAP</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
 </head>
 <body>
     <!-- Placeholder pour la navbar - sera remplacée par le composant -->
@@ -357,7 +358,7 @@
             const planData = sessionStorage.getItem('selectedPlan');
             if (!planData) {
                 showMessage('Aucun forfait sélectionné. Redirection...', 'error');
-                setTimeout(() => window.location.href = 'membership.html', 2000);
+                setTimeout(() => window.location.href = '../pages/membership.html', 2000);
                 return;
             }
 
@@ -602,10 +603,25 @@
                     
                     sessionStorage.setItem('paymentData', JSON.stringify(paymentData));
                     
+                    // Sauvegarder les données de membership pour profile-setup
+                    const membershipData = {
+                        planId: selectedPlan.id,
+                        planName: selectedPlan.name,
+                        planPrice: selectedPlan.price,
+                        period: selectedPlan.period,
+                        paymentMethod: paymentMethod,
+                        paidAt: new Date().toISOString()
+                    };
+                    
+                    sessionStorage.setItem('membershipData', JSON.stringify(membershipData));
+                    
                     showLoading(false);
                     
-                    // Redirection vers la page de félicitations
-                    window.location.href = 'congratulations.html';
+                    // Redirection vers profile-setup pour finaliser le profil
+                    showMessage('Paiement réussi ! Finalisation de votre profil...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'profile-setup.html';
+                    }, 1500);
                 }, 7000);
 
             } catch (error) {
@@ -1183,7 +1199,10 @@
     <!-- ========================================
          COMPOSANTS FORNAP
          ======================================== -->
-    <script src="assets/js/components.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
 
     <script>
         // Initialisation des composants FORNAP
@@ -1193,18 +1212,18 @@
             // Injecter la navbar
             const navbarPlaceholder = document.getElementById('navbar-placeholder');
             if (navbarPlaceholder) {
-                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('payment', '');
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('payment', '../');
             }
 
             // Injecter le footer
             const footerPlaceholder = document.getElementById('footer-placeholder');
             if (footerPlaceholder) {
-                footerPlaceholder.outerHTML = FornapComponents.generateFooter('');
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
             }
 
             // Initialiser les événements après injection
             setTimeout(() => {
-                FornapComponents.initNavbarEvents('', {
+                FornapComponents.initNavbarEvents('../', {
                     onLogin: () => {
                         console.log('Login demandé');
                     },

@@ -7,6 +7,7 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
 </head>
 <body>
     <!-- Placeholder pour la navbar - sera remplacée par le composant -->
@@ -747,14 +748,14 @@
         function upgradeMembership() {
             showMessage('Redirection vers la mise à niveau...', 'info');
             setTimeout(() => {
-                window.location.href = '../membership.html';
+                window.location.href = '../pages/membership.html';
             }, 1000);
         }
 
         function editProfile() {
             showMessage('Redirection vers l\'édition du profil...', 'info');
             setTimeout(() => {
-                window.location.href = '../profile-setup.html';
+                window.location.href = 'profile-setup.html';
             }, 1000);
         }
 
@@ -1410,8 +1411,18 @@
     </style>
 
     <!-- ========================================
-         COMPOSANTS FORNAP
+         SCRIPTS FIREBASE
          ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
     <script src="../assets/js/components.js"></script>
 
     <script>

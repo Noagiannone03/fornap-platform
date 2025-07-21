@@ -6,33 +6,12 @@
     <title>Félicitations - FORNAP</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
 </head>
 <body>
-    <!-- ========================================
-         NAVBAR
-         ======================================== -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-container">
-                <div class="logo">
-                    <img src="assets/images/logo.png" alt="FORNAP" class="logo-img" onclick="window.location.href='index.html'">
-                </div>
-                <div class="nav-menu">
-                    <a href="index.html" class="nav-link">Accueil</a>
-                    <span class="nav-link active">Félicitations</span>
-                </div>
-                <div class="nav-member">
-                    <button id="logoutBtn" class="btn btn-secondary">Déconnexion</button>
-                </div>
-                <button class="nav-toggle" id="navToggle">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
-        </div>
-    </nav>
+    <!-- Placeholder pour la navbar - sera remplacée par le composant -->
+    <div id="navbar-placeholder"></div>
 
     <!-- ========================================
          CONTENU PRINCIPAL
@@ -182,6 +161,14 @@
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
 
     <!-- ========================================
          JAVASCRIPT PRINCIPAL
@@ -243,7 +230,7 @@
 
             if (!selectedPlan.name) {
                 showMessage('Erreur: Données d\'adhésion introuvables', 'error');
-                setTimeout(() => window.location.href = 'membership.html', 3000);
+                setTimeout(() => window.location.href = '../pages/membership.html', 3000);
                 return;
             }
 
@@ -358,7 +345,7 @@
             showMessage('Retour à l\'accueil', 'info');
             
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = '../index.html';
             }, 1000);
         }
 
@@ -370,7 +357,7 @@
             if (!user) {
                 console.log('⚠️ Utilisateur non connecté sur la page félicitations');
                 showMessage('Session expirée. Redirection...', 'warning');
-                setTimeout(() => window.location.href = 'index.html', 3000);
+                setTimeout(() => window.location.href = '../index.html', 3000);
             }
         });
 
@@ -383,7 +370,7 @@
             if (!paymentData) {
                 console.log('⚠️ Accès direct à la page félicitations sans paiement');
                 showMessage('Accès non autorisé. Redirection...', 'error');
-                setTimeout(() => window.location.href = 'membership.html', 3000);
+                setTimeout(() => window.location.href = '../pages/membership.html', 3000);
                 return;
             }
 
@@ -734,5 +721,52 @@
             }
         }
     </style>
+
+    <!-- Placeholder pour le footer - sera remplacé par le composant -->
+    <div id="footer-placeholder"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         COMPOSANTS FORNAP
+         ======================================== -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
+
+    <script>
+        // Initialisation des composants FORNAP
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Initialisation composants FORNAP - Congratulations');
+
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('congratulations', '../');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
+            }
+
+            // Initialiser les événements après injection
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('../', {
+                    onLogin: () => {
+                        console.log('Login demandé');
+                    },
+                    onLogout: handleLogout
+                });
+            }, 100);
+        });
+    </script>
 </body>
 </html> 

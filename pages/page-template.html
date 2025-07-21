@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template FORNAP - Modularisé</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+    <!-- Navbar (injectée par les composants) -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <section class="hero">
+            <div class="container">
+                <h1>Page Template FORNAP</h1>
+                <p>Exemple d'utilisation des modules réorganisés</p>
+                
+                <!-- Boutons de test -->
+                <div class="flex gap-4 justify-center mt-8">
+                    <button class="btn btn-primary" onclick="testAuth()">Test Auth</button>
+                    <button class="btn btn-secondary" onclick="testMessages()">Test Messages</button>
+                    <button class="btn btn-success" onclick="testUtils()">Test Utils</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section de test -->
+        <section class="py-16">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="text-center mb-6">Tests des Modules</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="testEmail">Email de test</label>
+                            <input type="email" id="testEmail" class="form-input" placeholder="test@fornap.fr">
+                        </div>
+                        <div class="form-group">
+                            <label for="testPassword">Mot de passe</label>
+                            <input type="password" id="testPassword" class="form-input" placeholder="motdepasse">
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button class="btn btn-primary" onclick="testSignUp()">Test Inscription</button>
+                        <button class="btn btn-outline" onclick="testSignIn()">Test Connexion</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (injecté par les composants) -->
+    <div id="footer-placeholder"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
+
+    <!-- ========================================
+         JAVASCRIPT PRINCIPAL
+         ======================================== -->
+    <script>
+        console.log('🚀 Page Template FORNAP');
+
+        // Variables globales
+        let currentUser = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('✅ DOM chargé - Template');
+
+            try {
+                // Initialiser les services
+                await FornapAuth.init();
+                console.log('✅ Services initialisés');
+
+                // Initialiser les composants
+                initComponents();
+
+                // Écouter les changements d'authentification
+                FornapAuth.onAuthStateChanged((user) => {
+                    currentUser = user;
+                    console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
+                    
+                    // Mettre à jour l'interface
+                    FornapComponents.updateAuthState(!!user);
+                });
+
+                FornapUtils.showMessage('Template FORNAP chargé avec succès !', 'success');
+
+            } catch (error) {
+                console.error('❌ Erreur initialisation:', error);
+                FornapUtils.handleError(error, 'initialisation');
+            }
+        });
+
+        // Initialiser les composants
+        function initComponents() {
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('template', '../');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
+            }
+
+            // Initialiser les événements après injection
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('../', {
+                    onLogin: () => FornapUtils.showMessage('Fonctionnalité login à implémenter', 'info'),
+                    onLogout: handleLogout
+                });
+            }, 100);
+        }
+
+        // Tests des fonctionnalités
+        function testAuth() {
+            FornapUtils.showMessage('Service d\'authentification : ' + (FornapAuth.isAuthenticated() ? 'Connecté' : 'Déconnecté'), 'info');
+        }
+
+        function testMessages() {
+            FornapUtils.showMessage('Message de succès !', 'success');
+            setTimeout(() => FornapUtils.showMessage('Message d\'erreur !', 'error'), 1000);
+            setTimeout(() => FornapUtils.showMessage('Message d\'avertissement !', 'warning'), 2000);
+            setTimeout(() => FornapUtils.showMessage('Message d\'information !', 'info'), 3000);
+        }
+
+        function testUtils() {
+            const email = document.getElementById('testEmail').value;
+            
+            if (email && FornapUtils.validateEmail(email)) {
+                FornapUtils.showMessage('Email valide : ' + email, 'success');
+            } else {
+                FornapUtils.showMessage('Email invalide ou manquant', 'error');
+            }
+        }
+
+        async function testSignUp() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            if (!FornapUtils.validateEmail(email)) {
+                FornapUtils.showMessage('Email invalide', 'error');
+                return;
+            }
+
+            if (!FornapUtils.validatePassword(password)) {
+                FornapUtils.showMessage('Mot de passe trop court (min 6 caractères)', 'error');
+                return;
+            }
+
+            try {
+                FornapUtils.showLoading(true, 'Création du compte...', 'Veuillez patienter');
+                
+                const user = await FornapAuth.signUp(email, password, {
+                    displayName: 'Test User',
+                    firstName: 'Test',
+                    lastName: 'User'
+                });
+
+                FornapUtils.showLoading(false);
+                FornapUtils.showMessage('Compte créé avec succès !', 'success');
+                
+            } catch (error) {
+                FornapUtils.showLoading(false);
+                FornapUtils.handleError(error, 'création de compte');
+            }
+        }
+
+        async function testSignIn() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            if (!email || !password) {
+                FornapUtils.showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            try {
+                FornapUtils.showLoading(true, 'Connexion...', 'Vérification des identifiants');
+                
+                const user = await FornapAuth.signIn(email, password);
+                
+                FornapUtils.showLoading(false);
+                FornapUtils.showMessage('Connexion réussie !', 'success');
+                
+            } catch (error) {
+                FornapUtils.showLoading(false);
+                FornapUtils.handleError(error, 'connexion');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await FornapAuth.signOut();
+                FornapUtils.showMessage('Déconnexion réussie', 'success');
+            } catch (error) {
+                FornapUtils.handleError(error, 'déconnexion');
+            }
+        }
+
+        console.log('🎯 Template FORNAP prêt !');
+    </script>
+
+    <style>
+        /* Styles spécifiques au template */
+        .hero {
+            padding: var(--space-16) 0;
+            background: linear-gradient(135deg, var(--blanc-principal) 0%, var(--gris-tres-clair) 100%);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-4);
+            color: var(--noir-principal);
+        }
+
+        .hero p {
+            font-size: var(--text-lg);
+            color: var(--gris-moyen);
+            margin-bottom: var(--space-8);
+        }
+
+        .py-16 {
+            padding: var(--space-16) 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: var(--text-2xl);
+            }
+            
+            .flex {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</body>
+</html> 
