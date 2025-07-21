@@ -207,13 +207,53 @@ class FornapAuthService {
         }
 
         try {
-            const doc = await this.db.collection('members').doc(userId).get();
+            const doc = await this.db.collection('users').doc(userId).get();
             
             if (doc.exists) {
-                return doc.data();
+                const userData = doc.data();
+                
+                // Formater les données pour le dashboard
+                return {
+                    email: userData.email || this.currentUser.email,
+                    profile: {
+                        firstName: userData.firstName || '',
+                        lastName: userData.lastName || '',
+                        phone: userData.phone || '',
+                        city: userData.city || '',
+                        profession: userData.profession || '',
+                        motivation: userData.motivation || '',
+                        discovery: userData.discovery || ''
+                    },
+                    stats: userData.stats || {
+                        events: 0,
+                        coworkingHours: 0,
+                        savings: 0
+                    },
+                    subscription: userData.subscription || {},
+                    loyalty: userData.loyalty || { enabled: false, points: 0, level: 'Débutant' }
+                };
             } else {
-                console.log('Document utilisateur non trouvé');
-                return null;
+                console.log('Document utilisateur non trouvé, création d\'un profil par défaut');
+                // Retourner un profil par défaut basé sur les données Firebase Auth
+                return {
+                    email: this.currentUser.email,
+                    profile: {
+                        firstName: this.currentUser.displayName ? this.currentUser.displayName.split(' ')[0] : '',
+                        lastName: this.currentUser.displayName ? this.currentUser.displayName.split(' ').slice(1).join(' ') : '',
+                        phone: '',
+                        city: '',
+                        profession: '',
+                        motivation: '',
+                        discovery: ''
+                    },
+                    stats: {
+                        events: 0,
+                        coworkingHours: 0,
+                        savings: 0
+                    },
+                    subscription: {},
+                    loyalty: { enabled: false, points: 0, level: 'Débutant' }
+                };
             }
         } catch (error) {
             console.error('❌ Erreur récupération données utilisateur:', error);
@@ -232,7 +272,7 @@ class FornapAuthService {
         }
 
         try {
-            await this.db.collection('members').doc(userId).update({
+            await this.db.collection('users').doc(userId).update({
                 ...data,
                 updatedAt: firebase.firestore.Timestamp.now()
             });

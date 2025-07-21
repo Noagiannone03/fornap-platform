@@ -1089,8 +1089,12 @@
                 const user = await FornapAuth.signUp(userProfile.email, password, {
                     displayName: `${userProfile.firstName} ${userProfile.lastName}`,
                     firstName: userProfile.firstName,
-                    lastName: userProfile.lastName
+                    lastName: userProfile.lastName,
+                    phone: userProfile.phone
                 });
+
+                // Créer le profil utilisateur complet dans Firestore
+                await createUserProfile(user);
 
                 hideLoadingModal();
                 showMessage('Compte créé avec succès !', 'success');
@@ -1123,15 +1127,10 @@
                 hideLoadingModal();
                 showMessage('Connexion réussie !', 'success');
                 
-                // Vérifier si l'utilisateur a déjà un abonnement
-                const hasSubscription = await checkUserSubscriptionAndRedirect(user);
-                
-                if (!hasSubscription) {
-                    // Si pas d'abonnement, continuer vers la sélection des forfaits
-                    setTimeout(() => {
-                        showSection('planSection');
-                    }, 1000);
-                }
+                // Continuer vers la sélection des forfaits
+                setTimeout(() => {
+                    showSection('planSection');
+                }, 1000);
 
             } catch (error) {
                 hideLoadingModal();
@@ -1283,23 +1282,8 @@
         }
 
         function startGettingToKnow() {
-            // Si l'utilisateur est déjà connecté, passer directement à la section finale
-            if (currentUser) {
-                showMessage('Vous êtes déjà membre, bienvenue !', 'success');
-                setTimeout(() => {
-                    showSection('finalSection');
-                    // Animation finale
-                    const finalIcon = document.getElementById('finalIcon');
-                    gsap.set(finalIcon, { scale: 0 });
-                    gsap.to(finalIcon, {
-                        scale: 1,
-                        duration: 1,
-                        ease: "bounce.out"
-                    });
-                }, 1000);
-            } else {
-                showSection('gettingToKnowSection');
-            }
+            // Toujours faire le bienvenue, même si utilisateur connecté
+            showSection('gettingToKnowSection');
         }
 
         // Fonctions questions avec animations GSAP
@@ -1392,8 +1376,10 @@
             try {
                 showLoadingModal('Finalisation de votre profil...');
                 
+                // Mettre à jour le profil utilisateur complet avec toutes les infos
                 if (currentUser) {
-                    console.log('Profil utilisateur:', userProfile);
+                    await updateUserProfile(currentUser, userProfile);
+                    console.log('✅ Profil utilisateur complet:', userProfile);
                 }
                 
                 await new Promise(resolve => setTimeout(resolve, 2000));
@@ -1461,6 +1447,56 @@
                     console.error('Erreur parsing forfait présélectionné:', error);
                     sessionStorage.removeItem('selectedPlan');
                 }
+            }
+        }
+
+        // Créer le profil utilisateur initial dans Firestore
+        async function createUserProfile(user) {
+            try {
+                const db = firebase.firestore();
+                const profileData = {
+                    uid: user.uid,
+                    email: user.email,
+                    firstName: userProfile.firstName || '',
+                    lastName: userProfile.lastName || '',
+                    phone: userProfile.phone || '',
+                    displayName: `${userProfile.firstName} ${userProfile.lastName}`,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    // Champs qui seront remplis plus tard
+                    city: '',
+                    profession: '',
+                    motivation: '',
+                    discovery: ''
+                };
+
+                await db.collection('users').doc(user.uid).set(profileData);
+                console.log('✅ Profil utilisateur créé dans Firestore:', profileData);
+                
+            } catch (error) {
+                console.error('❌ Erreur création profil Firestore:', error);
+                throw error;
+            }
+        }
+
+        // Mettre à jour le profil utilisateur complet dans Firestore
+        async function updateUserProfile(user, profileInfo) {
+            try {
+                const db = firebase.firestore();
+                const updateData = {
+                    city: profileInfo.city || '',
+                    profession: profileInfo.profession || '',
+                    motivation: profileInfo.motivation || '',
+                    discovery: profileInfo.discovery || '',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                await db.collection('users').doc(user.uid).update(updateData);
+                console.log('✅ Profil utilisateur mis à jour dans Firestore:', updateData);
+                
+            } catch (error) {
+                console.error('❌ Erreur mise à jour profil Firestore:', error);
+                throw error;
             }
         }
 
@@ -1647,11 +1683,6 @@
                     console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
                     
                     FornapComponents.syncAuthState(!!user);
-                    
-                    // Si user connecté, vérifier s'il a un abonnement et rediriger vers dashboard
-                    if (user) {
-                        checkUserSubscriptionAndRedirect(user);
-                    }
                 });
 
                 // Vérifier la présélection de forfait depuis membership
@@ -1996,18 +2027,25 @@
         .plans-showcase {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: var(--space-6);
+            gap: var(--space-8);
             margin-top: var(--space-8);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .plan-option {
             border: 2px solid var(--gris-clair);
             background: var(--blanc-principal);
-            padding: var(--space-6);
+            padding: var(--space-8);
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .plan-option:hover {
@@ -2716,6 +2754,12 @@
             .plans-showcase {
                 grid-template-columns: 1fr;
                 gap: var(--space-4);
+                max-width: 100%;
+            }
+
+            .plan-option {
+                min-height: auto;
+                padding: var(--space-6);
             }
 
             .payment-layout {
