@@ -3,130 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paiement - FORNAP</title>
+    <title>Rejoindre FORNAP - Votre aventure commence ici</title>
     
     <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/components.css">
+    
+    <!-- GSAP pour animations professionnelles -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
     <!-- Placeholder pour la navbar - sera remplacée par le composant -->
     <div id="navbar-placeholder"></div>
 
     <!-- ========================================
+         BARRE DE PROGRESSION FIXE
+         ======================================== -->
+    <div class="progress-container-fixed">
+        <div class="container">
+            <div class="journey-progress">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-indicators">
+                    <div class="progress-indicator completed" id="step1" data-step="1">
+                        <div class="indicator-circle">1</div>
+                        <span class="indicator-label">Bienvenue</span>
+                    </div>
+                    <div class="progress-indicator" id="step2" data-step="2">
+                        <div class="indicator-circle">2</div>
+                        <span class="indicator-label">Inscription</span>
+                    </div>
+                    <div class="progress-indicator" id="step3" data-step="3">
+                        <div class="indicator-circle">3</div>
+                        <span class="indicator-label">Forfait</span>
+                    </div>
+                    <div class="progress-indicator" id="step4" data-step="4">
+                        <div class="indicator-circle">4</div>
+                        <span class="indicator-label">Paiement</span>
+                    </div>
+                    <div class="progress-indicator" id="step5" data-step="5">
+                        <div class="indicator-circle">5</div>
+                        <span class="indicator-label">Bienvenue</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
          CONTENU PRINCIPAL
          ======================================== -->
     <main class="main-content">
         
-        <!-- Barre de progression -->
-        <section class="progress-section">
+        <!-- Section Accueil / Bienvenue -->
+        <section id="welcomeSection" class="journey-section active">
             <div class="container">
-                <div class="progress-bar">
-                    <div class="progress-step completed">
-                        <div class="step-number">1</div>
-                        <div class="step-label">Forfait</div>
-                    </div>
-                    <div class="progress-line completed"></div>
-                    <div class="progress-step active" id="currentStep">
-                        <div class="step-number">2</div>
-                        <div class="step-label">Compte</div>
-                    </div>
-                    <div class="progress-line"></div>
-                    <div class="progress-step">
-                        <div class="step-number">3</div>
-                        <div class="step-label">Paiement</div>
-                    </div>
-                    <div class="progress-line"></div>
-                    <div class="progress-step">
-                        <div class="step-number">4</div>
-                        <div class="step-label">Infos</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+                <div class="welcome-hero">
+                    <div class="welcome-content">
+                        <h1 class="hero-title">
+                            Vous êtes prêt à rejoindre<br>
+                            <span class="hero-highlight">la communauté FORNAP</span> ?
+                        </h1>
+                        
+                        <p class="hero-subtitle">
+                            Participez à un tiers lieu culturel unique où créativité, 
+                            innovation et collaboration se rencontrent.
+                        </p>
 
-        <!-- Section Récapitulatif Forfait -->
-        <section class="selected-plan-section">
-            <div class="container">
-                <div class="plan-summary-card" id="planSummary">
-                    <!-- Contenu généré dynamiquement -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Section Authentification -->
-        <section id="authSection" class="auth-section">
-            <div class="container">
-                <div class="auth-container">
-                    <div class="auth-card">
-                        <div class="auth-header">
-                            <h2>Créer votre compte FORNAP</h2>
-                            <p>Pour finaliser votre adhésion, créez votre compte membre ou connectez-vous si vous en avez déjà un.</p>
+                        <div class="hero-features">
+                            <div class="feature-chip">
+                                <span class="chip-icon">🏢</span>
+                                <span>Espace culturel vivant</span>
+                            </div>
+                            <div class="feature-chip">
+                                <span class="chip-icon">🤝</span>
+                                <span>Communauté bienveillante</span>
+                            </div>
+                            <div class="feature-chip">
+                                <span class="chip-icon">🚀</span>
+                                <span>Projets collaboratifs</span>
+                            </div>
                         </div>
 
-                        <!-- Formulaire Inscription -->
-                        <div id="signupForm" class="auth-form">
-                            <h3>Nouvelle inscription</h3>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary btn-large btn-cta" onclick="startJourney()">
+                                Créer mon compte membre
+                            </button>
                             
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="signupFirstName">Prénom</label>
-                                    <input type="text" id="signupFirstName" class="input-field" placeholder="Jean" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="signupLastName">Nom</label>
-                                    <input type="text" id="signupLastName" class="input-field" placeholder="Dupont" required>
-                                </div>
+                            <button class="btn btn-secondary btn-large" onclick="showLoginForm()">
+                                J'ai déjà un compte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Connexion -->
+        <section id="loginSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Bon retour parmi nous !</h2>
+                        <p>Connectez-vous à votre compte membre FORNAP</p>
+                    </div>
+
+                    <div class="form-content">
+                        <div class="form-field">
+                            <label for="loginEmail">Adresse email</label>
+                            <input type="email" id="loginEmail" class="form-input" placeholder="votre@email.com" required>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label for="loginPassword">Mot de passe</label>
+                            <input type="password" id="loginPassword" class="form-input" placeholder="Votre mot de passe" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="backToWelcome()">
+                            Retour
+                        </button>
+                        <button class="btn btn-primary" onclick="handleLogin()">
+                            Se connecter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Inscription -->
+        <section id="signupSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    
+                    <!-- Étape 1: Prénom -->
+                    <div class="signup-step active" id="signupStep1" data-step="1">
+                        <div class="form-header">
+                            <h2>Comment vous appelez-vous ?</h2>
+                            <p>Commençons par faire connaissance</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
+                                <label for="signupFirstName">Votre prénom</label>
+                                <input type="text" id="signupFirstName" class="form-input form-input-large" 
+                                       placeholder="Jean" required autocomplete="given-name">
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="signupEmail">Email</label>
-                                <input type="email" id="signupEmail" class="input-field" placeholder="votre@email.com" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="backToWelcome()">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="nextSignupStep(2)" disabled id="nextBtn1">
+                                Continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2: Nom -->
+                    <div class="signup-step" id="signupStep2" data-step="2">
+                        <div class="form-header">
+                            <h2>Et votre nom de famille ?</h2>
+                            <p>Pour compléter votre identité membre</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
+                                <label for="signupLastName">Votre nom</label>
+                                <input type="text" id="signupLastName" class="form-input form-input-large" 
+                                       placeholder="Dupont" required autocomplete="family-name">
                             </div>
-                            
-                            <div class="form-group">
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousSignupStep(1)">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="nextSignupStep(3)" disabled id="nextBtn2">
+                                Continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3: Email -->
+                    <div class="signup-step" id="signupStep3" data-step="3">
+                        <div class="form-header">
+                            <h2>Votre adresse email ?</h2>
+                            <p>Pour vous tenir informé des nouveautés FORNAP</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
+                                <label for="signupEmail">Adresse email</label>
+                                <input type="email" id="signupEmail" class="form-input form-input-large" 
+                                       placeholder="votre@email.com" required autocomplete="email">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousSignupStep(2)">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="nextSignupStep(4)" disabled id="nextBtn3">
+                                Continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4: Mot de passe -->
+                    <div class="signup-step" id="signupStep4" data-step="4">
+                        <div class="form-header">
+                            <h2>Créez votre mot de passe</h2>
+                            <p>Minimum 6 caractères pour sécuriser votre compte</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
                                 <label for="signupPassword">Mot de passe</label>
-                                <input type="password" id="signupPassword" class="input-field" placeholder="Minimum 6 caractères" required>
+                                <input type="password" id="signupPassword" class="form-input form-input-large" 
+                                       placeholder="Minimum 6 caractères" required minlength="6">
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-field">
                                 <label for="signupConfirmPassword">Confirmer le mot de passe</label>
-                                <input type="password" id="signupConfirmPassword" class="input-field" placeholder="Confirmez votre mot de passe" required>
+                                <input type="password" id="signupConfirmPassword" class="form-input form-input-large" 
+                                       placeholder="Retapez votre mot de passe" required>
                             </div>
-                            
-                            <button type="button" id="signupBtn" class="btn btn-primary btn-full btn-large">
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousSignupStep(3)">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="createAccount()" disabled id="nextBtn4">
                                 Créer mon compte
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                        <!-- Séparateur -->
-                        <div class="auth-separator">
-                            <div class="separator-line"></div>
-                            <span class="separator-text">ou</span>
-                            <div class="separator-line"></div>
+        <!-- Section Choix forfait -->
+        <section id="planSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Choisissez votre forfait membre</h2>
+                        <p>Sélectionnez l'adhésion qui correspond à vos besoins</p>
+                    </div>
+
+                    <div class="plans-showcase">
+                        <div class="plan-option" data-plan="basic" onclick="selectPlan('basic')">
+                            <div class="plan-header">
+                                <h3>Membre Découverte</h3>
+                                <div class="plan-pricing">
+                                    <span class="price">29</span>
+                                    <span class="currency">€/mois</span>
+                                </div>
+                            </div>
+                            <div class="plan-benefits">
+                                <div class="benefit">✓ Accès aux espaces communs</div>
+                                <div class="benefit">✓ Événements communautaires</div>
+                                <div class="benefit">✓ Wi-Fi haut débit</div>
+                                <div class="benefit">✓ Café/thé inclus</div>
+                            </div>
                         </div>
 
-                        <!-- Formulaire Connexion -->
-                        <div id="loginForm" class="auth-form">
-                            <h3>Déjà membre ?</h3>
-                            
-                            <div class="form-group">
-                                <label for="loginEmail">Email</label>
-                                <input type="email" id="loginEmail" class="input-field" placeholder="votre@email.com" required>
+                        <div class="plan-option featured" data-plan="pro" onclick="selectPlan('pro')">
+                            <div class="plan-badge">Recommandé</div>
+                            <div class="plan-header">
+                                <h3>Membre Actif</h3>
+                                <div class="plan-pricing">
+                                    <span class="price">59</span>
+                                    <span class="currency">€/mois</span>
+                                </div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="loginPassword">Mot de passe</label>
-                                <input type="password" id="loginPassword" class="input-field" placeholder="Votre mot de passe" required>
+                            <div class="plan-benefits">
+                                <div class="benefit">✓ Tout du forfait Découverte</div>
+                                <div class="benefit">✓ Espace de travail dédié</div>
+                                <div class="benefit">✓ Accès 24h/24</div>
+                                <div class="benefit">✓ Salles de réunion (2h/mois)</div>
+                                <div class="benefit">✓ Impression/scan inclus</div>
                             </div>
-                            
-                            <button type="button" id="loginBtn" class="btn btn-secondary btn-full btn-large">
-                                Se connecter
-                            </button>
-                            
-                            <p class="text-center mt-4">
-                                <a href="#" class="forgot-password">Mot de passe oublié ?</a>
-                            </p>
+                        </div>
+
+                        <div class="plan-option" data-plan="premium" onclick="selectPlan('premium')">
+                            <div class="plan-header">
+                                <h3>Membre Premium</h3>
+                                <div class="plan-pricing">
+                                    <span class="price">99</span>
+                                    <span class="currency">€/mois</span>
+                                </div>
+                            </div>
+                            <div class="plan-benefits">
+                                <div class="benefit">✓ Tout du forfait Actif</div>
+                                <div class="benefit">✓ Bureau privé disponible</div>
+                                <div class="benefit">✓ Salles de réunion illimitées</div>
+                                <div class="benefit">✓ Support prioritaire</div>
+                                <div class="benefit">✓ Événements VIP</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,29 +313,44 @@
         </section>
 
         <!-- Section Paiement -->
-        <section id="paymentSection" class="payment-section hidden">
+        <section id="paymentSection" class="journey-section hidden">
             <div class="container">
-                <div class="payment-container">
-                    <div class="payment-card">
-                        <div class="payment-header">
-                            <h2>Finaliser votre paiement</h2>
-                            <p class="demo-notice">
-                                🎭 <strong>Mode Démo</strong> - Simulation de paiement. Aucun montant ne sera débité.
-                            </p>
+                <div class="payment-layout">
+                    
+                    <!-- Résumé commande -->
+                    <div class="order-summary-sidebar">
+                        <div class="summary-card">
+                            <h3>Votre forfait</h3>
+                            <div id="selectedPlanDisplay">
+                                <!-- Forfait sélectionné affiché ici -->
+                            </div>
+                            <button class="btn btn-outline btn-small" onclick="backToPlanSelection()">
+                                Modifier le forfait
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire paiement -->
+                    <div class="payment-form-area">
+                        <div class="form-header">
+                            <h2>Finalisons votre adhésion</h2>
+                            <p>Dernière étape avant de rejoindre la communauté</p>
+                            <div class="demo-badge">
+                                Mode Démo - Simulation de paiement
+                            </div>
                         </div>
 
-                        <!-- Méthodes de paiement -->
                         <div class="payment-methods">
-                            <h3>Méthode de paiement</h3>
-                            <div class="method-options">
-                                <label class="method-option active">
+                            <h4>Méthode de paiement</h4>
+                            <div class="method-selector">
+                                <label class="payment-method active" data-method="card">
                                     <input type="radio" name="paymentMethod" value="card" checked>
                                     <div class="method-content">
                                         <span class="method-icon">💳</span>
                                         <span class="method-name">Carte bancaire</span>
                                     </div>
                                 </label>
-                                <label class="method-option">
+                                <label class="payment-method" data-method="paypal">
                                     <input type="radio" name="paymentMethod" value="paypal">
                                     <div class="method-content">
                                         <span class="method-icon">🅿️</span>
@@ -166,77 +360,282 @@
                             </div>
                         </div>
 
-                        <!-- Détails carte -->
-                        <div class="card-details" id="cardDetails">
-                            <h4>Informations de la carte</h4>
-                            
-                            <div class="form-group">
+                        <div class="card-form" id="cardForm">
+                            <div class="form-field">
                                 <label for="cardNumber">Numéro de carte</label>
-                                <input type="text" id="cardNumber" class="input-field" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                <input type="text" id="cardNumber" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19">
                             </div>
                             
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label for="expiryDate">Date d'expiration</label>
-                                    <input type="text" id="expiryDate" class="input-field" placeholder="MM/AA" maxlength="5" required>
+                                <div class="form-field">
+                                    <label for="expiryDate">Expiration</label>
+                                    <input type="text" id="expiryDate" class="form-input" placeholder="MM/AA" maxlength="5">
                                 </div>
-                                <div class="form-group">
+                                <div class="form-field">
                                     <label for="cvv">CVV</label>
-                                    <input type="text" id="cvv" class="input-field" placeholder="123" maxlength="4" required>
+                                    <input type="text" id="cvv" class="form-input" placeholder="123" maxlength="4">
                                 </div>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-field">
                                 <label for="cardName">Nom sur la carte</label>
-                                <input type="text" id="cardName" class="input-field" placeholder="Jean Dupont" required>
+                                <input type="text" id="cardName" class="form-input" placeholder="Jean Dupont">
                             </div>
                         </div>
 
-                        <!-- Détails PayPal -->
-                        <div class="paypal-details hidden" id="paypalDetails">
-                            <div class="paypal-info">
-                                <p>Vous serez redirigé vers PayPal pour finaliser votre paiement en toute sécurité.</p>
-                                <div class="paypal-button">
-                                    <button class="paypal-btn">
-                                        🅿️ Payer avec PayPal
-                                    </button>
+                        <div class="terms-agreement">
+                            <label class="checkbox-field">
+                                <input type="checkbox" id="acceptTerms" required>
+                                <span class="checkbox-mark"></span>
+                                <span class="checkbox-label">
+                                    J'accepte les <a href="#" target="_blank">conditions générales</a> 
+                                    et la <a href="#" target="_blank">politique de confidentialité</a>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-large btn-full" onclick="processPayment()">
+                                Finaliser l'adhésion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Félicitations -->
+        <section id="congratulationsSection" class="journey-section hidden">
+            <div class="container">
+                <div class="success-container">
+                    <div class="success-visual">
+                        <div class="success-icon" id="successIcon">✓</div>
+                    </div>
+
+                    <div class="success-content">
+                        <h1>Félicitations !</h1>
+                        <p class="success-subtitle">
+                            Vous faites maintenant partie du projet FORNAP
+                        </p>
+
+                        <div class="project-intro">
+                            <h3>Faisons un tour d'horizon du projet</h3>
+                            
+                            <div class="intro-features">
+                                <div class="intro-feature">
+                                    <div class="feature-visual">🏢</div>
+                                    <div class="feature-details">
+                                        <h4>Votre nouveau tiers lieu</h4>
+                                        <p>Un espace de 500m² dédié à la créativité, au coworking et aux événements culturels</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="intro-feature">
+                                    <div class="feature-visual">🤝</div>
+                                    <div class="feature-details">
+                                        <h4>Une communauté dynamique</h4>
+                                        <p>Plus de 200 membres actifs : entrepreneurs, artistes, développeurs, créatifs...</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="intro-feature">
+                                    <div class="feature-visual">🎨</div>
+                                    <div class="feature-details">
+                                        <h4>Projets collaboratifs</h4>
+                                        <p>Participez à des hackathons, expositions, concerts et workshops créatifs</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Résumé de commande -->
-                        <div class="order-summary">
-                            <h4>Résumé de votre commande</h4>
-                            <div class="summary-content" id="orderSummary">
-                                <!-- Contenu généré dynamiquement -->
+                        <button class="btn btn-primary btn-large" onclick="startGettingToKnow()">
+                            Faisons connaissance
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Questions de connaissance -->
+        <section id="gettingToKnowSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    
+                    <!-- Question 1: Ville -->
+                    <div class="know-step active" id="knowStep1" data-step="1">
+                        <div class="form-header">
+                            <h2>Dans quelle ville êtes-vous basé ?</h2>
+                            <p>Pour mieux comprendre notre communauté</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
+                                <label for="userCity">Votre ville</label>
+                                <input type="text" id="userCity" class="form-input form-input-large" 
+                                       placeholder="Paris, Lyon, Marseille..." autocomplete="address-level2">
                             </div>
                         </div>
 
-                        <!-- Conditions -->
-                        <div class="terms-section">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="acceptTerms" required>
-                                <span class="checkmark"></span>
-                                J'accepte les <a href="#" target="_blank">conditions générales</a> 
-                                et la <a href="#" target="_blank">politique de confidentialité</a>
-                            </label>
-                            
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="newsletter">
-                                <span class="checkmark"></span>
-                                Je souhaite recevoir les actualités FORNAP par email
-                            </label>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="nextKnowStep(2)" disabled id="knowNextBtn1">
+                                Continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Question 2: Motivation -->
+                    <div class="know-step" id="knowStep2" data-step="2">
+                        <div class="form-header">
+                            <h2>Qu'est-ce qui vous a motivé à rejoindre FORNAP ?</h2>
+                            <p>Votre motivation nous aide à améliorer notre projet</p>
                         </div>
 
-                        <!-- Actions -->
-                        <div class="payment-actions">
-                            <button type="button" class="btn btn-secondary btn-large" onclick="goBackToAuth()">
-                                ← Retour
+                        <div class="form-content">
+                            <div class="choice-grid">
+                                <label class="choice-option" data-value="coworking">
+                                    <input type="radio" name="motivation" value="coworking">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">💼</span>
+                                        <span class="choice-text">Espace de coworking inspirant</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="community">
+                                    <input type="radio" name="motivation" value="community">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">🤝</span>
+                                        <span class="choice-text">Rencontrer d'autres créatifs</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="events">
+                                    <input type="radio" name="motivation" value="events">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">🎭</span>
+                                        <span class="choice-text">Événements culturels uniques</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="projects">
+                                    <input type="radio" name="motivation" value="projects">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">🚀</span>
+                                        <span class="choice-text">Projets collaboratifs</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousKnowStep(1)">
+                                Retour
                             </button>
-                            <button type="button" id="processPaymentBtn" class="btn btn-primary btn-large">
-                                Finaliser le paiement
+                            <button class="btn btn-primary" onclick="nextKnowStep(3)" disabled id="knowNextBtn2">
+                                Continuer
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Question 3: Découverte -->
+                    <div class="know-step" id="knowStep3" data-step="3">
+                        <div class="form-header">
+                            <h2>Comment avez-vous entendu parler de nous ?</h2>
+                            <p>Cela nous aide à mieux communiquer avec de futurs membres</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="choice-grid">
+                                <label class="choice-option" data-value="social">
+                                    <input type="radio" name="discovery" value="social">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">📱</span>
+                                        <span class="choice-text">Réseaux sociaux</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="friend">
+                                    <input type="radio" name="discovery" value="friend">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">👥</span>
+                                        <span class="choice-text">Recommandation d'un ami</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="search">
+                                    <input type="radio" name="discovery" value="search">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">🔍</span>
+                                        <span class="choice-text">Recherche Google</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="event">
+                                    <input type="radio" name="discovery" value="event">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">🎪</span>
+                                        <span class="choice-text">Événement local</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="choice-option" data-value="other">
+                                    <input type="radio" name="discovery" value="other">
+                                    <div class="choice-content">
+                                        <span class="choice-icon">💡</span>
+                                        <span class="choice-text">Autre</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousKnowStep(2)">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="finalizeOnboarding()" disabled id="knowNextBtn3">
+                                C'est parti !
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Finale -->
+        <section id="finalSection" class="journey-section hidden">
+            <div class="container">
+                <div class="final-container">
+                    <div class="final-visual">
+                        <div class="final-icon" id="finalIcon">🎉</div>
+                    </div>
+
+                    <div class="final-content">
+                        <h1>Bienvenue dans le projet FORNAP !</h1>
+                        <p class="final-subtitle">
+                            Votre aventure créative et collaborative commence maintenant.
+                            Votre dashboard membre vous attend avec toutes vos ressources.
+                        </p>
+
+                        <div class="next-steps">
+                            <div class="step-item">
+                                <span class="step-icon">📧</span>
+                                <div class="step-info">
+                                    <strong>Email de confirmation envoyé</strong>
+                                    <p>Vérifiez votre boîte mail pour votre carte membre virtuelle</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <span class="step-icon">📱</span>
+                                <div class="step-info">
+                                    <strong>Application mobile</strong>
+                                    <p>Téléchargez l'app FORNAP pour un accès facile (bientôt disponible)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-large btn-cta" onclick="goToDashboard()">
+                            Commencer mon expérience FORNAP
+                        </button>
                     </div>
                 </div>
             </div>
@@ -250,17 +649,17 @@
          MODAL DE CHARGEMENT
          ======================================== -->
     <div id="loadingModal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="loading-content">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog">
+            <div class="modal-content">
                 <div class="loading-spinner"></div>
-                <h3>Traitement en cours...</h3>
-                <p id="loadingText">Préparation de votre adhésion</p>
-                <div class="loading-steps">
-                    <div class="step" id="loadingStep1">✓ Vérification des informations</div>
-                    <div class="step" id="loadingStep2">🔄 Traitement du paiement</div>
-                    <div class="step" id="loadingStep3">📄 Création du compte membre</div>
-                    <div class="step" id="loadingStep4">🎉 Finalisation</div>
+                <h3 id="loadingTitle">Traitement en cours...</h3>
+                <p id="loadingMessage">Veuillez patienter</p>
+                <div class="loading-progress">
+                    <div class="progress-step" id="loadingStep1">✓ Création du compte</div>
+                    <div class="progress-step" id="loadingStep2">🔄 Traitement du paiement</div>
+                    <div class="progress-step" id="loadingStep3">📄 Configuration du profil</div>
+                    <div class="progress-step" id="loadingStep4">🎉 Finalisation</div>
                 </div>
             </div>
         </div>
@@ -291,18 +690,62 @@
          ======================================== -->
     
     <script>
-        console.log('🚀 FORNAP - Payment');
+        console.log('🚀 FORNAP - Journey Experience Pro');
 
         // Variables globales
         let currentUser = null;
         let selectedPlan = null;
-        let currentStep = 'auth';
+        let currentSection = 'welcome';
+        let currentSignupStep = 1;
+        let currentKnowStep = 1;
+        let userProfile = {};
+
+        // Plans disponibles
+        const plans = {
+            basic: {
+                name: 'Membre Découverte',
+                price: 29,
+                period: '/mois',
+                features: [
+                    'Accès aux espaces communs',
+                    'Événements communautaires',
+                    'Wi-Fi haut débit',
+                    'Café/thé inclus'
+                ]
+            },
+            pro: {
+                name: 'Membre Actif',
+                price: 59,
+                period: '/mois',
+                features: [
+                    'Tout du forfait Découverte',
+                    'Espace de travail dédié',
+                    'Accès 24h/24',
+                    'Salles de réunion (2h/mois)',
+                    'Impression/scan inclus'
+                ]
+            },
+            premium: {
+                name: 'Membre Premium',
+                price: 99,
+                period: '/mois',
+                features: [
+                    'Tout du forfait Actif',
+                    'Bureau privé disponible',
+                    'Salles de réunion illimitées',
+                    'Support prioritaire',
+                    'Événements VIP'
+                ]
+            }
+        };
+
+        // Initialisation GSAP
+        gsap.registerPlugin();
 
         // Fonctions utilitaires
         function showMessage(message, type = 'info') {
             const container = document.getElementById('messageContainer');
             if (!container) {
-                // Créer le container s'il n'existe pas
                 const messageContainer = document.createElement('div');
                 messageContainer.id = 'messageContainer';
                 document.body.appendChild(messageContainer);
@@ -313,10 +756,19 @@
             messageElement.textContent = message;
             document.getElementById('messageContainer').appendChild(messageElement);
 
-            setTimeout(() => messageElement.classList.add('show'), 100);
+            gsap.fromTo(messageElement, 
+                { x: 400, opacity: 0 },
+                { x: 0, opacity: 1, duration: 0.4, ease: "back.out(1.7)" }
+            );
+            
             setTimeout(() => {
-                messageElement.classList.remove('show');
-                setTimeout(() => messageElement.remove(), 300);
+                gsap.to(messageElement, {
+                    x: 400,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "back.in(1.7)",
+                    onComplete: () => messageElement.remove()
+                });
             }, 4000);
         }
 
@@ -340,130 +792,210 @@
             }, 2000);
         }
 
-        // Initialisation spécifique à la page de paiement
-        function initPageSpecific() {
-            // Charger le forfait sélectionné
-            loadSelectedPlan();
+        // Navigation entre sections avec GSAP
+        function showSection(sectionId) {
+            const currentActiveSection = document.querySelector('.journey-section.active');
+            const targetSection = document.getElementById(sectionId);
             
-            // Initialiser les événements de formulaire
-            initFormEvents();
-            
-            // Initialiser les méthodes de paiement
-            initPaymentMethods();
-        }
+            if (!targetSection) return;
 
-        function loadSelectedPlan() {
-            try {
-                const storedPlan = sessionStorage.getItem('selectedPlan');
-                if (storedPlan) {
-                    selectedPlan = JSON.parse(storedPlan);
-                    displayPlanSummary(selectedPlan);
-                    displayOrderSummary(selectedPlan);
-                } else {
-                    showMessage('Aucun forfait sélectionné. Redirection...', 'warning');
-                    setTimeout(() => {
-                        window.location.href = 'membership.html';
-                    }, 2000);
-                }
-            } catch (error) {
-                console.error('❌ Erreur chargement forfait:', error);
-                showMessage('Erreur lors du chargement du forfait', 'error');
-            }
-        }
-
-        function displayPlanSummary(plan) {
-            const planSummary = document.getElementById('planSummary');
-            if (planSummary) {
-                planSummary.innerHTML = `
-                    <div class="plan-summary-content">
-                        <div class="plan-info">
-                            <h3>${plan.name}</h3>
-                            <div class="plan-price">${plan.price}€${plan.period}</div>
-                        </div>
-                        <div class="plan-features">
-                            <p><strong>Ce qui est inclus :</strong></p>
-                            <ul>
-                                ${plan.features ? plan.features.map(feature => `<li>${feature}</li>`).join('') : ''}
-                            </ul>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function displayOrderSummary(plan) {
-            const orderSummary = document.getElementById('orderSummary');
-            if (orderSummary) {
-                const price = plan.price === 'special' ? 0 : plan.price;
-                orderSummary.innerHTML = `
-                    <div class="summary-line">
-                        <span>Forfait ${plan.name}</span>
-                        <span>${price}€</span>
-                    </div>
-                    <div class="summary-line">
-                        <span>TVA (20%)</span>
-                        <span>${(price * 0.2).toFixed(2)}€</span>
-                    </div>
-                    <div class="summary-line total">
-                        <span><strong>Total</strong></span>
-                        <span><strong>${(price * 1.2).toFixed(2)}€</strong></span>
-                    </div>
-                `;
-            }
-        }
-
-        function initFormEvents() {
-            // Inscription
-            const signupBtn = document.getElementById('signupBtn');
-            if (signupBtn) {
-                signupBtn.addEventListener('click', handleSignup);
-            }
-
-            // Connexion
-            const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', handleLogin);
-            }
-
-            // Paiement
-            const processPaymentBtn = document.getElementById('processPaymentBtn');
-            if (processPaymentBtn) {
-                processPaymentBtn.addEventListener('click', handlePayment);
-            }
-
-            // Formatage des champs
-            formatCardInputs();
-        }
-
-        function initPaymentMethods() {
-            const methodOptions = document.querySelectorAll('input[name="paymentMethod"]');
-            methodOptions.forEach(option => {
-                option.addEventListener('change', handlePaymentMethodChange);
-            });
-        }
-
-        function handlePaymentMethodChange(e) {
-            const cardDetails = document.getElementById('cardDetails');
-            const paypalDetails = document.getElementById('paypalDetails');
-            
-            if (e.target.value === 'card') {
-                cardDetails.classList.remove('hidden');
-                paypalDetails.classList.add('hidden');
+            // Animation de sortie
+            if (currentActiveSection) {
+                gsap.to(currentActiveSection, {
+                    opacity: 0,
+                    y: -30,
+                    duration: 0.3,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        currentActiveSection.classList.remove('active');
+                        currentActiveSection.classList.add('hidden');
+                        
+                        // Animation d'entrée
+                        targetSection.classList.remove('hidden');
+                        targetSection.classList.add('active');
+                        
+                        gsap.fromTo(targetSection, 
+                            { opacity: 0, y: 30 },
+                            { 
+                                opacity: 1, 
+                                y: 0, 
+                                duration: 0.5, 
+                                ease: "power2.out",
+                                onComplete: () => {
+                                    // Focus sur le premier input si présent
+                                    const firstInput = targetSection.querySelector('input');
+                                    if (firstInput) firstInput.focus();
+                                }
+                            }
+                        );
+                    }
+                });
             } else {
-                cardDetails.classList.add('hidden');
-                paypalDetails.classList.remove('hidden');
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
+                gsap.fromTo(targetSection, 
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+                );
+            }
+
+            currentSection = sectionId.replace('Section', '');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const stepMapping = {
+                'welcome': 1,
+                'signup': 2,
+                'login': 2,
+                'plan': 3,
+                'payment': 4,
+                'congratulations': 5,
+                'gettingToKnow': 5,
+                'final': 5
+            };
+            
+            const currentStepNumber = stepMapping[currentSection] || 1;
+            const progressWidth = ((currentStepNumber - 1) / 4) * 100;
+            
+            gsap.to('#progressFill', {
+                width: `${progressWidth}%`,
+                duration: 0.6,
+                ease: "power2.out"
+            });
+            
+            // Mettre à jour les indicateurs
+            for (let i = 1; i <= 5; i++) {
+                const indicator = document.getElementById(`step${i}`);
+                const circle = indicator.querySelector('.indicator-circle');
+                
+                indicator.classList.remove('active', 'completed');
+                
+                if (i < currentStepNumber) {
+                    indicator.classList.add('completed');
+                    gsap.to(circle, { scale: 1.1, duration: 0.3, ease: "back.out(1.7)" });
+                } else if (i === currentStepNumber) {
+                    indicator.classList.add('active');
+                    gsap.to(circle, { scale: 1.2, duration: 0.3, ease: "back.out(1.7)" });
+                } else {
+                    gsap.to(circle, { scale: 1, duration: 0.3, ease: "power2.out" });
+                }
             }
         }
 
-        async function handleSignup() {
-            const firstName = document.getElementById('signupFirstName').value;
-            const lastName = document.getElementById('signupLastName').value;
-            const email = document.getElementById('signupEmail').value;
+        // Fonctions de navigation
+        function startJourney() {
+            showSection('signupSection');
+        }
+
+        function showLoginForm() {
+            showSection('loginSection');
+        }
+
+        function backToWelcome() {
+            showSection('welcomeSection');
+        }
+
+        // Fonctions d'inscription avec animations GSAP
+        function nextSignupStep(stepNumber) {
+            // Validation
+            if (currentSignupStep === 1) {
+                const firstName = document.getElementById('signupFirstName').value.trim();
+                if (!firstName) {
+                    showMessage('Veuillez saisir votre prénom', 'error');
+                    return;
+                }
+                userProfile.firstName = firstName;
+            }
+            
+            if (currentSignupStep === 2) {
+                const lastName = document.getElementById('signupLastName').value.trim();
+                if (!lastName) {
+                    showMessage('Veuillez saisir votre nom', 'error');
+                    return;
+                }
+                userProfile.lastName = lastName;
+            }
+            
+            if (currentSignupStep === 3) {
+                const email = document.getElementById('signupEmail').value.trim();
+                if (!email || !email.includes('@')) {
+                    showMessage('Veuillez saisir une adresse email valide', 'error');
+                    return;
+                }
+                userProfile.email = email;
+            }
+
+            // Animation professionnelle
+            const currentStep = document.getElementById(`signupStep${currentSignupStep}`);
+            const nextStep = document.getElementById(`signupStep${stepNumber}`);
+            
+            if (currentStep && nextStep) {
+                gsap.to(currentStep, {
+                    x: -100,
+                    opacity: 0,
+                    duration: 0.4,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        currentStep.classList.remove('active');
+                        nextStep.classList.add('active');
+                        
+                        gsap.fromTo(nextStep, 
+                            { x: 100, opacity: 0 },
+                            { 
+                                x: 0, 
+                                opacity: 1, 
+                                duration: 0.4, 
+                                ease: "power2.out",
+                                onComplete: () => {
+                                    const input = nextStep.querySelector('input');
+                                    if (input) input.focus();
+                                }
+                            }
+                        );
+                    }
+                });
+                
+                currentSignupStep = stepNumber;
+            }
+        }
+
+        function previousSignupStep(stepNumber) {
+            const currentStep = document.getElementById(`signupStep${currentSignupStep}`);
+            const prevStep = document.getElementById(`signupStep${stepNumber}`);
+            
+            if (currentStep && prevStep) {
+                gsap.to(currentStep, {
+                    x: 100,
+                    opacity: 0,
+                    duration: 0.4,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        currentStep.classList.remove('active');
+                        prevStep.classList.add('active');
+                        
+                        gsap.fromTo(prevStep, 
+                            { x: -100, opacity: 0 },
+                            { 
+                                x: 0, 
+                                opacity: 1, 
+                                duration: 0.4, 
+                                ease: "power2.out" 
+                            }
+                        );
+                    }
+                });
+                
+                currentSignupStep = stepNumber;
+            }
+        }
+
+        async function createAccount() {
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('signupConfirmPassword').value;
 
-            if (!firstName || !lastName || !email || !password) {
-                showMessage('Veuillez remplir tous les champs', 'error');
+            if (!password || password.length < 6) {
+                showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
                 return;
             }
 
@@ -472,29 +1004,31 @@
                 return;
             }
 
-            if (password.length < 6) {
-                showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
-                return;
-            }
-
             try {
-                const user = await FornapAuth.signUp(email, password, {
-                    displayName: `${firstName} ${lastName}`,
-                    firstName,
-                    lastName
+                showLoadingModal('Création de votre compte...');
+                
+                const user = await FornapAuth.signUp(userProfile.email, password, {
+                    displayName: `${userProfile.firstName} ${userProfile.lastName}`,
+                    firstName: userProfile.firstName,
+                    lastName: userProfile.lastName
                 });
 
+                hideLoadingModal();
                 showMessage('Compte créé avec succès !', 'success');
-                showPaymentSection();
+                
+                setTimeout(() => {
+                    showSection('planSection');
+                }, 1000);
 
             } catch (error) {
+                hideLoadingModal();
                 console.error('❌ Erreur inscription:', error);
                 showMessage(error.message || 'Erreur lors de la création du compte', 'error');
             }
         }
 
         async function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
             if (!email || !password) {
@@ -503,54 +1037,97 @@
             }
 
             try {
+                showLoadingModal('Connexion en cours...');
+                
                 const user = await FornapAuth.signIn(email, password);
+                
+                hideLoadingModal();
                 showMessage('Connexion réussie !', 'success');
-                showPaymentSection();
+                
+                setTimeout(() => {
+                    showSection('planSection');
+                }, 1000);
 
             } catch (error) {
+                hideLoadingModal();
                 console.error('❌ Erreur connexion:', error);
                 showMessage('Email ou mot de passe incorrect', 'error');
             }
         }
 
-        function showPaymentSection() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('paymentSection').classList.remove('hidden');
+        // Sélection de forfait avec animations
+        function selectPlan(planId) {
+            selectedPlan = { id: planId, ...plans[planId] };
             
-            // Mettre à jour la barre de progression
-            updateProgressBar('payment');
+            // Animation de sélection
+            const planCards = document.querySelectorAll('.plan-option');
+            const selectedCard = document.querySelector(`[data-plan="${planId}"]`);
+            
+            planCards.forEach(card => {
+                if (card === selectedCard) {
+                    gsap.to(card, {
+                        scale: 1.05,
+                        borderColor: '#28A745',
+                        backgroundColor: '#F8F9FA',
+                        duration: 0.3,
+                        ease: "back.out(1.7)"
+                    });
+                } else {
+                    gsap.to(card, {
+                        scale: 1,
+                        borderColor: '#E9ECEF',
+                        backgroundColor: '#FFFFFF',
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                }
+            });
+            
+            setTimeout(() => {
+                showSection('paymentSection');
+                displaySelectedPlan();
+            }, 600);
         }
 
-        function goBackToAuth() {
-            document.getElementById('paymentSection').classList.add('hidden');
-            document.getElementById('authSection').classList.remove('hidden');
-            
-            // Mettre à jour la barre de progression
-            updateProgressBar('auth');
-        }
-
-        function updateProgressBar(step) {
-            const steps = document.querySelectorAll('.progress-step');
-            const lines = document.querySelectorAll('.progress-line');
-            
-            // Reset all
-            steps.forEach(s => s.classList.remove('active', 'completed'));
-            lines.forEach(l => l.classList.remove('completed'));
-            
-            if (step === 'auth') {
-                steps[1].classList.add('active');
-                steps[0].classList.add('completed');
-                lines[0].classList.add('completed');
-            } else if (step === 'payment') {
-                steps[2].classList.add('active');
-                steps[0].classList.add('completed');
-                steps[1].classList.add('completed');
-                lines[0].classList.add('completed');
-                lines[1].classList.add('completed');
+        function displaySelectedPlan() {
+            const display = document.getElementById('selectedPlanDisplay');
+            if (display && selectedPlan) {
+                const price = selectedPlan.price;
+                const total = (price * 1.2).toFixed(2);
+                
+                display.innerHTML = `
+                    <div class="plan-details">
+                        <h4>${selectedPlan.name}</h4>
+                        <div class="plan-cost">${selectedPlan.price}€${selectedPlan.period}</div>
+                        <div class="plan-calculation">
+                            <div class="calc-line">
+                                <span>Sous-total</span>
+                                <span>${price}€</span>
+                            </div>
+                            <div class="calc-line">
+                                <span>TVA (20%)</span>
+                                <span>${(price * 0.2).toFixed(2)}€</span>
+                            </div>
+                            <div class="calc-total">
+                                <span><strong>Total</strong></span>
+                                <span><strong>${total}€</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                gsap.fromTo(display, 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+                );
             }
         }
 
-        async function handlePayment() {
+        function backToPlanSelection() {
+            showSection('planSection');
+        }
+
+        async function processPayment() {
             const acceptTerms = document.getElementById('acceptTerms').checked;
             
             if (!acceptTerms) {
@@ -559,18 +1136,16 @@
             }
 
             try {
-                showLoadingModal();
+                showLoadingModal('Traitement du paiement...');
                 
-                // Simulation de paiement
                 await simulatePayment();
                 
                 hideLoadingModal();
                 
-                // Redirection vers la page de félicitations
-                showMessage('Paiement traité avec succès !', 'success');
                 setTimeout(() => {
-                    window.location.href = 'profile-setup.html';
-                }, 1500);
+                    showSection('congratulationsSection');
+                    triggerSuccessAnimation();
+                }, 500);
 
             } catch (error) {
                 hideLoadingModal();
@@ -592,7 +1167,7 @@
                     setTimeout(() => {
                         const step = document.getElementById(steps[i].id);
                         if (step) {
-                            step.style.color = 'var(--succes)';
+                            step.style.color = '#28A745';
                             step.innerHTML = step.innerHTML.replace('🔄', '✓');
                         }
                         resolve();
@@ -601,15 +1176,237 @@
             }
         }
 
-        function showLoadingModal() {
-            document.getElementById('loadingModal').classList.remove('hidden');
+        function triggerSuccessAnimation() {
+            const successIcon = document.getElementById('successIcon');
+            
+            gsap.set(successIcon, { scale: 0, rotation: -180 });
+            gsap.to(successIcon, {
+                scale: 1,
+                rotation: 0,
+                duration: 0.8,
+                ease: "back.out(1.7)"
+            });
+        }
+
+        function startGettingToKnow() {
+            showSection('gettingToKnowSection');
+        }
+
+        // Fonctions questions avec animations GSAP
+        function nextKnowStep(stepNumber) {
+            if (currentKnowStep === 1) {
+                const city = document.getElementById('userCity').value.trim();
+                if (!city) {
+                    showMessage('Veuillez indiquer votre ville', 'error');
+                    return;
+                }
+                userProfile.city = city;
+            }
+            
+            if (currentKnowStep === 2) {
+                const motivation = document.querySelector('input[name="motivation"]:checked');
+                if (!motivation) {
+                    showMessage('Veuillez sélectionner votre motivation', 'error');
+                    return;
+                }
+                userProfile.motivation = motivation.value;
+            }
+
+            const currentStep = document.getElementById(`knowStep${currentKnowStep}`);
+            const nextStep = document.getElementById(`knowStep${stepNumber}`);
+            
+            if (currentStep && nextStep) {
+                gsap.to(currentStep, {
+                    x: -100,
+                    opacity: 0,
+                    duration: 0.4,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        currentStep.classList.remove('active');
+                        nextStep.classList.add('active');
+                        
+                        gsap.fromTo(nextStep, 
+                            { x: 100, opacity: 0 },
+                            { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                        );
+                    }
+                });
+                
+                currentKnowStep = stepNumber;
+            }
+        }
+
+        function previousKnowStep(stepNumber) {
+            const currentStep = document.getElementById(`knowStep${currentKnowStep}`);
+            const prevStep = document.getElementById(`knowStep${stepNumber}`);
+            
+            if (currentStep && prevStep) {
+                gsap.to(currentStep, {
+                    x: 100,
+                    opacity: 0,
+                    duration: 0.4,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        currentStep.classList.remove('active');
+                        prevStep.classList.add('active');
+                        
+                        gsap.fromTo(prevStep, 
+                            { x: -100, opacity: 0 },
+                            { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                        );
+                    }
+                });
+                
+                currentKnowStep = stepNumber;
+            }
+        }
+
+        async function finalizeOnboarding() {
+            const discovery = document.querySelector('input[name="discovery"]:checked');
+            if (!discovery) {
+                showMessage('Veuillez nous dire comment vous nous avez découverts', 'error');
+                return;
+            }
+            
+            userProfile.discovery = discovery.value;
+            
+            try {
+                showLoadingModal('Finalisation de votre profil...');
+                
+                if (currentUser) {
+                    console.log('Profil utilisateur:', userProfile);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                hideLoadingModal();
+                showSection('finalSection');
+                
+                // Animation finale
+                const finalIcon = document.getElementById('finalIcon');
+                gsap.set(finalIcon, { scale: 0 });
+                gsap.to(finalIcon, {
+                    scale: 1,
+                    duration: 1,
+                    ease: "bounce.out"
+                });
+                
+            } catch (error) {
+                hideLoadingModal();
+                console.error('❌ Erreur finalisation:', error);
+                showMessage('Erreur lors de la finalisation', 'error');
+            }
+        }
+
+        function goToDashboard() {
+            showMessage('Redirection vers votre dashboard...', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        }
+
+        // Fonctions modales
+        function showLoadingModal(message = 'Traitement en cours...') {
+            const modal = document.getElementById('loadingModal');
+            const title = document.getElementById('loadingTitle');
+            const messageEl = document.getElementById('loadingMessage');
+            
+            if (title) title.textContent = message;
+            if (messageEl) messageEl.textContent = 'Veuillez patienter...';
+            
+            modal.classList.remove('hidden');
+            
+            gsap.fromTo(modal.querySelector('.modal-content'), 
+                { scale: 0.8, opacity: 0 },
+                { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.7)" }
+            );
         }
 
         function hideLoadingModal() {
-            document.getElementById('loadingModal').classList.add('hidden');
+            const modal = document.getElementById('loadingModal');
+            gsap.to(modal.querySelector('.modal-content'), {
+                scale: 0.8,
+                opacity: 0,
+                duration: 0.3,
+                ease: "back.in(1.7)",
+                onComplete: () => modal.classList.add('hidden')
+            });
         }
 
-        function formatCardInputs() {
+        // Validation en temps réel
+        function setupValidation() {
+            // Champs signup
+            const signupFields = [
+                { id: 'signupFirstName', btnId: 'nextBtn1' },
+                { id: 'signupLastName', btnId: 'nextBtn2' },
+                { id: 'signupEmail', btnId: 'nextBtn3' },
+                { id: 'signupPassword', btnId: 'nextBtn4' }
+            ];
+            
+            signupFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const btn = document.getElementById(field.btnId);
+                
+                if (input && btn) {
+                    input.addEventListener('input', () => {
+                        const isValid = input.value.trim();
+                        btn.disabled = !isValid;
+                        
+                        if (isValid) {
+                            gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
+                        } else {
+                            gsap.to(btn, { scale: 0.95, opacity: 0.6, duration: 0.3 });
+                        }
+                    });
+                }
+            });
+            
+            // Validation ville
+            const cityInput = document.getElementById('userCity');
+            const cityBtn = document.getElementById('knowNextBtn1');
+            if (cityInput && cityBtn) {
+                cityInput.addEventListener('input', () => {
+                    cityBtn.disabled = !cityInput.value.trim();
+                });
+            }
+            
+            // Validation radio buttons avec animations
+            document.querySelectorAll('input[name="motivation"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const btn = document.getElementById('knowNextBtn2');
+                    if (btn) {
+                        btn.disabled = false;
+                        gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
+                    }
+                    
+                    // Animation de sélection
+                    const option = radio.closest('.choice-option');
+                    document.querySelectorAll('.choice-option').forEach(opt => {
+                        gsap.to(opt, { scale: 1, duration: 0.2 });
+                    });
+                    gsap.to(option, { scale: 1.02, duration: 0.2, ease: "back.out(1.7)" });
+                });
+            });
+            
+            document.querySelectorAll('input[name="discovery"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const btn = document.getElementById('knowNextBtn3');
+                    if (btn) {
+                        btn.disabled = false;
+                        gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
+                    }
+                    
+                    const option = radio.closest('.choice-option');
+                    document.querySelectorAll('.choice-option').forEach(opt => {
+                        gsap.to(opt, { scale: 1, duration: 0.2 });
+                    });
+                    gsap.to(option, { scale: 1.02, duration: 0.2, ease: "back.out(1.7)" });
+                });
+            });
+        }
+
+        // Formatage des champs de paiement
+        function formatPaymentInputs() {
             const cardNumber = document.getElementById('cardNumber');
             const expiryDate = document.getElementById('expiryDate');
             const cvv = document.getElementById('cvv');
@@ -641,7 +1438,7 @@
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('✅ DOM chargé - Payment');
+            console.log('✅ DOM chargé - Journey Experience Pro');
 
             try {
                 // Initialiser les services
@@ -655,14 +1452,21 @@
                     currentUser = user;
                     console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
                     
-                    // Mettre à jour l'interface via le système global synchronisé
                     FornapComponents.syncAuthState(!!user);
                 });
 
-                // Initialisation spécifique à la page
-                initPageSpecific();
+                // Configuration
+                setupValidation();
+                formatPaymentInputs();
+                updateProgress();
 
-                console.log('🎯 FORNAP Payment prête !');
+                // Animation d'entrée
+                gsap.fromTo('.welcome-hero', 
+                    { opacity: 0, y: 50 },
+                    { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+                );
+
+                console.log('🎯 FORNAP Journey Experience Pro prête !');
 
             } catch (error) {
                 console.error('❌ Erreur initialisation:', error);
@@ -672,19 +1476,16 @@
 
         // Initialisation des composants FORNAP
         function initFornapComponents() {
-            // Injecter la navbar
             const navbarPlaceholder = document.getElementById('navbar-placeholder');
             if (navbarPlaceholder) {
-                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('payment', '../');
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('journey', '../');
             }
 
-            // Injecter le footer
             const footerPlaceholder = document.getElementById('footer-placeholder');
             if (footerPlaceholder) {
                 footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
             }
 
-            // Initialiser les événements après injection
             setTimeout(() => {
                 FornapComponents.initNavbarEvents('../', {
                     onLogin: showLoginModal,
@@ -695,34 +1496,69 @@
     </script>
 
     <style>
-        /* Styles spécifiques à la page de paiement */
-        
-        .progress-section {
-            background: var(--gris-tres-clair);
-            padding: var(--space-6) 0;
+        /* ========================================
+           FORNAP JOURNEY EXPERIENCE - CORPORATE DESIGN
+           ======================================== */
+
+        /* Variables CSS personnalisées */
+        :root {
+            --warning: #FFC107;
+            --warning-bg: #FFF8E1;
+        }
+
+        /* BARRE DE PROGRESSION FIXE */
+        .progress-container-fixed {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            background: var(--blanc-principal);
             border-bottom: 2px solid var(--noir-principal);
+            z-index: 100;
+            padding: var(--space-4) 0;
         }
 
-        .progress-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            max-width: 600px;
+        .journey-progress {
+            max-width: 800px;
             margin: 0 auto;
+            position: relative;
         }
 
-        .progress-step {
+        .progress-track {
+            height: 4px;
+            background: var(--gris-clair);
+            border-radius: 2px;
+            margin-bottom: var(--space-4);
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--noir-principal);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .progress-indicators {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .progress-indicator {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            position: relative;
-            z-index: 2;
+            background: var(--blanc-principal);
+            padding: 0 var(--space-2);
         }
 
-        .step-number {
-            width: 40px;
-            height: 40px;
+        .indicator-circle {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: var(--gris-clair);
             color: var(--gris-moyen);
@@ -730,218 +1566,414 @@
             align-items: center;
             justify-content: center;
             font-weight: var(--font-bold);
-            margin-bottom: var(--space-2);
-            border: 2px solid var(--gris-clair);
-        }
-
-        .step-label {
             font-size: var(--text-sm);
-            font-weight: var(--font-medium);
-            color: var(--gris-moyen);
+            margin-bottom: var(--space-1);
+            transition: all 0.3s ease;
         }
 
-        .progress-step.completed .step-number {
+        .indicator-label {
+            font-size: var(--text-xs);
+            color: var(--gris-moyen);
+            font-weight: var(--font-medium);
+            white-space: nowrap;
+        }
+
+        .progress-indicator.completed .indicator-circle {
             background: var(--noir-principal);
             color: var(--blanc-principal);
-            border-color: var(--noir-principal);
         }
 
-        .progress-step.completed .step-label {
+        .progress-indicator.completed .indicator-label {
             color: var(--noir-principal);
         }
 
-        .progress-step.active .step-number {
-            background: var(--blanc-principal);
-            color: var(--noir-principal);
-            border-color: var(--noir-principal);
+        .progress-indicator.active .indicator-circle {
+            background: var(--noir-principal);
+            color: var(--blanc-principal);
             transform: scale(1.1);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
         }
 
-        .progress-step.active .step-label {
+        .progress-indicator.active .indicator-label {
             color: var(--noir-principal);
             font-weight: var(--font-bold);
         }
 
-        .progress-line {
-            width: 80px;
-            height: 2px;
-            background: var(--gris-clair);
-            margin: 0 var(--space-4);
+        /* MAIN CONTENT */
+        .main-content {
+            margin-top: 140px; /* navbar + progress bar */
+            min-height: calc(100vh - 140px);
         }
 
-        .progress-line.completed {
-            background: var(--noir-principal);
+        /* SECTIONS DE PARCOURS */
+        .journey-section {
+            min-height: calc(100vh - 200px);
+            padding: var(--space-12) 0;
+            display: flex;
+            align-items: center;
         }
 
-        .selected-plan-section {
-            padding: var(--space-8) 0;
+        .journey-section.hidden {
+            display: none;
+        }
+
+        /* SECTION ACCUEIL */
+        .welcome-hero {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .welcome-content {
+            padding: var(--space-8);
+        }
+
+        .hero-title {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-6);
+            color: var(--noir-principal);
+            line-height: 1.2;
+            font-weight: var(--font-bold);
+        }
+
+        .hero-highlight {
+            background: linear-gradient(120deg, var(--noir-principal) 0%, var(--gris-fonce) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: var(--text-xl);
+            color: var(--gris-moyen);
+            margin-bottom: var(--space-8);
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-features {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+            flex-wrap: wrap;
+        }
+
+        .feature-chip {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--gris-clair);
             background: var(--blanc-principal);
+            transition: all 0.3s ease;
+            font-weight: var(--font-medium);
         }
 
-        .plan-summary-card {
+        .feature-chip:hover {
+            border-color: var(--noir-principal);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .chip-icon {
+            font-size: var(--text-lg);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-4);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .btn-cta {
+            background: var(--noir-principal);
+            color: var(--blanc-principal);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-cta:hover {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* CONTENEURS DE FORMULAIRE */
+        .form-container {
             max-width: 600px;
             margin: 0 auto;
-            padding: var(--space-6);
-            border: 2px solid var(--noir-principal);
-            background: var(--gris-tres-clair);
-        }
-
-        .plan-summary-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--space-6);
-            align-items: start;
-        }
-
-        .plan-info h3 {
-            margin-bottom: var(--space-2);
-            color: var(--noir-principal);
-        }
-
-        .plan-price {
-            font-size: var(--text-2xl);
-            font-weight: var(--font-bold);
-            color: var(--noir-principal);
-        }
-
-        .plan-features ul {
-            list-style: none;
-            padding: 0;
-            margin: var(--space-4) 0 0 0;
-        }
-
-        .plan-features li {
-            padding: var(--space-1) 0;
-            color: var(--gris-moyen);
-        }
-
-        .plan-features li::before {
-            content: "✓ ";
-            color: var(--succes);
-            font-weight: var(--font-bold);
-        }
-
-        .auth-section, .payment-section {
-            padding: var(--space-12) 0;
-            background: var(--blanc-principal);
-        }
-
-        .auth-container, .payment-container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .auth-card, .payment-card {
             background: var(--blanc-principal);
             border: 2px solid var(--noir-principal);
             padding: var(--space-8);
         }
 
-        .auth-header, .payment-header {
+        .form-header {
             text-align: center;
             margin-bottom: var(--space-8);
         }
 
-        .auth-header h2, .payment-header h2 {
+        .form-header h2 {
+            font-size: var(--text-3xl);
             margin-bottom: var(--space-4);
             color: var(--noir-principal);
+            font-weight: var(--font-bold);
         }
 
-        .auth-header p, .payment-header p {
+        .form-header p {
             color: var(--gris-moyen);
-            line-height: 1.6;
+            font-size: var(--text-lg);
         }
 
-        .demo-notice {
-            background: var(--warning-bg);
-            color: var(--warning);
-            padding: var(--space-3);
-            border: 1px solid var(--warning);
-            margin-top: var(--space-4);
+        .form-content {
+            margin-bottom: var(--space-8);
+        }
+
+        .form-field {
+            margin-bottom: var(--space-6);
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: var(--space-3);
+            font-weight: var(--font-medium);
+            color: var(--noir-principal);
+            font-size: var(--text-lg);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-4);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            font-size: var(--text-base);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--noir-principal);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-input-large {
+            font-size: var(--text-xl);
+            padding: var(--space-6);
             text-align: center;
             font-weight: var(--font-medium);
         }
 
-        .auth-form {
-            margin-bottom: var(--space-6);
-        }
-
-        .auth-form h3 {
-            margin-bottom: var(--space-4);
-            color: var(--noir-principal);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
             gap: var(--space-4);
         }
 
-        .form-group {
-            margin-bottom: var(--space-4);
+        .form-actions .btn {
+            flex: 1;
+            max-width: 200px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: var(--space-2);
-            font-weight: var(--font-medium);
+        .btn-full {
+            width: 100%;
+            max-width: none;
+        }
+
+        /* ÉTAPES D'INSCRIPTION */
+        .signup-step:not(.active),
+        .know-step:not(.active) {
+            display: none;
+        }
+
+        /* SECTION FORFAITS */
+        .plans-showcase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+        }
+
+        .plan-option {
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            padding: var(--space-6);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .plan-option:hover {
+            border-color: var(--noir-principal);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .plan-option.featured {
+            border-color: var(--noir-principal);
+            transform: scale(1.02);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: var(--space-3);
+            right: var(--space-3);
+            background: var(--noir-principal);
+            color: var(--blanc-principal);
+            padding: var(--space-1) var(--space-3);
+            font-size: var(--text-sm);
+            font-weight: var(--font-bold);
+        }
+
+        .plan-header {
+            margin-bottom: var(--space-6);
+        }
+
+        .plan-header h3 {
+            font-size: var(--text-xl);
+            margin-bottom: var(--space-4);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .plan-pricing {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .plan-pricing .price {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-bold);
             color: var(--noir-principal);
         }
 
-        .input-field {
-            width: 100%;
-            padding: var(--space-3);
-            border: 2px solid var(--gris-clair);
-            background: var(--blanc-principal);
+        .plan-pricing .currency {
             font-size: var(--text-base);
-            transition: var(--transition-base);
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--noir-principal);
-        }
-
-        .auth-separator {
-            display: flex;
-            align-items: center;
-            margin: var(--space-8) 0;
-        }
-
-        .separator-line {
-            flex: 1;
-            height: 1px;
-            background: var(--gris-clair);
-        }
-
-        .separator-text {
-            margin: 0 var(--space-4);
             color: var(--gris-moyen);
+        }
+
+        .plan-benefits {
+            text-align: left;
+            margin-bottom: var(--space-6);
+        }
+
+        .plan-benefits .benefit {
+            padding: var(--space-2) 0;
+            color: var(--gris-moyen);
+            border-bottom: 1px solid var(--gris-tres-clair);
+        }
+
+        /* SECTION PAIEMENT */
+        .payment-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: var(--space-8);
+            align-items: start;
+        }
+
+        .order-summary-sidebar {
+            position: sticky;
+            top: var(--space-8);
+        }
+
+        .summary-card {
+            background: var(--gris-tres-clair);
+            border: 2px solid var(--noir-principal);
+            padding: var(--space-6);
+        }
+
+        .summary-card h3 {
+            margin-bottom: var(--space-4);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .plan-details h4 {
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-2);
+            color: var(--noir-principal);
+        }
+
+        .plan-cost {
+            font-size: var(--text-xl);
+            font-weight: var(--font-bold);
+            color: var(--noir-principal);
+            margin-bottom: var(--space-4);
+        }
+
+        .plan-calculation {
+            border-top: 1px solid var(--gris-clair);
+            padding-top: var(--space-4);
+        }
+
+        .calc-line {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-1) 0;
+            font-size: var(--text-sm);
+        }
+
+        .calc-total {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-3) 0;
+            border-top: 2px solid var(--noir-principal);
+            margin-top: var(--space-2);
+            font-weight: var(--font-bold);
+        }
+
+        .btn-small {
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--text-sm);
+            margin-top: var(--space-4);
+        }
+
+        .payment-form-area {
+            background: var(--blanc-principal);
+            border: 2px solid var(--noir-principal);
+            padding: var(--space-8);
+        }
+
+        .demo-badge {
+            background: var(--warning-bg);
+            color: var(--warning);
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--text-sm);
             font-weight: var(--font-medium);
+            display: inline-block;
+            margin-top: var(--space-4);
         }
 
         .payment-methods {
             margin-bottom: var(--space-6);
         }
 
-        .payment-methods h3, .payment-methods h4 {
+        .payment-methods h4 {
             margin-bottom: var(--space-4);
             color: var(--noir-principal);
+            font-weight: var(--font-bold);
         }
 
-        .method-options {
+        .method-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: var(--space-4);
         }
 
-        .method-option {
+        .payment-method {
             position: relative;
             cursor: pointer;
             display: block;
         }
 
-        .method-option input {
+        .payment-method input {
             position: absolute;
             opacity: 0;
             cursor: pointer;
@@ -954,14 +1986,14 @@
             padding: var(--space-4);
             border: 2px solid var(--gris-clair);
             background: var(--blanc-principal);
-            transition: var(--transition-base);
+            transition: all 0.3s ease;
         }
 
-        .method-option:hover .method-content {
+        .payment-method:hover .method-content {
             border-color: var(--noir-principal);
         }
 
-        .method-option.active .method-content {
+        .payment-method.active .method-content {
             border-color: var(--noir-principal);
             background: var(--gris-tres-clair);
         }
@@ -974,102 +2006,55 @@
             font-weight: var(--font-medium);
         }
 
-        .card-details, .paypal-details {
+        .card-form {
             margin-bottom: var(--space-6);
         }
 
-        .paypal-info {
-            text-align: center;
-            padding: var(--space-6);
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
         }
 
-        .paypal-button {
-            margin-top: var(--space-4);
-        }
-
-        .paypal-btn {
-            background: #0070ba;
-            color: white;
-            border: none;
-            padding: var(--space-4) var(--space-6);
-            font-size: var(--text-lg);
-            font-weight: var(--font-bold);
-            cursor: pointer;
-            transition: var(--transition-base);
-        }
-
-        .paypal-btn:hover {
-            background: #005ea6;
-        }
-
-        .order-summary {
-            background: var(--gris-tres-clair);
-            padding: var(--space-6);
-            border: 2px solid var(--noir-principal);
+        .terms-agreement {
             margin-bottom: var(--space-6);
         }
 
-        .order-summary h4 {
-            margin-bottom: var(--space-4);
-            color: var(--noir-principal);
-        }
-
-        .summary-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: var(--space-2) 0;
-            border-bottom: 1px solid var(--gris-clair);
-        }
-
-        .summary-line.total {
-            border-top: 2px solid var(--noir-principal);
-            border-bottom: none;
-            margin-top: var(--space-2);
-            padding-top: var(--space-4);
-            font-size: var(--text-lg);
-        }
-
-        .terms-section {
-            margin-bottom: var(--space-6);
-        }
-
-        .checkbox-label {
+        .checkbox-field {
             display: flex;
             align-items: flex-start;
             gap: var(--space-3);
-            margin-bottom: var(--space-3);
             cursor: pointer;
             line-height: 1.5;
         }
 
-        .checkbox-label input[type="checkbox"] {
+        .checkbox-field input[type="checkbox"] {
             position: absolute;
             opacity: 0;
             cursor: pointer;
         }
 
-        .checkmark {
+        .checkbox-mark {
             width: 20px;
             height: 20px;
             border: 2px solid var(--gris-clair);
             background: var(--blanc-principal);
             position: relative;
-            transition: var(--transition-base);
+            transition: all 0.3s ease;
             flex-shrink: 0;
             margin-top: 2px;
         }
 
-        .checkbox-label:hover .checkmark {
+        .checkbox-field:hover .checkbox-mark {
             border-color: var(--noir-principal);
         }
 
-        .checkbox-label input:checked ~ .checkmark {
+        .checkbox-field input:checked ~ .checkbox-mark {
             background: var(--noir-principal);
             border-color: var(--noir-principal);
         }
 
-        .checkmark::after {
+        .checkbox-mark::after {
             content: "";
             position: absolute;
             display: none;
@@ -1082,27 +2067,217 @@
             transform: rotate(45deg);
         }
 
-        .checkbox-label input:checked ~ .checkmark::after {
+        .checkbox-field input:checked ~ .checkbox-mark::after {
             display: block;
         }
 
-        .payment-actions {
-            display: flex;
-            gap: var(--space-4);
-            justify-content: space-between;
-        }
-
-        .forgot-password {
+        .checkbox-label {
             color: var(--noir-principal);
-            text-decoration: none;
-            font-weight: var(--font-medium);
         }
 
-        .forgot-password:hover {
+        .checkbox-label a {
+            color: var(--noir-principal);
             text-decoration: underline;
         }
 
-        /* Modal de chargement */
+        /* SECTION FÉLICITATIONS */
+        .success-container {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-8);
+        }
+
+        .success-visual {
+            margin-bottom: var(--space-8);
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            border: 4px solid var(--succes);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            background: var(--blanc-principal);
+            font-size: var(--text-4xl);
+            color: var(--succes);
+            font-weight: var(--font-bold);
+        }
+
+        .success-content h1 {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-4);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .success-subtitle {
+            font-size: var(--text-xl);
+            color: var(--gris-moyen);
+            margin-bottom: var(--space-8);
+        }
+
+        .project-intro {
+            margin-bottom: var(--space-12);
+        }
+
+        .project-intro h3 {
+            font-size: var(--text-2xl);
+            margin-bottom: var(--space-6);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .intro-features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .intro-feature {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-6);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            text-align: left;
+        }
+
+        .feature-visual {
+            font-size: var(--text-3xl);
+            flex-shrink: 0;
+        }
+
+        .feature-details h4 {
+            margin-bottom: var(--space-2);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .feature-details p {
+            color: var(--gris-moyen);
+            line-height: 1.5;
+        }
+
+        /* QUESTIONS DE CONNAISSANCE */
+        .choice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        .choice-option {
+            position: relative;
+            cursor: pointer;
+            display: block;
+        }
+
+        .choice-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .choice-content {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-6);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            transition: all 0.3s ease;
+        }
+
+        .choice-option:hover .choice-content {
+            border-color: var(--noir-principal);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .choice-option input:checked ~ .choice-content {
+            border-color: var(--succes);
+            background: var(--gris-tres-clair);
+        }
+
+        .choice-icon {
+            font-size: var(--text-2xl);
+        }
+
+        .choice-text {
+            font-weight: var(--font-medium);
+            color: var(--noir-principal);
+        }
+
+        /* SECTION FINALE */
+        .final-container {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: var(--space-8);
+        }
+
+        .final-visual {
+            margin-bottom: var(--space-8);
+        }
+
+        .final-icon {
+            font-size: var(--text-5xl);
+            color: var(--succes);
+        }
+
+        .final-content h1 {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-6);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .final-subtitle {
+            font-size: var(--text-lg);
+            color: var(--gris-moyen);
+            margin-bottom: var(--space-8);
+            line-height: 1.6;
+        }
+
+        .next-steps {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-6);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            text-align: left;
+        }
+
+        .step-icon {
+            font-size: var(--text-2xl);
+            flex-shrink: 0;
+        }
+
+        .step-info strong {
+            display: block;
+            margin-bottom: var(--space-2);
+            color: var(--noir-principal);
+        }
+
+        .step-info p {
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+        }
+
+        /* MODAL DE CHARGEMENT */
         .modal {
             position: fixed;
             top: 0;
@@ -1115,7 +2290,7 @@
             justify-content: center;
         }
 
-        .modal-overlay {
+        .modal-backdrop {
             position: absolute;
             top: 0;
             left: 0;
@@ -1124,19 +2299,23 @@
             background: rgba(0, 0, 0, 0.7);
         }
 
-        .modal-content {
+        .modal-dialog {
             position: relative;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content {
             background: var(--blanc-principal);
             border: 2px solid var(--noir-principal);
             padding: var(--space-8);
-            max-width: 500px;
-            width: 90%;
             text-align: center;
         }
 
-        .loading-content h3 {
+        .modal-content h3 {
             margin-bottom: var(--space-4);
             color: var(--noir-principal);
+            font-weight: var(--font-bold);
         }
 
         .loading-spinner {
@@ -1154,63 +2333,223 @@
             100% { transform: rotate(360deg); }
         }
 
-        .loading-steps {
+        .loading-progress {
             margin-top: var(--space-6);
             text-align: left;
         }
 
-        .loading-steps .step {
+        .loading-progress .progress-step {
             padding: var(--space-2) 0;
             color: var(--gris-moyen);
         }
 
-        /* Responsive */
+        /* MESSAGES UTILISATEUR */
+        #messageContainer {
+            position: fixed;
+            top: 160px;
+            right: var(--space-4);
+            z-index: 1001;
+        }
+
+        .message {
+            padding: var(--space-3) var(--space-4);
+            margin-bottom: var(--space-2);
+            border: 2px solid;
+            background: var(--blanc-principal);
+            max-width: 350px;
+            font-weight: var(--font-medium);
+        }
+
+        .message.success {
+            border-color: var(--succes);
+            color: var(--succes);
+        }
+
+        .message.error {
+            border-color: var(--erreur);
+            color: var(--erreur);
+        }
+
+        .message.warning {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .message.info {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        /* AMÉLIORATIONS DES BOUTONS */
+        .btn {
+            transition: all 0.3s ease;
+            font-weight: var(--font-medium);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* RESPONSIVE DESIGN */
         @media (max-width: 768px) {
-            .plan-summary-content {
+            .progress-container-fixed {
+                padding: var(--space-3) 0;
+            }
+
+            .progress-indicators {
+                padding: 0 var(--space-4);
+            }
+
+            .indicator-label {
+                display: none;
+            }
+
+            .main-content {
+                margin-top: 120px;
+            }
+
+            .hero-title {
+                font-size: var(--text-3xl);
+            }
+
+            .hero-features {
+                flex-direction: column;
+                align-items: center;
+                gap: var(--space-3);
+            }
+
+            .hero-actions {
+                max-width: none;
+            }
+
+            .form-container,
+            .payment-form-area {
+                padding: var(--space-6);
+                margin: 0 var(--space-4);
+            }
+
+            .plans-showcase {
                 grid-template-columns: 1fr;
                 gap: var(--space-4);
+            }
+
+            .payment-layout {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
+
+            .order-summary-sidebar {
+                position: static;
+                order: 2;
+            }
+
+            .choice-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .intro-features {
+                gap: var(--space-4);
+            }
+
+            .intro-feature {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-3);
+            }
+
+            .next-steps {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+            }
+
+            .step-item {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-3);
+            }
+
+            .method-selector {
+                grid-template-columns: 1fr;
             }
 
             .form-row {
                 grid-template-columns: 1fr;
             }
 
-            .method-options {
-                grid-template-columns: 1fr;
-            }
-
-            .payment-actions {
+            .form-actions {
                 flex-direction: column;
             }
 
-            .progress-bar {
-                padding: 0 var(--space-4);
-            }
-
-            .progress-line {
-                width: 40px;
-                margin: 0 var(--space-2);
-            }
-
-            .step-label {
-                font-size: var(--text-xs);
-            }
-
-            .auth-card, .payment-card {
-                padding: var(--space-6);
+            .form-actions .btn {
+                max-width: none;
             }
         }
 
         @media (max-width: 480px) {
-            .step-label {
-                display: none;
+            .journey-progress {
+                padding: 0 var(--space-2);
             }
 
-            .progress-line {
-                width: 30px;
-                margin: 0 var(--space-1);
+            .hero-title {
+                font-size: var(--text-2xl);
+            }
+
+            .form-header h2 {
+                font-size: var(--text-2xl);
+            }
+
+            .form-input-large {
+                font-size: var(--text-lg);
+                padding: var(--space-4);
+            }
+
+            .feature-chip {
+                padding: var(--space-2) var(--space-3);
+                font-size: var(--text-sm);
+            }
+
+            .plan-option {
+                padding: var(--space-4);
+            }
+
+            .success-container,
+            .final-container {
+                padding: var(--space-6);
             }
         }
+
+        /* ANIMATIONS D'ENTRÉE */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .journey-section.active {
+            animation: fadeInUp 0.6s ease-out;
+        }
     </style>
+
 </body>
 </html> 
