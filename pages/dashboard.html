@@ -263,48 +263,38 @@
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
 
     <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
+
+    <!-- ========================================
          JAVASCRIPT PRINCIPAL
          ======================================== -->
+    
     <script>
-        console.log('📊 FORNAP - Dashboard Membre');
-
-        // Configuration Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyALz161yfiLaOeHU82DQNJV4PkzAXO1wzM",
-            authDomain: "nap-7aa80.firebaseapp.com",
-            projectId: "nap-7aa80",
-            storageBucket: "nap-7aa80.firebasestorage.app",
-            messagingSenderId: "434731738248",
-            appId: "1:434731738248:web:481644f3a6e809c06d2b3d",
-            measurementId: "G-3HVC6HNG02"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        console.log('✅ Firebase initialisé');
+        console.log('🚀 FORNAP - Dashboard');
 
         // Variables globales
         let currentUser = null;
-        let memberData = {};
-
-        // Tiers de fidélité
-        const LOYALTY_TIERS = {
-            bronze: { name: 'Bronze', min: 0, max: 249, color: '#CD7F32' },
-            silver: { name: 'Argent', min: 250, max: 499, color: '#C0C0C0' },
-            gold: { name: 'Or', min: 500, max: 999, color: '#FFD700' },
-            diamond: { name: 'Diamant', min: 1000, max: Infinity, color: '#B9F2FF' }
-        };
+        let userData = null;
 
         // Fonctions utilitaires
         function showMessage(message, type = 'info') {
-            console.log('�� Message:', message, type);
-            
             const container = document.getElementById('messageContainer');
+            if (!container) {
+                // Créer le container s'il n'existe pas
+                const messageContainer = document.createElement('div');
+                messageContainer.id = 'messageContainer';
+                document.body.appendChild(messageContainer);
+            }
+            
             const messageElement = document.createElement('div');
             messageElement.className = `message ${type}`;
             messageElement.textContent = message;
-            container.appendChild(messageElement);
+            document.getElementById('messageContainer').appendChild(messageElement);
 
             setTimeout(() => messageElement.classList.add('show'), 100);
             setTimeout(() => {
@@ -313,430 +303,302 @@
             }, 4000);
         }
 
-        function generateInitials(firstName, lastName) {
-            const first = firstName ? firstName.charAt(0).toUpperCase() : '';
-            const last = lastName ? lastName.charAt(0).toUpperCase() : '';
-            return first + last || '?';
-        }
-
-        function getCurrentTier(points) {
-            for (const [key, tier] of Object.entries(LOYALTY_TIERS)) {
-                if (points >= tier.min && points <= tier.max) {
-                    return { key, ...tier };
-                }
-            }
-            return { key: 'bronze', ...LOYALTY_TIERS.bronze };
-        }
-
-        function getNextTier(currentTierKey) {
-            const tiers = ['bronze', 'silver', 'gold', 'diamond'];
-            const currentIndex = tiers.indexOf(currentTierKey);
-            if (currentIndex < tiers.length - 1) {
-                const nextKey = tiers[currentIndex + 1];
-                return { key: nextKey, ...LOYALTY_TIERS[nextKey] };
-            }
-            return null;
-        }
-
-        function generateRealisticLoyaltyData() {
-            const subscription = memberData.subscription || {};
-            let basePoints = 0;
-            
-            // Points basés sur le type d'abonnement et durée
-            const createdAt = memberData.createdAt || new Date();
-            const daysSinceJoining = Math.max(1, Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24)));
-            
-            if (subscription.type === 'yearly') {
-                // Membres annuels : plus de points car ils sont plus engagés
-                basePoints = Math.min(400, 50 + (daysSinceJoining * 3)); // 3 points par jour
-            } else if (subscription.type === 'honor') {
-                // Membres d'honneur : beaucoup de points
-                basePoints = Math.min(800, 200 + (daysSinceJoining * 5)); // 5 points par jour
-            } else {
-                // Membres mensuels : moins de points
-                basePoints = Math.min(150, 10 + (daysSinceJoining * 1)); // 1 point par jour
-            }
-            
-            return {
-                points: basePoints,
-                tier: getCurrentTier(basePoints).key,
-                totalEarned: basePoints + Math.floor(basePoints * 0.3), // Quelques points dépensés
-                totalSpent: Math.floor(basePoints * 0.3)
-            };
-        }
-
-        function generateRealisticUsageData() {
-            const subscription = memberData.subscription || {};
-            const createdAt = memberData.createdAt || new Date();
-            const daysSinceJoining = Math.max(1, Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24)));
-            const weeksSinceJoining = Math.max(1, Math.floor(daysSinceJoining / 7));
-            
-            let eventsAttended, coworkingHours, totalVisits;
-            
-            if (subscription.type === 'yearly') {
-                // Membres annuels : plus actifs
-                eventsAttended = Math.min(20, Math.floor(weeksSinceJoining * 0.8)); // 0.8 événement par semaine
-                coworkingHours = Math.min(100, Math.floor(daysSinceJoining * 2)); // 2h par jour en moyenne
-                totalVisits = Math.min(50, Math.floor(daysSinceJoining * 0.5)); // 1 visite tous les 2 jours
-            } else if (subscription.type === 'honor') {
-                // Membres d'honneur : très actifs
-                eventsAttended = Math.min(35, Math.floor(weeksSinceJoining * 1.2)); // 1.2 événement par semaine
-                coworkingHours = Math.min(200, Math.floor(daysSinceJoining * 3)); // 3h par jour en moyenne
-                totalVisits = Math.min(80, Math.floor(daysSinceJoining * 0.8)); // 0.8 visite par jour
-            } else {
-                // Membres mensuels : modérément actifs
-                eventsAttended = Math.min(8, Math.floor(weeksSinceJoining * 0.4)); // 0.4 événement par semaine
-                coworkingHours = Math.min(40, Math.floor(daysSinceJoining * 0.8)); // 0.8h par jour en moyenne
-                totalVisits = Math.min(25, Math.floor(daysSinceJoining * 0.3)); // 1 visite tous les 3 jours
-            }
-            
-            return {
-                eventsAttended: eventsAttended,
-                coworkingHours: coworkingHours,
-                totalVisits: totalVisits,
-                thisMonthEvents: Math.min(eventsAttended, Math.floor(Math.random() * 4) + 1),
-                thisMonthCoworking: Math.min(coworkingHours, Math.floor(Math.random() * 15) + 5),
-                lastVisit: new Date(Date.now() - (Math.random() * 7 * 24 * 60 * 60 * 1000)) // Dernière visite dans les 7 derniers jours
-            };
-        }
-
-        async function loadMemberData() {
-            console.log('📊 Chargement des données membre');
-
+        async function handleLogout() {
             try {
-                if (currentUser) {
-                    // Récupérer depuis Firebase
-                    const userDoc = await db.collection('members').doc(currentUser.uid).get();
-                    if (userDoc.exists) {
-                        memberData = userDoc.data();
-                        console.log('📊 Données Firebase récupérées:', memberData);
-                    } else {
-                        console.log('⚠️ Aucune donnée Firebase, utilisation des données locales');
-                        // Fallback vers les données locales
-                        loadLocalData();
-                    }
+                await FornapAuth.signOut();
+                showMessage('Déconnexion réussie', 'success');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1000);
+            } catch (error) {
+                console.error('❌ Erreur déconnexion:', error);
+                showMessage('Erreur lors de la déconnexion', 'error');
+            }
+        }
+
+        function showLoginModal() {
+            showMessage('Connectez-vous d\'abord sur la page d\'accueil', 'info');
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 2000);
+        }
+
+        // Initialisation spécifique au dashboard
+        function initPageSpecific() {
+            console.log('🎯 Initialisation spécifique Dashboard');
+            
+            if (currentUser) {
+                loadUserData();
+            } else {
+                // Rediriger vers la page d'accueil si pas connecté
+                showMessage('Veuillez vous connecter pour accéder au dashboard', 'warning');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+            }
+        }
+
+        async function loadUserData() {
+            try {
+                console.log('📊 Chargement des données utilisateur...');
+                
+                userData = await FornapAuth.getUserData();
+                if (userData) {
+                    displayUserInfo(userData);
+                    displaySubscriptionInfo(userData);
+                    displayLoyaltyInfo(userData);
+                    displayProfileInfo(userData);
+                    displayStats(userData);
                 } else {
-                    loadLocalData();
+                    console.log('⚠️ Données utilisateur non trouvées');
+                    showMessage('Problème de chargement des données utilisateur', 'warning');
                 }
-
-                // Générer des données réalistes basées sur l'utilisateur et l'abonnement
-                if (!memberData.loyalty) {
-                    memberData.loyalty = generateRealisticLoyaltyData();
-                }
-
-                if (!memberData.usage) {
-                    memberData.usage = generateRealisticUsageData();
-                }
-
-                updateDashboard();
-
+                
             } catch (error) {
                 console.error('❌ Erreur chargement données:', error);
-                showMessage('Erreur lors du chargement des données', 'error');
-                loadLocalData();
-                updateDashboard();
+                showMessage('Erreur lors du chargement de vos données', 'error');
             }
         }
 
-        function loadLocalData() {
-            // Récupérer depuis sessionStorage
-            const userProfile = sessionStorage.getItem('userProfile');
-            const membershipData = sessionStorage.getItem('membershipData');
-            const selectedPlan = sessionStorage.getItem('selectedPlan');
+        function displayUserInfo(data) {
+            // Affichage des informations utilisateur dans le header
+            const userFirstName = document.getElementById('userFirstName');
+            const userInitials = document.getElementById('userInitials');
+            const memberNumber = document.getElementById('memberNumber');
 
-            if (userProfile) {
-                memberData.profile = JSON.parse(userProfile);
+            if (userFirstName && data.profile?.firstName) {
+                userFirstName.textContent = data.profile.firstName;
             }
 
-            if (membershipData) {
-                memberData.membership = JSON.parse(membershipData);
+            if (userInitials && data.profile?.firstName && data.profile?.lastName) {
+                userInitials.textContent = 
+                    data.profile.firstName.charAt(0).toUpperCase() + 
+                    data.profile.lastName.charAt(0).toUpperCase();
             }
 
-            if (selectedPlan) {
-                const plan = JSON.parse(selectedPlan);
-                memberData.subscription = {
-                    type: plan.level || 'monthly',
-                    name: plan.name || 'Membre Mensuel',
-                    amount: plan.amount || plan.price || 12,
-                    period: plan.period || '/mois',
-                    loyaltyEnabled: plan.loyaltyEnabled || false,
-                    features: plan.features || []
-                };
-            }
-
-            // Données par défaut si rien n'est trouvé
-            if (!memberData.profile) {
-                memberData.profile = {
-                    firstName: 'Nouveau',
-                    lastName: 'Membre',
-                    email: currentUser?.email || 'membre@fornap.fr'
-                };
-            }
-
-            if (!memberData.subscription) {
-                memberData.subscription = {
-                    type: 'monthly',
-                    name: 'Membre Mensuel',
-                    amount: 12,
-                    period: '/mois',
-                    loyaltyEnabled: false,
-                    features: ['Accès journée', 'WiFi', 'Espaces communs']
-                };
+            if (memberNumber && data.uid) {
+                memberNumber.textContent = `N° FORNAP-${data.uid.slice(-6).toUpperCase()}`;
             }
         }
 
-        function updateDashboard() {
-            console.log('🔄 Mise à jour du dashboard');
+        function displaySubscriptionInfo(data) {
+            const planName = document.getElementById('planName');
+            const planPrice = document.getElementById('planPrice');
+            const planPeriod = document.getElementById('planPeriod');
+            const renewalDate = document.getElementById('renewalDate');
+            const subscriptionFeatures = document.getElementById('subscriptionFeatures');
 
-            // Header utilisateur
-            const firstName = memberData.profile?.firstName || 'Nouveau';
-            const lastName = memberData.profile?.lastName || 'Membre';
-            
-            document.getElementById('userFirstName').textContent = firstName;
-            document.getElementById('userInitials').textContent = generateInitials(firstName, lastName);
+            // Données par défaut si pas d'abonnement défini
+            const membership = data.membership || {
+                plan: 'mensuel',
+                status: 'active'
+            };
 
-            // Numéro de membre
-            const memberNumber = memberData.membership?.number || `FORNAP-${Date.now().toString().slice(-6)}`;
-            document.getElementById('memberNumber').textContent = `N° ${memberNumber}`;
+            const plan = window.FornapConfig.membershipPlans[membership.plan] || 
+                         window.FornapConfig.membershipPlans.mensuel;
 
-            // Abonnement
-            updateSubscriptionInfo();
+            if (planName) planName.textContent = plan.name;
+            if (planPrice) planPrice.textContent = plan.price + '€';
+            if (planPeriod) planPeriod.textContent = plan.period;
 
-            // Programme de fidélité (conditionnel)
-            updateLoyaltyProgram();
+            if (renewalDate) {
+                const nextRenewal = new Date();
+                nextRenewal.setMonth(nextRenewal.getMonth() + 1);
+                renewalDate.textContent = nextRenewal.toLocaleDateString('fr-FR');
+            }
 
-            // Statistiques
-            updateStats();
-
-            // Profil
-            updateProfileSummary();
-
-            // Activité récente
-            updateRecentActivity();
+            if (subscriptionFeatures && plan.features) {
+                subscriptionFeatures.innerHTML = `
+                    <ul class="features-list">
+                        ${plan.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                `;
+            }
         }
 
-        function updateSubscriptionInfo() {
-            const subscription = memberData.subscription || {};
-            
-            document.getElementById('planName').textContent = subscription.name || 'Membre Mensuel';
-            document.getElementById('planPrice').textContent = (subscription.amount || 12) + '€';
-            document.getElementById('planPeriod').textContent = subscription.period || '/mois';
-
-            // Date de renouvellement
-            const today = new Date();
-            const renewalDate = subscription.type === 'yearly' ? 
-                new Date(today.getFullYear() + 1, today.getMonth(), today.getDate()) :
-                new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
-            
-            document.getElementById('renewalDate').textContent = renewalDate.toLocaleDateString('fr-FR');
-
-            // Fonctionnalités
-            const featuresContainer = document.getElementById('subscriptionFeatures');
-            const features = subscription.features || ['Accès journée', 'WiFi', 'Espaces communs'];
-            
-            featuresContainer.innerHTML = `
-                <h5>Vos avantages :</h5>
-                <ul class="features-list">
-                    ${features.map(feature => `<li>✓ ${feature}</li>`).join('')}
-                </ul>
-            `;
-        }
-
-        function updateLoyaltyProgram() {
-            const subscription = memberData.subscription || {};
+        function displayLoyaltyInfo(data) {
             const loyaltyCard = document.getElementById('loyaltyCard');
             const loyaltyStatCard = document.getElementById('loyaltyStatCard');
-            
-            // Vérifier si le programme de fidélité est accessible
-            const hasLoyalty = subscription.loyaltyEnabled || 
-                              subscription.type === 'yearly' || 
-                              subscription.type === 'honor';
+            const loyaltyContent = document.getElementById('loyaltyContent');
+            const loyaltyTier = document.getElementById('loyaltyTier');
+            const loyaltyPoints = document.getElementById('loyaltyPoints');
 
-            if (hasLoyalty) {
-                // Programme actif
-                loyaltyCard.classList.remove('loyalty-disabled');
-                loyaltyStatCard.classList.remove('loyalty-disabled');
-                
-                const points = memberData.loyalty?.points || 0;
-                const currentTier = getCurrentTier(points);
-                const nextTier = getNextTier(currentTier.key);
+            const membership = data.membership || { plan: 'mensuel' };
+            const plan = window.FornapConfig.membershipPlans[membership.plan];
+            const isLoyaltyEnabled = plan?.loyaltyEnabled || false;
 
-                // Mettre à jour les points
-                document.getElementById('loyaltyPoints').textContent = points;
-                document.getElementById('loyaltyTier').textContent = currentTier.name;
-
-                // Progression
-                if (nextTier) {
-                    const progress = ((points - currentTier.min) / (nextTier.min - currentTier.min)) * 100;
-                    document.getElementById('loyaltyProgressFill').style.width = `${Math.min(100, progress)}%`;
-                    document.getElementById('loyaltyProgressText').textContent = 
-                        `${nextTier.min - points} pts pour ${nextTier.name}`;
-                } else {
-                    document.getElementById('loyaltyProgressFill').style.width = '100%';
-                    document.getElementById('loyaltyProgressText').textContent = 'Niveau maximum !';
+            if (!isLoyaltyEnabled) {
+                // Désactiver le programme de fidélité pour les membres mensuels
+                if (loyaltyCard) {
+                    loyaltyCard.classList.add('loyalty-disabled');
+                    loyaltyContent.innerHTML = `
+                        <div class="loyalty-upgrade-prompt">
+                            <div class="upgrade-icon">🚀</div>
+                            <h4>Programme de fidélité non disponible</h4>
+                            <p>Passez à un abonnement annuel pour débloquer le programme de fidélité !</p>
+                            <ul>
+                                <li>⭐ Gagnez des points à chaque action</li>
+                                <li>🎁 Échangez vos points contre des récompenses</li>
+                                <li>🏆 Débloquez des niveaux exclusifs</li>
+                            </ul>
+                            <button class="btn btn-primary" onclick="showUpgradeModal()">
+                                Passer à l'annuel
+                            </button>
+                        </div>
+                    `;
                 }
 
-                // Contenu de la carte fidélité
-                document.getElementById('loyaltyContent').innerHTML = `
-                    <div class="loyalty-details">
-                        <div class="loyalty-progress-detail">
-                            <div class="tier-info">
-                                <span class="current-tier">${currentTier.name}</span>
-                                <span class="tier-points">${points} points</span>
-                            </div>
-                            ${nextTier ? `
-                                <div class="next-tier-info">
-                                    <p>Prochain niveau : <strong>${nextTier.name}</strong></p>
-                                    <p class="points-needed">Plus que ${nextTier.min - points} points !</p>
-                                </div>
-                            ` : `
-                                <div class="max-tier-info">
-                                    <p>🎉 Félicitations ! Vous êtes au niveau maximum !</p>
-                                </div>
-                            `}
-                        </div>
-                        
-                        <div class="loyalty-rewards">
-                            <h5>Récompenses disponibles :</h5>
-                            <div class="rewards-list">
-                                <div class="reward-item ${points >= 100 ? 'available' : 'locked'}">
-                                    <span class="reward-icon">☕</span>
-                                    <span class="reward-name">Café gratuit</span>
-                                    <span class="reward-cost">100 pts</span>
-                                </div>
-                                <div class="reward-item ${points >= 250 ? 'available' : 'locked'}">
-                                    <span class="reward-icon">🎫</span>
-                                    <span class="reward-name">Invité gratuit</span>
-                                    <span class="reward-cost">250 pts</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                if (loyaltyStatCard) {
+                    loyaltyStatCard.classList.add('loyalty-disabled');
+                }
 
+                if (loyaltyPoints) {
+                    loyaltyPoints.textContent = '🔒';
+                }
+
+                if (loyaltyTier) {
+                    loyaltyTier.textContent = 'Non disponible';
+                }
             } else {
-                // Programme grisé pour inciter à l'upgrade
-                loyaltyCard.classList.add('loyalty-disabled');
-                loyaltyStatCard.classList.add('loyalty-disabled');
+                // Afficher le programme de fidélité actif
+                const loyalty = data.loyalty || { points: 0, tier: 'bronze' };
                 
-                document.getElementById('loyaltyPoints').textContent = '—';
-                document.getElementById('loyaltyProgressText').textContent = 'Passez à l\'annuel !';
-                document.getElementById('loyaltyProgressFill').style.width = '0%';
+                if (loyaltyPoints) {
+                    loyaltyPoints.textContent = loyalty.points || 0;
+                }
 
-                document.getElementById('loyaltyContent').innerHTML = `
-                    <div class="loyalty-upgrade-prompt">
-                        <div class="upgrade-icon">🚀</div>
-                        <h4>Programme de Fidélité</h4>
-                        <p>Passez au <strong>Membre Annuel</strong> pour débloquer :</p>
-                        <ul>
-                            <li>⭐ Points de fidélité</li>
-                            <li>🎁 Récompenses exclusives</li>
-                            <li>💰 Réductions supplémentaires</li>
-                            <li>🎯 Accès anticipé aux événements</li>
-                        </ul>
-                        <button class="btn btn-primary btn-small" onclick="showUpgradeModal()">
-                            Passer à l'annuel
-                        </button>
-                    </div>
-                `;
+                if (loyaltyTier) {
+                    loyaltyTier.textContent = loyalty.tier.charAt(0).toUpperCase() + loyalty.tier.slice(1);
+                }
+
+                if (loyaltyContent) {
+                    loyaltyContent.innerHTML = generateLoyaltyContent(loyalty);
+                }
+
+                updateLoyaltyProgress(loyalty);
             }
         }
 
-        function updateStats() {
-            const usage = memberData.usage || {};
-            const subscription = memberData.subscription || {};
-            const loyalty = memberData.loyalty || {};
-            
-            // Événements (afficher les événements du mois)
-            const thisMonthEvents = usage.thisMonthEvents || usage.eventsAttended || 0;
-            document.getElementById('eventsCount').textContent = thisMonthEvents;
-            
-            // Coworking (afficher les heures du mois)
-            const thisMonthCoworking = usage.thisMonthCoworking || Math.min(usage.coworkingHours || 0, 20);
-            document.getElementById('coworkingHours').textContent = thisMonthCoworking + 'h';
-            
-            // Économies réalistes basées sur l'utilisation réelle
-            const discount = subscription.type === 'yearly' ? 0.2 : subscription.type === 'honor' ? 0.25 : 0.1;
-            const avgSpendingPerVisit = 15; // Moyenne réaliste par visite (café, snacks, etc.)
-            const totalSavings = Math.floor(avgSpendingPerVisit * discount * (usage.totalVisits || 1));
-            document.getElementById('savingsAmount').textContent = totalSavings + '€';
-        }
+        function generateLoyaltyContent(loyalty) {
+            const tierThresholds = {
+                bronze: { min: 0, max: 100, next: 'silver' },
+                silver: { min: 100, max: 500, next: 'gold' },
+                gold: { min: 500, max: 1000, next: 'platinum' },
+                platinum: { min: 1000, max: Infinity, next: null }
+            };
 
-        function updateProfileSummary() {
-            const profile = memberData.profile || {};
-            
-            document.getElementById('profileSummary').innerHTML = `
-                <div class="profile-info">
-                    <p><strong>${profile.firstName || 'Prénom'} ${profile.lastName || 'Nom'}</strong></p>
-                    <p class="profile-email">${profile.email || 'Email non renseigné'}</p>
-                    ${profile.phone ? `<p class="profile-phone">${profile.phone}</p>` : ''}
-                    ${profile.profession ? `<p class="profile-profession">${profile.profession}</p>` : ''}
-                    ${profile.company ? `<p class="profile-company">${profile.company}</p>` : ''}
+            const currentTier = tierThresholds[loyalty.tier] || tierThresholds.bronze;
+            const pointsInTier = loyalty.points - currentTier.min;
+            const pointsNeeded = currentTier.max - loyalty.points;
+
+            let tierInfo = '';
+            if (currentTier.next) {
+                tierInfo = `
+                    <div class="next-tier-info">
+                        <p><strong>Prochain niveau :</strong> ${currentTier.next.charAt(0).toUpperCase() + currentTier.next.slice(1)}</p>
+                        <p class="points-needed">Plus que ${pointsNeeded} points !</p>
+                    </div>
+                `;
+            } else {
+                tierInfo = `
+                    <div class="max-tier-info">
+                        <p><strong>🏆 Niveau maximum atteint !</strong></p>
+                        <p>Vous êtes un membre Platinum premium</p>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="loyalty-details">
+                    <div class="tier-info">
+                        <span class="current-tier">${loyalty.tier.charAt(0).toUpperCase() + loyalty.tier.slice(1)}</span>
+                        <span class="tier-points">${loyalty.points} points</span>
+                    </div>
+                    ${tierInfo}
+                    <div class="rewards-section">
+                        <h4>🎁 Récompenses disponibles</h4>
+                        <div class="rewards-list">
+                            ${generateRewardsHTML(loyalty.points)}
+                        </div>
+                    </div>
                 </div>
             `;
         }
 
-        function updateRecentActivity() {
-            const usage = memberData.usage || {};
-            const subscription = memberData.subscription || {};
-            const profile = memberData.profile || {};
-            
-            const activities = [];
-            
-            // Activité d'inscription
-            activities.push({
-                icon: '🎯',
-                text: `Inscription réussie en tant que ${subscription.name || 'Membre FORNAP'} !`,
-                date: 'Aujourd\'hui'
-            });
-            
-            // Activité basée sur les données d'utilisation
-            if (usage.eventsAttended > 0) {
-                activities.push({
-                    icon: '🎫',
-                    text: `Participation à ${usage.eventsAttended} événement${usage.eventsAttended > 1 ? 's' : ''}`,
-                    date: 'Cette semaine'
-                });
-            }
-            
-            if (usage.coworkingHours > 0) {
-                activities.push({
-                    icon: '💼',
-                    text: `${usage.coworkingHours}h de coworking utilisées`,
-                    date: 'Ce mois-ci'
-                });
-            }
-            
-            if (subscription.type === 'yearly' || subscription.type === 'honor') {
-                activities.push({
-                    icon: '⭐',
-                    text: 'Programme de fidélité activé',
-                    date: 'À l\'inscription'
-                });
-            }
-            
-            // Si peu d'activités, ajouter des suggestions
-            if (activities.length < 3) {
-                activities.push({
-                    icon: '🚀',
-                    text: 'Réservez votre premier espace coworking',
-                    date: 'Suggestion',
-                    suggestion: true
-                });
-            }
-            
-            const activityList = document.getElementById('activityList');
-            activityList.innerHTML = activities.map(activity => `
-                <div class="activity-item ${activity.suggestion ? 'activity-suggestion' : ''}">
-                    <div class="activity-icon">${activity.icon}</div>
-                    <div class="activity-info">
-                        <p><strong>${activity.text}</strong></p>
-                        <span class="activity-date">${activity.date}</span>
-                    </div>
+        function generateRewardsHTML(points) {
+            const rewards = [
+                { name: 'Café gratuit', cost: 50, icon: '☕' },
+                { name: 'Journée coworking', cost: 100, icon: '🏢' },
+                { name: 'Invite événement', cost: 150, icon: '🎫' },
+                { name: 'T-shirt FORNAP', cost: 300, icon: '👕' }
+            ];
+
+            return rewards.map(reward => `
+                <div class="reward-item ${points >= reward.cost ? 'available' : 'locked'}">
+                    <span class="reward-icon">${reward.icon}</span>
+                    <span class="reward-name">${reward.name}</span>
+                    <span class="reward-cost">${reward.cost} pts</span>
                 </div>
             `).join('');
         }
 
+        function updateLoyaltyProgress(loyalty) {
+            const progressFill = document.getElementById('loyaltyProgressFill');
+            const progressText = document.getElementById('loyaltyProgressText');
+
+            const tierThresholds = {
+                bronze: { min: 0, max: 100 },
+                silver: { min: 100, max: 500 },
+                gold: { min: 500, max: 1000 },
+                platinum: { min: 1000, max: Infinity }
+            };
+
+            const currentTier = tierThresholds[loyalty.tier] || tierThresholds.bronze;
+            const pointsInTier = loyalty.points - currentTier.min;
+            const tierRange = currentTier.max === Infinity ? 100 : currentTier.max - currentTier.min;
+            const progressPercent = Math.min((pointsInTier / tierRange) * 100, 100);
+
+            if (progressFill) {
+                progressFill.style.width = progressPercent + '%';
+            }
+
+            if (progressText) {
+                if (currentTier.max === Infinity) {
+                    progressText.textContent = 'Niveau maximum';
+                } else {
+                    progressText.textContent = `${pointsInTier}/${tierRange} vers le niveau suivant`;
+                }
+            }
+        }
+
+        function displayProfileInfo(data) {
+            const profileSummary = document.getElementById('profileSummary');
+            
+            if (profileSummary && data.profile) {
+                profileSummary.innerHTML = `
+                    <div class="profile-info">
+                        <p><strong>${data.profile.firstName || ''} ${data.profile.lastName || ''}</strong></p>
+                        <p class="profile-email">${data.email || ''}</p>
+                        <p class="profile-phone">${data.profile.phone || 'Téléphone non renseigné'}</p>
+                        <p class="profile-profession">${data.profile.profession || 'Profession non renseignée'}</p>
+                        <p class="profile-company">${data.profile.company || 'Entreprise non renseignée'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayStats(data) {
+            // Affichage des statistiques basiques
+            const eventsCount = document.getElementById('eventsCount');
+            const coworkingHours = document.getElementById('coworkingHours');
+            const savingsAmount = document.getElementById('savingsAmount');
+
+            if (eventsCount) eventsCount.textContent = data.stats?.events || 0;
+            if (coworkingHours) coworkingHours.textContent = (data.stats?.coworkingHours || 0) + 'h';
+            if (savingsAmount) savingsAmount.textContent = (data.stats?.savings || 0) + '€';
+        }
+
+        // Fonctions modales et actions
         function showUpgradeModal() {
             document.getElementById('upgradeModal').classList.remove('hidden');
         }
@@ -746,9 +608,9 @@
         }
 
         function upgradeMembership() {
-            showMessage('Redirection vers la mise à niveau...', 'info');
+            showMessage('Redirection vers la page de mise à niveau...', 'info');
             setTimeout(() => {
-                window.location.href = '../pages/membership.html';
+                window.location.href = 'membership.html';
             }, 1000);
         }
 
@@ -759,42 +621,61 @@
             }, 1000);
         }
 
-        async function handleLogout() {
-            try {
-                await auth.signOut();
-                console.log('✅ Déconnexion réussie');
-                showMessage('Déconnexion réussie', 'success');
-                
-                sessionStorage.clear();
-                
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('❌ Erreur déconnexion:', error);
-                showMessage('Erreur lors de la déconnexion', 'error');
-            }
-        }
-
-        // Gestion de l'authentification
-        auth.onAuthStateChanged(function(user) {
-            console.log('Changement état auth:', user ? user.email : 'déconnecté');
-            currentUser = user;
-            
-            if (!user) {
-                console.log('⚠️ Utilisateur non connecté');
-                showMessage('Session expirée. Redirection...', 'warning');
-                setTimeout(() => window.location.href = '../index.html', 3000);
-            } else {
-                loadMemberData();
-            }
-        });
-
         // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM chargé - Dashboard');
+
+            try {
+                // Initialiser les services
+                await FornapAuth.init();
+                
+                // Initialiser les composants
+                initFornapComponents();
+
+                // Écouter les changements d'authentification
+                FornapAuth.onAuthStateChanged((user) => {
+                    currentUser = user;
+                    console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
+                    
+                    // Mettre à jour l'interface via le système global synchronisé
+                    FornapComponents.syncAuthState(!!user);
+                    
+                    // Charger les données spécifiques si connecté
+                    if (user) {
+                        initPageSpecific();
+                    }
+                });
+
+                console.log('🎯 FORNAP Dashboard prête !');
+
+            } catch (error) {
+                console.error('❌ Erreur initialisation:', error);
+                showMessage('Erreur lors du chargement. Veuillez recharger la page.', 'error');
+            }
         });
+
+        // Initialisation des composants FORNAP
+        function initFornapComponents() {
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('dashboard', '../');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
+            }
+
+            // Initialiser les événements après injection
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('../', {
+                    onLogin: showLoginModal,
+                    onLogout: handleLogout
+                });
+            }, 100);
+        }
     </script>
 
     <style>
@@ -1409,49 +1290,5 @@
             }
         }
     </style>
-
-    <!-- ========================================
-         SCRIPTS FIREBASE
-         ======================================== -->
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
-    
-    <!-- ========================================
-         MODULES FORNAP
-         ======================================== -->
-    <script src="../assets/js/config.js"></script>
-    <script src="../assets/js/utils.js"></script>
-    <script src="../assets/js/auth-service.js"></script>
-    <script src="../assets/js/components.js"></script>
-
-    <script>
-        // Initialisation des composants FORNAP pour la page dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Initialisation composants FORNAP - Dashboard');
-
-            // Injecter la navbar avec le bon basePath
-            const navbarPlaceholder = document.getElementById('navbar-placeholder');
-            if (navbarPlaceholder) {
-                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('dashboard', '../');
-            }
-
-            // Injecter le footer
-            const footerPlaceholder = document.getElementById('footer-placeholder');
-            if (footerPlaceholder) {
-                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
-            }
-
-            // Initialiser les événements après injection
-            setTimeout(() => {
-                FornapComponents.initNavbarEvents('../', {
-                    onLogin: () => {
-                        console.log('Login demandé (déjà connecté)');
-                    },
-                    onLogout: handleLogout
-                });
-            }, 100);
-        });
-    </script>
 </body>
 </html> 

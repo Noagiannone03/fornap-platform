@@ -75,6 +75,11 @@ class FornapAuthService {
                 console.error('❌ Erreur callback auth:', error);
             }
         });
+        
+        // Synchroniser l'état global des composants
+        if (window.FornapComponents) {
+            FornapComponents.syncAuthState(!!user);
+        }
     }
 
     /**

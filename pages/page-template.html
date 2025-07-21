@@ -76,11 +76,54 @@
     <!-- ========================================
          JAVASCRIPT PRINCIPAL
          ======================================== -->
+    
     <script>
-        console.log('🚀 Page Template FORNAP');
+        console.log('🚀 FORNAP - Template');
 
         // Variables globales
         let currentUser = null;
+
+        // Fonctions utilitaires
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            if (!container) {
+                // Créer le container s'il n'existe pas
+                const messageContainer = document.createElement('div');
+                messageContainer.id = 'messageContainer';
+                document.body.appendChild(messageContainer);
+            }
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            document.getElementById('messageContainer').appendChild(messageElement);
+
+            setTimeout(() => messageElement.classList.add('show'), 100);
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+                setTimeout(() => messageElement.remove(), 300);
+            }, 4000);
+        }
+
+        async function handleLogout() {
+            try {
+                await FornapAuth.signOut();
+                showMessage('Déconnexion réussie', 'success');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1000);
+            } catch (error) {
+                console.error('❌ Erreur déconnexion:', error);
+                showMessage('Erreur lors de la déconnexion', 'error');
+            }
+        }
+
+        function showLoginModal() {
+            showMessage('Connectez-vous d\'abord sur la page d\'accueil', 'info');
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 2000);
+        }
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', async function() {
@@ -89,30 +132,34 @@
             try {
                 // Initialiser les services
                 await FornapAuth.init();
-                console.log('✅ Services initialisés');
-
+                
                 // Initialiser les composants
-                initComponents();
+                initFornapComponents();
 
                 // Écouter les changements d'authentification
                 FornapAuth.onAuthStateChanged((user) => {
                     currentUser = user;
                     console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
                     
-                    // Mettre à jour l'interface
-                    FornapComponents.updateAuthState(!!user);
+                    // Mettre à jour l'interface via le système global synchronisé
+                    FornapComponents.syncAuthState(!!user);
                 });
 
-                FornapUtils.showMessage('Template FORNAP chargé avec succès !', 'success');
+                // Initialisation spécifique à la page
+                if (typeof initPageSpecific === 'function') {
+                    initPageSpecific();
+                }
+
+                console.log('🎯 FORNAP Template prête !');
 
             } catch (error) {
                 console.error('❌ Erreur initialisation:', error);
-                FornapUtils.handleError(error, 'initialisation');
+                showMessage('Erreur lors du chargement. Veuillez recharger la page.', 'error');
             }
         });
 
-        // Initialiser les composants
-        function initComponents() {
+        // Initialisation des composants FORNAP
+        function initFornapComponents() {
             // Injecter la navbar
             const navbarPlaceholder = document.getElementById('navbar-placeholder');
             if (navbarPlaceholder) {
@@ -128,100 +175,13 @@
             // Initialiser les événements après injection
             setTimeout(() => {
                 FornapComponents.initNavbarEvents('../', {
-                    onLogin: () => FornapUtils.showMessage('Fonctionnalité login à implémenter', 'info'),
+                    onLogin: showLoginModal,
                     onLogout: handleLogout
                 });
             }, 100);
         }
-
-        // Tests des fonctionnalités
-        function testAuth() {
-            FornapUtils.showMessage('Service d\'authentification : ' + (FornapAuth.isAuthenticated() ? 'Connecté' : 'Déconnecté'), 'info');
-        }
-
-        function testMessages() {
-            FornapUtils.showMessage('Message de succès !', 'success');
-            setTimeout(() => FornapUtils.showMessage('Message d\'erreur !', 'error'), 1000);
-            setTimeout(() => FornapUtils.showMessage('Message d\'avertissement !', 'warning'), 2000);
-            setTimeout(() => FornapUtils.showMessage('Message d\'information !', 'info'), 3000);
-        }
-
-        function testUtils() {
-            const email = document.getElementById('testEmail').value;
-            
-            if (email && FornapUtils.validateEmail(email)) {
-                FornapUtils.showMessage('Email valide : ' + email, 'success');
-            } else {
-                FornapUtils.showMessage('Email invalide ou manquant', 'error');
-            }
-        }
-
-        async function testSignUp() {
-            const email = document.getElementById('testEmail').value;
-            const password = document.getElementById('testPassword').value;
-
-            if (!FornapUtils.validateEmail(email)) {
-                FornapUtils.showMessage('Email invalide', 'error');
-                return;
-            }
-
-            if (!FornapUtils.validatePassword(password)) {
-                FornapUtils.showMessage('Mot de passe trop court (min 6 caractères)', 'error');
-                return;
-            }
-
-            try {
-                FornapUtils.showLoading(true, 'Création du compte...', 'Veuillez patienter');
-                
-                const user = await FornapAuth.signUp(email, password, {
-                    displayName: 'Test User',
-                    firstName: 'Test',
-                    lastName: 'User'
-                });
-
-                FornapUtils.showLoading(false);
-                FornapUtils.showMessage('Compte créé avec succès !', 'success');
-                
-            } catch (error) {
-                FornapUtils.showLoading(false);
-                FornapUtils.handleError(error, 'création de compte');
-            }
-        }
-
-        async function testSignIn() {
-            const email = document.getElementById('testEmail').value;
-            const password = document.getElementById('testPassword').value;
-
-            if (!email || !password) {
-                FornapUtils.showMessage('Veuillez remplir tous les champs', 'error');
-                return;
-            }
-
-            try {
-                FornapUtils.showLoading(true, 'Connexion...', 'Vérification des identifiants');
-                
-                const user = await FornapAuth.signIn(email, password);
-                
-                FornapUtils.showLoading(false);
-                FornapUtils.showMessage('Connexion réussie !', 'success');
-                
-            } catch (error) {
-                FornapUtils.showLoading(false);
-                FornapUtils.handleError(error, 'connexion');
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await FornapAuth.signOut();
-                FornapUtils.showMessage('Déconnexion réussie', 'success');
-            } catch (error) {
-                FornapUtils.handleError(error, 'déconnexion');
-            }
-        }
-
-        console.log('🎯 Template FORNAP prêt !');
     </script>
+
 
     <style>
         /* Styles spécifiques au template */
@@ -258,5 +218,6 @@
             }
         }
     </style>
+    <div id="messageContainer"></div>
 </body>
 </html> 

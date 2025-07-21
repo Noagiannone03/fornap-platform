@@ -1,17 +1,101 @@
 /**
  * FORNAP - Composants Réutilisables
- * Navbar et Footer pour toutes les pages
+ * Navbar et Footer pour toutes les pages avec synchronisation globale
  */
 
 class FornapComponents {
     
+    constructor() {
+        this.authState = null;
+        this.isInitialized = false;
+        this.authStateCallbacks = [];
+    }
+
     /**
-     * Génère la navbar FORNAP avec design moderne
+     * Initialise le système de composants avec état global
+     */
+    static init() {
+        if (!window.FornapComponentsInstance) {
+            window.FornapComponentsInstance = new FornapComponents();
+        }
+        return window.FornapComponentsInstance;
+    }
+
+    /**
+     * Ajoute un callback pour les changements d'état d'auth
+     */
+    static onAuthStateChanged(callback) {
+        const instance = FornapComponents.init();
+        instance.authStateCallbacks.push(callback);
+        
+        // Si l'état est déjà connu, appeler immédiatement
+        if (instance.authState !== null) {
+            callback(instance.authState);
+        }
+    }
+
+    /**
+     * Met à jour l'état d'authentification globalement
+     */
+    static updateAuthState(isAuthenticated) {
+        const instance = FornapComponents.init();
+        
+        // Ne rien faire si l'état n'a pas changé
+        if (instance.authState === isAuthenticated) return;
+        
+        instance.authState = isAuthenticated;
+        
+        // Mettre à jour toutes les navbars existantes
+        const navbarAuth = document.getElementById('navbarAuth');
+        const navbarMember = document.getElementById('navbarMember');
+
+        if (navbarAuth && navbarMember) {
+            if (isAuthenticated) {
+                navbarAuth.classList.add('hidden');
+                navbarMember.classList.remove('hidden');
+            } else {
+                navbarAuth.classList.remove('hidden');
+                navbarMember.classList.add('hidden');
+            }
+            
+            console.log('✅ État navbar mis à jour:', isAuthenticated ? 'connecté' : 'déconnecté');
+        }
+
+        // Notifier tous les callbacks
+        instance.authStateCallbacks.forEach(callback => {
+            try {
+                callback(isAuthenticated);
+            } catch (error) {
+                console.error('❌ Erreur callback auth state:', error);
+            }
+        });
+    }
+
+    /**
+     * Génère la navbar FORNAP avec état initial correct
      * @param {string} activePage - Page active pour le style
      * @param {string} basePath - Chemin de base pour les liens ('' pour racine, '../' pour sous-dossiers)
      * @returns {string} HTML de la navbar
      */
     static generateNavbar(activePage = '', basePath = '') {
+        const instance = FornapComponents.init();
+        
+        // Déterminer l'état initial basé sur l'état global ou localStorage
+        let initialAuthState = instance.authState;
+        if (initialAuthState === null) {
+            // Essayer de deviner l'état depuis localStorage ou autre indicateur
+            try {
+                const lastAuthState = localStorage.getItem('fornap_auth_state');
+                initialAuthState = lastAuthState === 'true';
+            } catch (e) {
+                initialAuthState = false;
+            }
+        }
+
+        // Classes pour l'état initial (éviter le saut visuel)
+        const authHidden = initialAuthState ? 'hidden' : '';
+        const memberHidden = initialAuthState ? '' : 'hidden';
+
         return `
         <nav class="fornap-navbar">
             <div class="container">
@@ -49,14 +133,14 @@ class FornapComponents {
                     <!-- Actions Utilisateur -->
                     <div class="navbar-actions">
                         <!-- Utilisateur non connecté -->
-                        <div class="navbar-auth" id="navbarAuth">
+                        <div class="navbar-auth ${authHidden}" id="navbarAuth">
                             <button id="loginBtn" class="btn btn-outline">Se connecter</button>
                             <button onclick="window.location.href='${basePath}pages/membership.html'" 
                                     class="btn btn-primary">Devenir membre</button>
                         </div>
                         
                         <!-- Utilisateur connecté -->
-                        <div class="navbar-member hidden" id="navbarMember">
+                        <div class="navbar-member ${memberHidden}" id="navbarMember">
                             <button id="dashboardBtn" class="btn btn-primary">Dashboard</button>
                             <button id="logoutBtn" class="btn btn-outline">Déconnexion</button>
                         </div>
@@ -197,7 +281,7 @@ class FornapComponents {
 
         if (dashboardBtn) {
             dashboardBtn.addEventListener('click', () => {
-                window.location.href = basePath + (basePath ? '' : 'pages/') + 'dashboard.html';
+                window.location.href = basePath + 'pages/dashboard.html';
             });
         }
 
@@ -209,24 +293,30 @@ class FornapComponents {
     }
 
     /**
-     * Met à jour l'état d'authentification de la navbar
-     * @param {boolean} isAuthenticated - Utilisateur connecté ou non
+     * Sauvegarde l'état d'authentification pour éviter le saut visuel
      */
-    static updateAuthState(isAuthenticated) {
-        const navbarAuth = document.getElementById('navbarAuth');
-        const navbarMember = document.getElementById('navbarMember');
-
-        if (navbarAuth && navbarMember) {
-            if (isAuthenticated) {
-                navbarAuth.classList.add('hidden');
-                navbarMember.classList.remove('hidden');
-            } else {
-                navbarAuth.classList.remove('hidden');
-                navbarMember.classList.add('hidden');
-            }
+    static saveAuthState(isAuthenticated) {
+        try {
+            localStorage.setItem('fornap_auth_state', isAuthenticated.toString());
+        } catch (e) {
+            console.warn('⚠️ Impossible de sauvegarder l\'état auth dans localStorage');
         }
     }
+
+    /**
+     * Synchronise l'état d'authentification avec sauvegarde
+     */
+    static syncAuthState(isAuthenticated) {
+        // Sauvegarder pour éviter le saut visuel au prochain chargement
+        FornapComponents.saveAuthState(isAuthenticated);
+        
+        // Mettre à jour immédiatement
+        FornapComponents.updateAuthState(isAuthenticated);
+    }
 }
+
+// Initialiser automatiquement l'instance globale
+FornapComponents.init();
 
 // Export pour utilisation globale
 window.FornapComponents = FornapComponents; 

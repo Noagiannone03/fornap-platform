@@ -276,68 +276,23 @@
     <script>
         console.log('🚀 FORNAP - Page Forfaits');
 
-        // Configuration Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyALz161yfiLaOeHU82DQNJV4PkzAXO1wzM",
-            authDomain: "nap-7aa80.firebaseapp.com",
-            projectId: "nap-7aa80",
-            storageBucket: "nap-7aa80.firebasestorage.app",
-            messagingSenderId: "434731738248",
-            appId: "1:434731738248:web:481644f3a6e809c06d2b3d",
-            measurementId: "G-3HVC6HNG02"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        console.log('✅ Firebase initialisé');
-
-        // Configuration des forfaits
-        const MEMBERSHIP_PLANS = {
-            mensuel: {
-                id: 'mensuel',
-                name: 'Membre Mensuel',
-                price: 12,
-                period: '/mois',
-                level: 'monthly',
-                amount: 12,
-                loyaltyEnabled: false,
-                features: ['Accès en journée', 'WiFi', 'Espaces communs', 'Support communauté', 'Événements publics']
-            },
-            annuel: {
-                id: 'annuel',
-                name: 'Membre Annuel', 
-                price: 12,
-                period: '/an',
-                level: 'yearly',
-                amount: 12,
-                loyaltyEnabled: true,
-                features: ['Accès journée', 'Programme fidélité', 'Accès anticipé', 'Réductions -20%', 'Avantages VIP', 'Invité gratuit']
-            },
-            honneur: {
-                id: 'honneur',
-                name: 'Membre d\'Honneur',
-                price: 'special',
-                period: '',
-                level: 'honor',
-                amount: 0,
-                loyaltyEnabled: true,
-                features: ['Accès 24/7', 'Services premium', 'Soutien financier', 'Reconnaissance publique', 'Décisions importantes']
-            }
-        };
-
         // Variables globales
         let currentUser = null;
-        let selectedPlan = null;
 
         // Fonctions utilitaires
         function showMessage(message, type = 'info') {
-            console.log('💬 Message:', message, type);
-            
             const container = document.getElementById('messageContainer');
+            if (!container) {
+                // Créer le container s'il n'existe pas
+                const messageContainer = document.createElement('div');
+                messageContainer.id = 'messageContainer';
+                document.body.appendChild(messageContainer);
+            }
+            
             const messageElement = document.createElement('div');
             messageElement.className = `message ${type}`;
             messageElement.textContent = message;
-            container.appendChild(messageElement);
+            document.getElementById('messageContainer').appendChild(messageElement);
 
             setTimeout(() => messageElement.classList.add('show'), 100);
             setTimeout(() => {
@@ -346,248 +301,9 @@
             }, 4000);
         }
 
-        function updateUIForAuthState(user) {
-            // Utiliser le nouveau système de composants
-            FornapComponents.updateAuthState(!!user);
-
-            if (user) {
-                console.log('👤 Interface utilisateur connecté');
-            } else {
-                console.log('👤 Interface utilisateur déconnecté');
-            }
-        }
-
-        async function checkCurrentMembership(user) {
-            try {
-                console.log('🔍 Vérification du forfait actuel...');
-                
-                // Vérifier d'abord dans Firebase
-                const userDoc = await db.collection('members').doc(user.uid).get();
-                let currentSubscription = null;
-                
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    currentSubscription = userData.subscription;
-                    console.log('📊 Forfait Firebase trouvé:', currentSubscription);
-                } else {
-                    // Fallback vers sessionStorage
-                    const storedPlan = sessionStorage.getItem('selectedPlan');
-                    if (storedPlan) {
-                        const plan = JSON.parse(storedPlan);
-                        currentSubscription = {
-                            type: plan.level || 'monthly',
-                            name: plan.name || 'Membre Mensuel'
-                        };
-                        console.log('📊 Forfait session trouvé:', currentSubscription);
-                    }
-                }
-                
-                if (currentSubscription) {
-                    adaptInterfaceForCurrentMembership(currentSubscription);
-                }
-                
-            } catch (error) {
-                console.error('❌ Erreur lors de la vérification du forfait:', error);
-            }
-        }
-
-        function adaptInterfaceForCurrentMembership(subscription) {
-            console.log('🎨 Adaptation interface pour forfait actuel:', subscription.name);
-            
-            // Identifier le forfait actuel
-            let currentPlanId = 'mensuel'; // défaut
-            
-            if (subscription.type === 'yearly') {
-                currentPlanId = 'annuel';
-            } else if (subscription.type === 'honor') {
-                currentPlanId = 'honneur';
-            }
-            
-            // Parcourir toutes les cartes de forfait
-            document.querySelectorAll('.pricing-card').forEach(card => {
-                const planId = card.dataset.plan;
-                const button = card.querySelector('.select-plan, .contact-us');
-                
-                if (planId === currentPlanId) {
-                    // Griser le forfait actuel
-                    card.classList.add('current-plan');
-                    card.style.opacity = '0.6';
-                    card.style.pointerEvents = 'none';
-                    
-                    if (button) {
-                        button.textContent = 'Forfait actuel';
-                        button.disabled = true;
-                        button.classList.remove('btn-primary');
-                        button.classList.add('btn-disabled');
-                    }
-                    
-                    // Ajouter un badge
-                    if (!card.querySelector('.current-badge')) {
-                        const badge = document.createElement('div');
-                        badge.className = 'current-badge';
-                        badge.textContent = 'Forfait actuel';
-                        badge.style.cssText = `
-                            position: absolute;
-                            top: 10px;
-                            right: 10px;
-                            background: var(--succes);
-                            color: var(--blanc-principal);
-                            padding: var(--space-1) var(--space-3);
-                            font-size: var(--text-xs);
-                            font-weight: var(--font-bold);
-                            z-index: 2;
-                        `;
-                        card.style.position = 'relative';
-                        card.appendChild(badge);
-                    }
-                } else {
-                    // Les autres forfaits redirigent vers le dashboard
-                    if (button) {
-                        button.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            
-                            showMessage('Redirection vers votre dashboard...', 'info');
-                            setTimeout(() => {
-                                window.location.href = 'dashboard.html';
-                            }, 1000);
-                        });
-                        
-                        // Changer le texte du bouton
-                        if (planId === 'honneur') {
-                            button.textContent = 'Voir dans le dashboard';
-                        } else {
-                            button.textContent = 'Modifier dans le dashboard';
-                        }
-                    }
-                }
-            });
-        }
-
-        // Gestion de l'authentification
-        auth.onAuthStateChanged(function(user) {
-            console.log('Changement état auth:', user ? user.email : 'déconnecté');
-            currentUser = user;
-            updateUIForAuthState(user);
-            
-            if (user) {
-                checkCurrentMembership(user);
-            }
-        });
-
-        // Gestion des forfaits - FLOW CORRIGÉ
-        function handlePlanSelection(e) {
-            const card = e.target.closest('.pricing-card');
-            const planId = card.dataset.plan;
-            const plan = MEMBERSHIP_PLANS[planId];
-
-            if (!plan) {
-                showMessage('Forfait non trouvé', 'error');
-                return;
-            }
-
-            console.log('Forfait sélectionné:', plan.name);
-
-            // Cas spécial pour membre d'honneur
-            if (plan.id === 'honneur') {
-                contactUs();
-                return;
-            }
-
-            // Réinitialiser les sélections
-            document.querySelectorAll('.pricing-card').forEach(c => {
-                c.classList.remove('selected');
-            });
-            
-            // Sélectionner la nouvelle carte
-            card.classList.add('selected');
-            
-            // Stocker le forfait sélectionné
-            selectedPlan = plan;
-            sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
-            
-            // Afficher les informations du forfait sélectionné
-            updateSelectedPlanDisplay(plan);
-            
-            showMessage(`Forfait ${plan.name} sélectionné`, 'success');
-        }
-
-        function updateSelectedPlanDisplay(plan) {
-            const planInfo = document.getElementById('selectedPlanInfo');
-            const planName = document.getElementById('selectedPlanName');
-            const planPrice = document.getElementById('selectedPlanPrice');
-            const planPeriod = document.getElementById('selectedPlanPeriod');
-            
-            if (planInfo && planName && planPrice && planPeriod) {
-                planName.textContent = plan.name;
-                planPrice.textContent = plan.price + '€';
-                planPeriod.textContent = plan.period;
-                planInfo.classList.remove('hidden');
-            }
-        }
-
-        function startMembershipFlow() {
-            if (!selectedPlan) {
-                showMessage('Veuillez sélectionner un forfait', 'error');
-                return;
-            }
-
-            if (selectedPlan.id === 'honneur') {
-                contactUs();
-                return;
-            }
-
-            console.log('🎯 Démarrage du processus d\'adhésion');
-            console.log('📋 Forfait sélectionné:', selectedPlan);
-            
-            // Stocker le forfait sélectionné
-            sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlan));
-            
-            // Rediriger vers la page de paiement (flow corrigé)
-            showMessage('Redirection vers la création de compte...', 'info');
-            setTimeout(() => {
-                window.location.href = 'payment.html';
-            }, 1000);
-        }
-
-        function contactUs() {
-            showMessage('Redirection vers le formulaire de contact...', 'info');
-            setTimeout(() => {
-                alert('Contactez-nous à contact@fornap.fr pour devenir membre d\'honneur');
-            }, 500);
-        }
-
-        // Fonction FAQ
-        function toggleFAQ(element) {
-            const content = element.querySelector('.faq-content');
-            const toggle = element.querySelector('.faq-toggle');
-            const isActive = element.classList.contains('active');
-
-            // Fermer toutes les autres FAQ
-            document.querySelectorAll('.faq-item').forEach(item => {
-                if (item !== element) {
-                    item.classList.remove('active');
-                    item.querySelector('.faq-content').style.maxHeight = '0';
-                    item.querySelector('.faq-toggle').textContent = '+';
-                }
-            });
-
-            // Toggle l'élément actuel
-            if (isActive) {
-                element.classList.remove('active');
-                content.style.maxHeight = '0';
-                toggle.textContent = '+';
-            } else {
-                element.classList.add('active');
-                content.style.maxHeight = content.scrollHeight + 'px';
-                toggle.textContent = '−';
-            }
-        }
-
         async function handleLogout() {
             try {
-                await auth.signOut();
-                console.log('✅ Déconnexion réussie');
+                await FornapAuth.signOut();
                 showMessage('Déconnexion réussie', 'success');
             } catch (error) {
                 console.error('❌ Erreur déconnexion:', error);
@@ -595,36 +311,202 @@
             }
         }
 
-        // Initialisation des événements
-        document.addEventListener('DOMContentLoaded', function() {
+        function showLoginModal() {
+            showMessage('Connectez-vous d\'abord sur la page d\'accueil', 'info');
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 2000);
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM chargé - Page Forfaits');
 
-            // Navigation
-            document.getElementById('loginBtn')?.addEventListener('click', () => {
-                                            window.location.href = '../index.html#auth';
-            });
-            
-            document.getElementById('dashboardBtn')?.addEventListener('click', () => {
-                                                window.location.href = 'dashboard.html';
-            });
-            
-            document.getElementById('logoutBtn')?.addEventListener('click', handleLogout);
+            try {
+                // Initialiser les services
+                await FornapAuth.init();
+                
+                // Initialiser les composants
+                initFornapComponents();
 
-            // Sélection des forfaits
+                // Écouter les changements d'authentification
+                FornapAuth.onAuthStateChanged((user) => {
+                    currentUser = user;
+                    console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
+                    
+                    // Mettre à jour l'interface via le système global synchronisé
+                    FornapComponents.syncAuthState(!!user);
+                });
+
+                // Initialiser la sélection des forfaits
+                initPricingSelection();
+
+                console.log('🎯 FORNAP Page Forfaits prête !');
+
+            } catch (error) {
+                console.error('❌ Erreur initialisation:', error);
+                showMessage('Erreur lors du chargement. Veuillez recharger la page.', 'error');
+            }
+        });
+
+        // Initialisation des composants FORNAP
+        function initFornapComponents() {
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('membership', '../');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
+            }
+
+            // Initialiser les événements après injection
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('../', {
+                    onLogin: showLoginModal,
+                    onLogout: handleLogout
+                });
+            }, 100);
+        }
+
+        // Initialisation de la sélection des forfaits
+        function initPricingSelection() {
+            // Variables pour la sélection
+            let selectedPlan = null;
+
+            // Gestion des forfaits - FLOW CORRIGÉ
+            function handlePlanSelection(e) {
+                const card = e.target.closest('.pricing-card');
+                const planId = card.dataset.plan;
+                const plan = window.FornapConfig.membershipPlans[planId];
+
+                if (!plan) {
+                    showMessage('Forfait non trouvé', 'error');
+                    return;
+                }
+
+                console.log('Forfait sélectionné:', plan.name);
+
+                // Cas spécial pour membre d'honneur
+                if (plan.id === 'honneur') {
+                    contactUs();
+                    return;
+                }
+
+                // Réinitialiser les sélections
+                document.querySelectorAll('.pricing-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Sélectionner la nouvelle carte
+                card.classList.add('selected');
+                
+                // Stocker le forfait sélectionné
+                selectedPlan = plan;
+                sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
+                
+                // Afficher les informations du forfait sélectionné
+                updateSelectedPlanDisplay(plan);
+                
+                showMessage(`Forfait ${plan.name} sélectionné`, 'success');
+            }
+
+            function updateSelectedPlanDisplay(plan) {
+                const planInfo = document.getElementById('selectedPlanInfo');
+                const planName = document.getElementById('selectedPlanName');
+                const planPrice = document.getElementById('selectedPlanPrice');
+                const planPeriod = document.getElementById('selectedPlanPeriod');
+                
+                if (planInfo && planName && planPrice && planPeriod) {
+                    planName.textContent = plan.name;
+                    planPrice.textContent = plan.price + (plan.price !== 'special' ? '€' : '');
+                    planPeriod.textContent = plan.period;
+                    planInfo.classList.remove('hidden');
+                }
+            }
+
+            function startMembershipFlow() {
+                if (!selectedPlan) {
+                    showMessage('Veuillez sélectionner un forfait', 'error');
+                    return;
+                }
+
+                if (selectedPlan.id === 'honneur') {
+                    contactUs();
+                    return;
+                }
+
+                console.log('🎯 Démarrage du processus d\'adhésion');
+                console.log('📋 Forfait sélectionné:', selectedPlan);
+                
+                // Stocker le forfait sélectionné
+                sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlan));
+                
+                // Rediriger vers la page de paiement (flow corrigé)
+                showMessage('Redirection vers la création de compte...', 'info');
+                setTimeout(() => {
+                    window.location.href = 'payment.html';
+                }, 1000);
+            }
+
+            function contactUs() {
+                showMessage('Redirection vers le formulaire de contact...', 'info');
+                setTimeout(() => {
+                    alert('Contactez-nous à contact@fornap.fr pour devenir membre d\'honneur');
+                }, 500);
+            }
+
+            // Fonction FAQ
+            function toggleFAQ(element) {
+                const content = element.querySelector('.faq-content');
+                const toggle = element.querySelector('.faq-toggle');
+                const isActive = element.classList.contains('active');
+
+                // Fermer toutes les autres FAQ
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    if (item !== element) {
+                        item.classList.remove('active');
+                        item.querySelector('.faq-content').style.maxHeight = '0';
+                        item.querySelector('.faq-toggle').textContent = '+';
+                    }
+                });
+
+                // Toggle l'élément actuel
+                if (isActive) {
+                    element.classList.remove('active');
+                    content.style.maxHeight = '0';
+                    toggle.textContent = '+';
+                } else {
+                    element.classList.add('active');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    toggle.textContent = '−';
+                }
+            }
+
+            // Événements de sélection des forfaits
             document.querySelectorAll('.select-plan').forEach(btn => {
                 btn.addEventListener('click', handlePlanSelection);
             });
-                 
+                     
             // Bouton contact pour membre d'honneur
             document.querySelectorAll('.contact-us').forEach(btn => {
                 btn.addEventListener('click', contactUs);
             });
-                 
+                     
             // Bouton procéder au paiement
             document.getElementById('proceedToPayment')?.addEventListener('click', startMembershipFlow);
 
-            console.log('🎯 FORNAP Page Forfaits prête !');
-        });
+            // FAQ events
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.addEventListener('click', () => toggleFAQ(item));
+            });
+
+            // Rendre les fonctions disponibles globalement pour les événements inline
+            window.toggleFAQ = toggleFAQ;
+        }
     </script>
 
     <style>

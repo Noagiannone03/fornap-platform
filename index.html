@@ -126,6 +126,9 @@
     <!-- ========================================
          COMPOSANTS FORNAP
          ======================================== -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/auth-service.js"></script>
     <script src="assets/js/components.js"></script>
 
     <!-- ========================================
@@ -134,28 +137,11 @@
     <script>
         console.log('🚀 FORNAP - Landing Page');
 
-        // Configuration Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyALz161yfiLaOeHU82DQNJV4PkzAXO1wzM",
-            authDomain: "nap-7aa80.firebaseapp.com",
-            projectId: "nap-7aa80",
-            storageBucket: "nap-7aa80.firebasestorage.app",
-            messagingSenderId: "434731738248",
-            appId: "1:434731738248:web:481644f3a6e809c06d2b3d",
-            measurementId: "G-3HVC6HNG02"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        console.log('✅ Firebase initialisé');
-
         // Variables globales
         let currentUser = null;
 
         // Fonctions utilitaires
         function showMessage(message, type = 'info') {
-            console.log('💬 Message:', message, type);
-            
             const container = document.getElementById('messageContainer');
             const messageElement = document.createElement('div');
             messageElement.className = `message ${type}`;
@@ -168,27 +154,6 @@
                 setTimeout(() => messageElement.remove(), 300);
             }, 4000);
         }
-
-        function updateUIForAuthState(user) {
-            // Utiliser le nouveau système de composants
-            FornapComponents.updateAuthState(!!user);
-
-            if (user) {
-                console.log('👤 Interface utilisateur connecté');
-            } else {
-                document.getElementById('authSection')?.classList.add('hidden');
-                console.log('👤 Interface utilisateur déconnecté');
-            }
-        }
-
-
-
-        // Gestion de l'authentification
-        auth.onAuthStateChanged(function(user) {
-            console.log('Changement état auth:', user ? user.email : 'déconnecté');
-            currentUser = user;
-            updateUIForAuthState(user);
-        });
 
         function showLoginSection() {
             document.getElementById('authSection')?.classList.remove('hidden');
@@ -204,10 +169,8 @@
                 return;
             }
 
-            console.log('🔐 Connexion membre:', email);
-
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await FornapAuth.signIn(email, password);
                 showMessage('Connexion réussie !', 'success');
                 
                 setTimeout(() => {
@@ -222,8 +185,7 @@
 
         async function handleLogout() {
             try {
-                await auth.signOut();
-                console.log('✅ Déconnexion réussie');
+                await FornapAuth.signOut();
                 showMessage('Déconnexion réussie', 'success');
             } catch (error) {
                 console.error('❌ Erreur déconnexion:', error);
@@ -235,17 +197,39 @@
             showMessage('Fonctionnalité de récupération de mot de passe à venir', 'info');
         }
 
-        // Initialisation des événements
-        document.addEventListener('DOMContentLoaded', function() {
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM chargé - Landing Page');
 
-            // Initialiser les composants FORNAP
-            initFornapComponents();
+            try {
+                // Initialiser les services
+                await FornapAuth.init();
+                
+                // Initialiser les composants
+                initFornapComponents();
 
-            // Connexion
-            document.getElementById('loginSubmit')?.addEventListener('click', handleMemberLogin);
+                // Écouter les changements d'authentification
+                FornapAuth.onAuthStateChanged((user) => {
+                    currentUser = user;
+                    console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
+                    
+                    // Mettre à jour l'interface via le système global synchronisé
+                    FornapComponents.syncAuthState(!!user);
+                    
+                    if (user) {
+                        document.getElementById('authSection')?.classList.add('hidden');
+                    }
+                });
 
-            console.log('🎯 FORNAP Landing Page prête !');
+                // Connexion
+                document.getElementById('loginSubmit')?.addEventListener('click', handleMemberLogin);
+
+                console.log('🎯 FORNAP Landing Page prête !');
+
+            } catch (error) {
+                console.error('❌ Erreur initialisation:', error);
+                showMessage('Erreur lors du chargement. Veuillez recharger la page.', 'error');
+            }
         });
 
         // Initialisation des composants FORNAP
@@ -506,52 +490,5 @@
             }
         }
     </style>
-
-    <!-- Placeholder pour le footer - sera remplacé par le composant -->
-    <div id="footer-placeholder"></div>
-
-    <!-- ========================================
-         SCRIPTS FIREBASE
-         ======================================== -->
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
-    
-    <!-- ========================================
-         COMPOSANTS FORNAP
-         ======================================== -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/auth-service.js"></script>
-    <script src="assets/js/components.js"></script>
-
-    <script>
-        // Initialisation des composants FORNAP
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('✅ Initialisation composants FORNAP - Index');
-
-            // Injecter la navbar
-            const navbarPlaceholder = document.getElementById('navbar-placeholder');
-            if (navbarPlaceholder) {
-                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('home', '');
-            }
-
-            // Injecter le footer
-            const footerPlaceholder = document.getElementById('footer-placeholder');
-            if (footerPlaceholder) {
-                footerPlaceholder.outerHTML = FornapComponents.generateFooter('');
-            }
-
-            // Initialiser les événements après injection
-            setTimeout(() => {
-                FornapComponents.initNavbarEvents('', {
-                    onLogin: () => {
-                        console.log('Login demandé');
-                    },
-                    onLogout: handleLogout
-                });
-            }, 100);
-        });
-    </script>
 </body>
 </html>
