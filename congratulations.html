@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Félicitations - FORNAP</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+    <!-- ========================================
+         NAVBAR
+         ======================================== -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="assets/images/logo.png" alt="FORNAP" class="logo-img" onclick="window.location.href='index.html'">
+                </div>
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Accueil</a>
+                    <span class="nav-link active">Félicitations</span>
+                </div>
+                <div class="nav-member">
+                    <button id="logoutBtn" class="btn btn-secondary">Déconnexion</button>
+                </div>
+                <button class="nav-toggle" id="navToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================
+         CONTENU PRINCIPAL
+         ======================================== -->
+    <main class="main-content">
+        
+        <!-- Section Félicitations -->
+        <section class="congratulations-section">
+            <div class="container">
+                <div class="congratulations-container">
+                    
+                    <!-- Animation de succès -->
+                    <div class="success-animation">
+                        <div class="success-circle">
+                            <div class="success-checkmark">✓</div>
+                        </div>
+                    </div>
+
+                    <!-- Message principal -->
+                    <div class="congratulations-content">
+                        <h1 class="congratulations-title">Félicitations !</h1>
+                        <p class="congratulations-subtitle">
+                            Votre adhésion FORNAP a été confirmée avec succès
+                        </p>
+
+                        <!-- Informations de l'adhésion -->
+                        <div class="membership-info" id="membershipInfo">
+                            <!-- Contenu généré dynamiquement -->
+                        </div>
+
+                        <!-- Étapes suivantes -->
+                        <div class="next-steps">
+                            <h3>Que se passe-t-il maintenant ?</h3>
+                            
+                            <div class="steps-grid">
+                                <div class="step-card">
+                                    <div class="step-icon">📧</div>
+                                    <div class="step-content">
+                                        <h4>Email de confirmation</h4>
+                                        <p>Vous allez recevoir un email avec votre carte membre virtuelle et toutes les informations importantes.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-icon">👤</div>
+                                    <div class="step-content">
+                                        <h4>Profil personnalisé</h4>
+                                        <p>Nous allons maintenant personnaliser votre expérience FORNAP en apprenant à mieux vous connaître.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-icon">🎉</div>
+                                    <div class="step-content">
+                                        <h4>Accès immédiat</h4>
+                                        <p>Une fois votre profil complété, vous aurez accès à votre dashboard membre et à tous vos avantages.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Récapitulatif paiement -->
+                        <div class="payment-summary" id="paymentSummary">
+                            <!-- Contenu généré dynamiquement -->
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="congratulations-actions">
+                            <button class="btn btn-primary btn-large" onclick="proceedToProfile()">
+                                Personnaliser mon profil
+                            </button>
+                            <button class="btn btn-secondary btn-large" onclick="goToHomepage()">
+                                Retour à l'accueil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Avantages rappel -->
+        <section class="benefits-reminder">
+            <div class="container">
+                <h2 class="text-center mb-8">Vos avantages membres vous attendent</h2>
+                
+                <div class="benefits-grid grid-4">
+                    <div class="benefit-highlight">
+                        <div class="benefit-icon">🏢</div>
+                        <h4>Accès Coworking</h4>
+                        <p>Profitez de nos espaces de travail modernes dès aujourd'hui</p>
+                    </div>
+                    
+                    <div class="benefit-highlight">
+                        <div class="benefit-icon">🎫</div>
+                        <h4>Événements Exclusifs</h4>
+                        <p>Participez à nos événements networking et formations</p>
+                    </div>
+                    
+                    <div class="benefit-highlight">
+                        <div class="benefit-icon">⭐</div>
+                        <h4>Programme Fidélité</h4>
+                        <p>Commencez à gagner des points dès votre première visite</p>
+                    </div>
+                    
+                    <div class="benefit-highlight">
+                        <div class="benefit-icon">🛍️</div>
+                        <h4>Boutique Premium</h4>
+                        <p>Découvrez nos produits avec vos remises membres</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>FORNAP</h4>
+                    <p>Bienvenue dans la communauté FORNAP !</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <p>Email: support@fornap.fr</p>
+                    <p>Téléphone: 01 23 45 67 89</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 FORNAP. Merci de votre confiance.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================
+         CONTAINER MESSAGES
+         ======================================== -->
+    <div id="messageContainer"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- ========================================
+         JAVASCRIPT PRINCIPAL
+         ======================================== -->
+    <script>
+        console.log('🎉 FORNAP - Page Félicitations');
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyALz161yfiLaOeHU82DQNJV4PkzAXO1wzM",
+            authDomain: "nap-7aa80.firebaseapp.com",
+            projectId: "nap-7aa80",
+            storageBucket: "nap-7aa80.firebasestorage.app",
+            messagingSenderId: "434731738248",
+            appId: "1:434731738248:web:481644f3a6e809c06d2b3d",
+            measurementId: "G-3HVC6HNG02"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        console.log('✅ Firebase initialisé');
+
+        // Variables globales
+        let currentUser = null;
+        let membershipData = null;
+        let paymentData = null;
+
+        // Fonctions utilitaires
+        function showMessage(message, type = 'info') {
+            console.log('💬 Message:', message, type);
+            
+            const container = document.getElementById('messageContainer');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            container.appendChild(messageElement);
+
+            setTimeout(() => messageElement.classList.add('show'), 100);
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+                setTimeout(() => messageElement.remove(), 300);
+            }, 4000);
+        }
+
+        function generateMembershipNumber() {
+            const timestamp = Date.now().toString().slice(-6);
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `FORNAP-${timestamp}${random}`;
+        }
+
+        function displayMembershipInfo() {
+            // Récupérer les données des sessions précédentes
+            const selectedPlan = JSON.parse(sessionStorage.getItem('selectedPlan') || '{}');
+            const userProfile = JSON.parse(sessionStorage.getItem('userProfile') || '{}');
+            const paymentInfo = JSON.parse(sessionStorage.getItem('paymentData') || '{}');
+
+            console.log('📋 Données récupérées:', { selectedPlan, userProfile, paymentInfo });
+
+            if (!selectedPlan.name) {
+                showMessage('Erreur: Données d\'adhésion introuvables', 'error');
+                setTimeout(() => window.location.href = 'membership.html', 3000);
+                return;
+            }
+
+            // Générer les données d'adhésion
+            membershipData = {
+                number: generateMembershipNumber(),
+                plan: selectedPlan,
+                member: userProfile,
+                startDate: new Date().toLocaleDateString('fr-FR'),
+                status: 'active'
+            };
+
+            // Afficher les informations d'adhésion
+            const membershipInfo = document.getElementById('membershipInfo');
+            membershipInfo.innerHTML = `
+                <div class="membership-card">
+                    <div class="membership-header">
+                        <h3>Votre adhésion FORNAP</h3>
+                        <div class="membership-number">
+                            N° ${membershipData.number}
+                        </div>
+                    </div>
+                    
+                    <div class="membership-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Nom:</span>
+                            <span class="detail-value">${userProfile.firstName || 'Non renseigné'} ${userProfile.lastName || ''}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${userProfile.email || 'Non renseigné'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Forfait:</span>
+                            <span class="detail-value">${selectedPlan.name}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date de début:</span>
+                            <span class="detail-value">${membershipData.startDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Statut:</span>
+                            <span class="detail-value status-active">Actif</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Afficher le récapitulatif du paiement
+            displayPaymentSummary(selectedPlan, paymentInfo);
+        }
+
+        function displayPaymentSummary(plan, payment) {
+            const paymentSummary = document.getElementById('paymentSummary');
+            const basePrice = plan.price || 0;
+            const taxRate = 0.20;
+            const taxAmount = basePrice * taxRate;
+            const totalPrice = basePrice + taxAmount;
+
+            paymentSummary.innerHTML = `
+                <div class="payment-card">
+                    <div class="payment-header">
+                        <h3>Récapitulatif de votre paiement</h3>
+                        <div class="payment-status">
+                            <span class="status-badge success">✓ Paiement confirmé</span>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-breakdown">
+                        <div class="payment-line">
+                            <span>Adhésion ${plan.name}</span>
+                            <span>${basePrice.toFixed(2)}€</span>
+                        </div>
+                        <div class="payment-line">
+                            <span>TVA (20%)</span>
+                            <span>${taxAmount.toFixed(2)}€</span>
+                        </div>
+                        <div class="payment-line total">
+                            <span><strong>Total payé</strong></span>
+                            <span><strong>${totalPrice.toFixed(2)}€</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-method">
+                        <span class="method-label">Méthode:</span>
+                        <span class="method-value">💳 ${payment.method === 'card' ? 'Carte bancaire' : 'PayPal'}</span>
+                    </div>
+                    
+                    <div class="payment-date">
+                        <span class="date-label">Date:</span>
+                        <span class="date-value">${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function proceedToProfile() {
+            console.log('👤 Redirection vers la personnalisation du profil');
+            
+            // Sauvegarder les données d'adhésion
+            sessionStorage.setItem('membershipData', JSON.stringify(membershipData));
+            
+            showMessage('Redirection vers la personnalisation...', 'info');
+            
+            setTimeout(() => {
+                window.location.href = 'profile-setup.html';
+            }, 1500);
+        }
+
+        function goToHomepage() {
+            console.log('🏠 Retour à l\'accueil');
+            showMessage('Retour à l\'accueil', 'info');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        // Gestion de l'authentification
+        auth.onAuthStateChanged(function(user) {
+            console.log('Changement état auth:', user ? user.email : 'déconnecté');
+            currentUser = user;
+            
+            if (!user) {
+                console.log('⚠️ Utilisateur non connecté sur la page félicitations');
+                showMessage('Session expirée. Redirection...', 'warning');
+                setTimeout(() => window.location.href = 'index.html', 3000);
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM chargé - Page Félicitations');
+
+            // Vérifier que nous venons bien du processus de paiement
+            const paymentData = sessionStorage.getItem('paymentData');
+            if (!paymentData) {
+                console.log('⚠️ Accès direct à la page félicitations sans paiement');
+                showMessage('Accès non autorisé. Redirection...', 'error');
+                setTimeout(() => window.location.href = 'membership.html', 3000);
+                return;
+            }
+
+            // Afficher les informations d'adhésion
+            displayMembershipInfo();
+
+            // Animation de la checkmark
+            setTimeout(() => {
+                document.querySelector('.success-animation').classList.add('animate');
+            }, 500);
+
+            console.log('🎉 FORNAP Félicitations prêt !');
+        });
+    </script>
+
+    <style>
+        /* Styles spécifiques à la page félicitations */
+        .congratulations-section {
+            padding: var(--space-20) 0;
+            background: linear-gradient(135deg, var(--blanc-principal) 0%, var(--gris-tres-clair) 100%);
+            text-align: center;
+        }
+
+        .congratulations-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .success-animation {
+            margin-bottom: var(--space-12);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.8s ease;
+        }
+
+        .success-animation.animate {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .success-circle {
+            width: 120px;
+            height: 120px;
+            background-color: var(--succes);
+            border: 4px solid var(--noir-principal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .success-circle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite;
+        }
+
+        .success-checkmark {
+            font-size: var(--text-5xl);
+            color: var(--blanc-principal);
+            font-weight: var(--font-bold);
+            z-index: 1;
+        }
+
+        .congratulations-title {
+            font-size: var(--text-5xl);
+            color: var(--noir-principal);
+            margin-bottom: var(--space-4);
+            font-weight: var(--font-bold);
+        }
+
+        .congratulations-subtitle {
+            font-size: var(--text-xl);
+            color: var(--gris-moyen);
+            margin-bottom: var(--space-12);
+        }
+
+        .membership-info,
+        .payment-summary {
+            margin-bottom: var(--space-12);
+        }
+
+        .membership-card,
+        .payment-card {
+            background-color: var(--blanc-principal);
+            border: 2px solid var(--noir-principal);
+            padding: var(--space-8);
+            text-align: left;
+            box-shadow: var(--shadow-md);
+        }
+
+        .membership-header,
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+            border-bottom: 2px solid var(--noir-principal);
+            padding-bottom: var(--space-4);
+        }
+
+        .membership-header h3,
+        .payment-header h3 {
+            margin-bottom: 0;
+            color: var(--noir-principal);
+        }
+
+        .membership-number {
+            background-color: var(--noir-principal);
+            color: var(--blanc-principal);
+            padding: var(--space-2) var(--space-4);
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            font-weight: var(--font-bold);
+        }
+
+        .status-badge {
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--text-sm);
+            font-weight: var(--font-bold);
+            border: 2px solid;
+        }
+
+        .status-badge.success {
+            background-color: var(--succes);
+            color: var(--blanc-principal);
+            border-color: var(--succes);
+        }
+
+        .membership-details {
+            display: grid;
+            gap: var(--space-3);
+        }
+
+        .detail-row,
+        .payment-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-2) 0;
+            border-bottom: 1px solid var(--gris-clair);
+        }
+
+        .detail-row:last-child,
+        .payment-line:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label,
+        .method-label,
+        .date-label {
+            font-weight: var(--font-medium);
+            color: var(--gris-moyen);
+        }
+
+        .detail-value,
+        .method-value,
+        .date-value {
+            font-weight: var(--font-medium);
+            color: var(--noir-principal);
+        }
+
+        .status-active {
+            color: var(--succes) !important;
+            font-weight: var(--font-bold);
+        }
+
+        .payment-breakdown {
+            margin-bottom: var(--space-6);
+        }
+
+        .payment-line.total {
+            border-top: 2px solid var(--noir-principal);
+            border-bottom: 2px solid var(--noir-principal);
+            margin-top: var(--space-3);
+            padding-top: var(--space-3);
+            font-size: var(--text-lg);
+        }
+
+        .payment-method,
+        .payment-date {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-2) 0;
+        }
+
+        .next-steps {
+            margin-bottom: var(--space-12);
+            text-align: left;
+        }
+
+        .next-steps h3 {
+            text-align: center;
+            margin-bottom: var(--space-8);
+            color: var(--noir-principal);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .step-card {
+            background-color: var(--blanc-principal);
+            border: 2px solid var(--noir-principal);
+            padding: var(--space-6);
+            display: flex;
+            gap: var(--space-4);
+            transition: var(--transition-base);
+        }
+
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .step-icon {
+            font-size: var(--text-3xl);
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            margin-bottom: var(--space-2);
+            color: var(--noir-principal);
+        }
+
+        .step-content p {
+            margin-bottom: 0;
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+            line-height: 1.5;
+        }
+
+        .congratulations-actions {
+            display: flex;
+            gap: var(--space-6);
+            justify-content: center;
+            margin-bottom: var(--space-12);
+        }
+
+        .benefits-reminder {
+            padding: var(--space-16) 0;
+            background-color: var(--noir-principal);
+            color: var(--blanc-principal);
+        }
+
+        .benefits-reminder h2 {
+            color: var(--blanc-principal);
+        }
+
+        .benefit-highlight {
+            background-color: var(--blanc-principal);
+            color: var(--noir-principal);
+            border: 2px solid var(--blanc-principal);
+            padding: var(--space-6);
+            text-align: center;
+            transition: var(--transition-base);
+        }
+
+        .benefit-highlight:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 0px var(--blanc-principal);
+        }
+
+        .benefit-highlight .benefit-icon {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-4);
+        }
+
+        .benefit-highlight h4 {
+            margin-bottom: var(--space-3);
+            color: var(--noir-principal);
+        }
+
+        .benefit-highlight p {
+            margin-bottom: 0;
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .congratulations-title {
+                font-size: var(--text-3xl);
+            }
+
+            .congratulations-subtitle {
+                font-size: var(--text-lg);
+            }
+
+            .success-circle {
+                width: 80px;
+                height: 80px;
+            }
+
+            .success-checkmark {
+                font-size: var(--text-3xl);
+            }
+
+            .membership-header,
+            .payment-header {
+                flex-direction: column;
+                gap: var(--space-3);
+                align-items: flex-start;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .step-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .congratulations-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .benefits-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</body>
+</html> 

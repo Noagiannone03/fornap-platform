@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORNAP - Votre espace innovant</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+    <!-- Placeholder pour la navbar - sera remplacée par le composant -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- ========================================
+         CONTENU PRINCIPAL
+         ======================================== -->
+    <main class="main-content">
+        
+        <!-- Section Hero -->
+        <section id="hero" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Bienvenue chez FORNAP</h1>
+                    <p class="hero-subtitle">Votre espace innovant alliant coworking, événements, boutique et communauté. Rejoignez une expérience unique où créativité et collaboration se rencontrent.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-large" onclick="window.location.href='membership.html'">Découvrir nos forfaits</button>
+                        <button class="btn btn-secondary btn-large" onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })">En savoir plus</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section À Propos -->
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2 class="section-title">Pourquoi choisir FORNAP ?</h2>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏢</div>
+                        <h3>Coworking</h3>
+                        <p>Espaces de travail modernes et équipés pour tous vos besoins professionnels</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎉</div>
+                        <h3>Événements</h3>
+                        <p>Rejoignez notre communauté dynamique lors d'événements networking et formations</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛍️</div>
+                        <h3>Boutique</h3>
+                        <p>Accédez à notre boutique exclusive avec des remises membres</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>Fidélité</h3>
+                        <p>Gagnez des points et débloquez des avantages exclusifs</p>
+                    </div>
+                </div>
+                
+                <div class="cta-section">
+                    <div class="cta-card">
+                        <h3>Prêt à nous rejoindre ?</h3>
+                        <p>Choisissez votre forfait et devenez membre de la communauté FORNAP dès aujourd'hui</p>
+                        <button class="btn btn-primary btn-large" onclick="window.location.href='membership.html'">
+                            Voir les forfaits
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Authentification (pour membres existants) -->
+        <section id="authSection" class="auth-section hidden">
+            <div class="container">
+                <div class="auth-container">
+                    <h2>Espace Membres</h2>
+                    
+                    <!-- Formulaire de connexion -->
+                    <div id="loginForm" class="auth-form">
+                        <h3>Connexion</h3>
+                        <p>Accédez à votre espace membre FORNAP</p>
+                        
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" class="form-input" placeholder="votre@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Mot de passe</label>
+                            <input type="password" id="loginPassword" class="form-input" placeholder="Votre mot de passe" required>
+                        </div>
+                        
+                        <button id="loginSubmit" class="btn btn-primary btn-full">Se connecter</button>
+                        
+                        <div class="auth-links">
+                            <p>
+                                Pas encore membre ? 
+                                <a href="membership.html">Choisir un forfait</a>
+                            </p>
+                            <p>
+                                <a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Placeholder pour le footer - sera remplacé par le composant -->
+    <div id="footer-placeholder"></div>
+
+    <!-- ========================================
+         CONTAINER MESSAGES
+         ======================================== -->
+    <div id="messageContainer"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         COMPOSANTS FORNAP
+         ======================================== -->
+    <script src="assets/js/components.js"></script>
+
+    <!-- ========================================
+         JAVASCRIPT PRINCIPAL
+         ======================================== -->
+    <script>
+        console.log('🚀 FORNAP - Landing Page');
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyALz161yfiLaOeHU82DQNJV4PkzAXO1wzM",
+            authDomain: "nap-7aa80.firebaseapp.com",
+            projectId: "nap-7aa80",
+            storageBucket: "nap-7aa80.firebasestorage.app",
+            messagingSenderId: "434731738248",
+            appId: "1:434731738248:web:481644f3a6e809c06d2b3d",
+            measurementId: "G-3HVC6HNG02"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        console.log('✅ Firebase initialisé');
+
+        // Variables globales
+        let currentUser = null;
+
+        // Fonctions utilitaires
+        function showMessage(message, type = 'info') {
+            console.log('💬 Message:', message, type);
+            
+            const container = document.getElementById('messageContainer');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            container.appendChild(messageElement);
+
+            setTimeout(() => messageElement.classList.add('show'), 100);
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+                setTimeout(() => messageElement.remove(), 300);
+            }, 4000);
+        }
+
+        function updateUIForAuthState(user) {
+            // Utiliser le nouveau système de composants
+            FornapComponents.updateAuthState(!!user);
+
+            if (user) {
+                console.log('👤 Interface utilisateur connecté');
+            } else {
+                document.getElementById('authSection')?.classList.add('hidden');
+                console.log('👤 Interface utilisateur déconnecté');
+            }
+        }
+
+
+
+        // Gestion de l'authentification
+        auth.onAuthStateChanged(function(user) {
+            console.log('Changement état auth:', user ? user.email : 'déconnecté');
+            currentUser = user;
+            updateUIForAuthState(user);
+        });
+
+        function showLoginSection() {
+            document.getElementById('authSection')?.classList.remove('hidden');
+            document.getElementById('authSection')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function handleMemberLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            console.log('🔐 Connexion membre:', email);
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showMessage('Connexion réussie !', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'pages/dashboard.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Erreur connexion:', error);
+                showMessage('Email ou mot de passe incorrect', 'error');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                console.log('✅ Déconnexion réussie');
+                showMessage('Déconnexion réussie', 'success');
+            } catch (error) {
+                console.error('❌ Erreur déconnexion:', error);
+                showMessage('Erreur lors de la déconnexion', 'error');
+            }
+        }
+
+        function showForgotPassword() {
+            showMessage('Fonctionnalité de récupération de mot de passe à venir', 'info');
+        }
+
+        // Initialisation des événements
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM chargé - Landing Page');
+
+            // Initialiser les composants FORNAP
+            initFornapComponents();
+
+            // Connexion
+            document.getElementById('loginSubmit')?.addEventListener('click', handleMemberLogin);
+
+            console.log('🎯 FORNAP Landing Page prête !');
+        });
+
+        // Initialisation des composants FORNAP
+        function initFornapComponents() {
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('home', '');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('');
+            }
+
+            // Initialiser les événements après injection
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('', {
+                    onLogin: showLoginSection,
+                    onLogout: handleLogout
+                });
+            }, 100);
+        }
+    </script>
+
+    <style>
+        /* Styles spécifiques pour la landing page */
+
+        .hero {
+            padding: var(--space-24) 0 var(--space-16);
+            background: linear-gradient(135deg, var(--blanc-principal) 0%, var(--gris-tres-clair) 100%);
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: var(--text-5xl);
+            margin-bottom: var(--space-6);
+            color: var(--noir-principal);
+        }
+
+        .hero-subtitle {
+            font-size: var(--text-xl);
+            margin-bottom: var(--space-8);
+            color: var(--gris-moyen);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .about-section {
+            padding: var(--space-16) 0;
+            background: var(--blanc-principal);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: var(--space-12);
+            color: var(--noir-principal);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-8);
+            margin-bottom: var(--space-16);
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: var(--space-8);
+            border: 2px solid var(--noir-principal);
+            background: var(--blanc-principal);
+            transition: var(--transition-base);
+        }
+
+        .feature-card:hover {
+            background: var(--gris-tres-clair);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-4);
+        }
+
+        .feature-card h3 {
+            margin-bottom: var(--space-3);
+            color: var(--noir-principal);
+        }
+
+        .feature-card p {
+            color: var(--gris-moyen);
+        }
+
+        .cta-section {
+            text-align: center;
+        }
+
+        .cta-card {
+            background: var(--noir-principal);
+            color: var(--blanc-principal);
+            padding: var(--space-12);
+            border: 2px solid var(--noir-principal);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-card h3 {
+            margin-bottom: var(--space-4);
+            color: var(--blanc-principal);
+        }
+
+        .cta-card p {
+            margin-bottom: var(--space-6);
+            color: var(--gris-clair);
+        }
+
+        .auth-section {
+            padding: var(--space-16) 0;
+            background: var(--gris-tres-clair);
+        }
+
+        .auth-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--blanc-principal);
+            padding: var(--space-12);
+            border: 2px solid var(--noir-principal);
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: var(--space-8);
+            color: var(--noir-principal);
+        }
+
+        .auth-form h3 {
+            margin-bottom: var(--space-2);
+            color: var(--noir-principal);
+        }
+
+        .auth-form p {
+            margin-bottom: var(--space-6);
+            color: var(--gris-moyen);
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: var(--space-6);
+        }
+
+        .auth-links p {
+            margin: var(--space-2) 0;
+            font-size: var(--text-sm);
+        }
+
+        .auth-links a {
+            color: var(--noir-principal);
+            text-decoration: none;
+            font-weight: var(--font-medium);
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                background: var(--noir-principal);
+                flex-direction: column;
+                padding: var(--space-6);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition-normal);
+                gap: var(--space-4);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .nav-menu.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .nav-auth,
+            .nav-member {
+                position: fixed;
+                top: calc(80px + 200px);
+                left: var(--space-6);
+                right: var(--space-6);
+                flex-direction: column;
+                background: var(--noir-principal);
+                padding: var(--space-6);
+                gap: var(--space-3);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition-normal);
+            }
+
+            .nav-menu.active ~ .nav-auth,
+            .nav-menu.active ~ .nav-member {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .hero-content h1 {
+                font-size: var(--text-3xl);
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
+
+            .cta-card {
+                margin: 0 var(--space-4);
+                padding: var(--space-8);
+            }
+
+            .auth-container {
+                margin: 0 var(--space-4);
+                padding: var(--space-8);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: var(--text-2xl);
+            }
+
+            .hero-subtitle {
+                font-size: var(--text-lg);
+            }
+        }
+    </style>
+</body>
+</html>
