@@ -127,10 +127,32 @@ class FornapAuthService {
      */
     async signOut() {
         try {
+            // Nettoyer les variables locales AVANT la déconnexion Firebase
+            this.currentUser = null;
+            
+            // Déconnexion Firebase
             await this.auth.signOut();
-            console.log('✅ Déconnexion réussie');
+            
+            // Nettoyer le stockage local
+            try {
+                localStorage.removeItem('fornap_auth_state');
+                localStorage.removeItem('fornap_user_data');
+                sessionStorage.clear();
+            } catch (e) {
+                console.warn('Nettoyage localStorage échoué:', e);
+            }
+            
+            // Forcer la notification de changement d'état
+            this.notifyAuthStateChange(null);
+            
+            console.log('✅ Déconnexion complète réussie');
         } catch (error) {
             console.error('❌ Erreur déconnexion:', error);
+            
+            // Même en cas d'erreur, nettoyer l'état local
+            this.currentUser = null;
+            this.notifyAuthStateChange(null);
+            
             throw this.formatError(error);
         }
     }

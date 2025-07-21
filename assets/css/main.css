@@ -548,17 +548,28 @@ body {
     border-color: var(--noir-principal);
 }
 
-.btn-secondary,
+.btn-secondary {
+    background-color: var(--noir-principal);
+    color: var(--blanc-principal);
+    border-color: var(--noir-principal);
+}
+
+.btn-secondary:hover {
+    background-color: var(--gris-fonce);
+    color: var(--blanc-principal);
+    border-color: var(--gris-fonce);
+}
+
 .btn-outline {
     background-color: transparent;
     color: var(--blanc-principal);
     border-color: var(--blanc-principal);
 }
 
-.btn-secondary:hover,
 .btn-outline:hover {
     background-color: var(--blanc-principal);
     color: var(--noir-principal);
+    border-color: var(--blanc-principal);
 }
 
 .btn-success {

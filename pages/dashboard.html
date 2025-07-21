@@ -161,13 +161,57 @@
                         
                         <!-- Mon profil -->
                         <div class="dashboard-card profile-card">
-                            <div class="card-header">
+                            <div class="card-header" id="profileCardHeader">
                                 <h3>👤 Mon Profil</h3>
                                 <button class="btn btn-secondary btn-small" onclick="editProfile()">Modifier</button>
                             </div>
-                            <div class="card-content">
+                            <div class="card-content" id="profileCardContent">
                                 <div class="profile-summary" id="profileSummary">
                                     <!-- Généré dynamiquement -->
+                                </div>
+                                
+                                <!-- Formulaire d'édition (caché par défaut) -->
+                                <div class="profile-edit-form hidden" id="profileEditForm">
+                                    <div class="edit-form-grid">
+                                        <div class="form-group">
+                                            <label for="editFirstName">Prénom</label>
+                                            <input type="text" id="editFirstName" class="form-input">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="editLastName">Nom</label>
+                                            <input type="text" id="editLastName" class="form-input">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="editEmail">Email</label>
+                                            <input type="email" id="editEmail" class="form-input" disabled>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="editPhone">Téléphone</label>
+                                            <input type="tel" id="editPhone" class="form-input">
+                                        </div>
+                                        
+                                        <div class="form-group full-width">
+                                            <label for="editCity">Ville</label>
+                                            <input type="text" id="editCity" class="form-input">
+                                        </div>
+                                        
+                                        <div class="form-group full-width">
+                                            <label for="editProfession">Profession</label>
+                                            <input type="text" id="editProfession" class="form-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="edit-form-actions">
+                                        <button class="btn btn-outline" onclick="cancelEditProfile()">
+                                            Annuler
+                                        </button>
+                                        <button class="btn btn-primary" onclick="saveProfile()">
+                                            Enregistrer
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -218,6 +262,60 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Paramètres du compte -->
+                        <div class="dashboard-card settings-card">
+                            <div class="card-header">
+                                <h3>⚙️ Paramètres du compte</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="settings-section">
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h4>🌐 Langue</h4>
+                                            <p>Choisir la langue d'affichage de l'interface</p>
+                                        </div>
+                                        <select class="setting-select" disabled>
+                                            <option>Français</option>
+                                            <option disabled>Anglais (bientôt)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h4>🔔 Notifications</h4>
+                                            <p>Recevoir des notifications par email</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="emailNotifications" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="setting-info">
+                                            <h4>📧 Newsletter</h4>
+                                            <p>Recevoir notre newsletter mensuelle</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="newsletter">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="danger-zone">
+                                    <h4>🚨 Zone de danger</h4>
+                                    <p>Ces actions sont irréversibles. Procédez avec prudence.</p>
+                                    
+                                    <div class="danger-actions">
+                                        <button class="btn btn-danger" onclick="showDeleteAccountModal()">
+                                            🗑️ Supprimer mon compte
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -243,6 +341,43 @@
                     </button>
                     <button class="btn btn-secondary" onclick="closeUpgradeModal()">
                         Plus tard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de suppression de compte -->
+    <div id="deleteAccountModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeDeleteAccountModal()"></div>
+        <div class="modal-content danger-modal">
+            <div class="delete-account-content">
+                <div class="danger-icon">⚠️</div>
+                <h3>Supprimer définitivement votre compte</h3>
+                <p class="danger-warning">
+                    <strong>⚠️ ATTENTION :</strong> Cette action est <strong>irréversible</strong>. 
+                    Toutes vos données seront définitivement supprimées, y compris :
+                </p>
+                <ul class="deletion-list">
+                    <li>🗑️ Vos informations personnelles</li>
+                    <li>📊 Votre historique d'activité</li>
+                    <li>⭐ Vos points de fidélité</li>
+                    <li>🎫 Vos réservations futures</li>
+                    <li>💳 Vos informations d'abonnement</li>
+                </ul>
+                
+                <div class="confirmation-section">
+                    <p><strong>Pour confirmer, tapez "SUPPRIMER" ci-dessous :</strong></p>
+                    <input type="text" id="deleteConfirmation" class="form-input" 
+                           placeholder="Tapez SUPPRIMER pour confirmer" autocomplete="off">
+                </div>
+                
+                <div class="delete-actions">
+                    <button class="btn btn-outline" onclick="closeDeleteAccountModal()">
+                        Annuler
+                    </button>
+                    <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDeleteAccount()" disabled>
+                        🗑️ Supprimer définitivement
                     </button>
                 </div>
             </div>
@@ -614,11 +749,203 @@
             }, 1000);
         }
 
+        // Fonctions pour la suppression de compte
+        function showDeleteAccountModal() {
+            document.getElementById('deleteAccountModal').classList.remove('hidden');
+            
+            // Configurer la validation du champ de confirmation
+            const confirmationInput = document.getElementById('deleteConfirmation');
+            const confirmButton = document.getElementById('confirmDeleteBtn');
+            
+            confirmationInput.addEventListener('input', function() {
+                const isValid = this.value.trim().toUpperCase() === 'SUPPRIMER';
+                confirmButton.disabled = !isValid;
+                
+                if (isValid) {
+                    confirmButton.classList.add('btn-danger-active');
+                } else {
+                    confirmButton.classList.remove('btn-danger-active');
+                }
+            });
+            
+            // Focus sur l'input
+            setTimeout(() => confirmationInput.focus(), 100);
+        }
+
+        function closeDeleteAccountModal() {
+            const modal = document.getElementById('deleteAccountModal');
+            const confirmationInput = document.getElementById('deleteConfirmation');
+            const confirmButton = document.getElementById('confirmDeleteBtn');
+            
+            modal.classList.add('hidden');
+            confirmationInput.value = '';
+            confirmButton.disabled = true;
+            confirmButton.classList.remove('btn-danger-active');
+        }
+
+        async function confirmDeleteAccount() {
+            const confirmationInput = document.getElementById('deleteConfirmation');
+            
+            if (confirmationInput.value.trim().toUpperCase() !== 'SUPPRIMER') {
+                showMessage('Veuillez taper "SUPPRIMER" pour confirmer', 'error');
+                return;
+            }
+
+            try {
+                showMessage('Suppression du compte en cours...', 'info');
+                
+                // Désactiver le bouton pour éviter les double-clics
+                const confirmButton = document.getElementById('confirmDeleteBtn');
+                confirmButton.disabled = true;
+                confirmButton.textContent = 'Suppression...';
+                
+                console.log('🗑️ Suppression du compte utilisateur');
+                
+                // Supprimer les données utilisateur dans Firestore
+                if (currentUser) {
+                    const db = firebase.firestore();
+                    
+                    // Supprimer le document utilisateur
+                    await db.collection('users').doc(currentUser.uid).delete();
+                    
+                    // Supprimer l'utilisateur Firebase Auth
+                    await currentUser.delete();
+                }
+                
+                showMessage('Compte supprimé avec succès. Redirection...', 'success');
+                
+                // Nettoyer l'état local
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Rediriger vers la page d'accueil après un délai
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ Erreur suppression compte:', error);
+                
+                let errorMessage = 'Erreur lors de la suppression du compte.';
+                if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Pour supprimer votre compte, veuillez d\'abord vous déconnecter puis vous reconnecter.';
+                }
+                
+                showMessage(errorMessage, 'error');
+                
+                // Réactiver le bouton
+                const confirmButton = document.getElementById('confirmDeleteBtn');
+                confirmButton.disabled = false;
+                confirmButton.textContent = '🗑️ Supprimer définitivement';
+            }
+        }
+
         function editProfile() {
-            showMessage('Redirection vers l\'édition du profil...', 'info');
-            setTimeout(() => {
-                window.location.href = 'profile-setup.html';
-            }, 1000);
+            console.log('📝 Passage en mode édition du profil');
+            
+            // Masquer le résumé et afficher le formulaire
+            const profileSummary = document.getElementById('profileSummary');
+            const profileEditForm = document.getElementById('profileEditForm');
+            const profileCardHeader = document.getElementById('profileCardHeader');
+            
+            if (profileSummary) profileSummary.classList.add('hidden');
+            if (profileEditForm) profileEditForm.classList.remove('hidden');
+            
+            // Modifier le header pour inclure un bouton retour
+            if (profileCardHeader) {
+                profileCardHeader.innerHTML = `
+                    <div class="edit-header">
+                        <button class="btn btn-outline btn-small" onclick="cancelEditProfile()">
+                            ← Retour
+                        </button>
+                        <h3>✏️ Modifier mon profil</h3>
+                    </div>
+                `;
+            }
+            
+            // Pré-remplir le formulaire avec les données actuelles
+            if (userData) {
+                const fields = {
+                    'editFirstName': userData.profile?.firstName || '',
+                    'editLastName': userData.profile?.lastName || '',
+                    'editEmail': userData.email || '',
+                    'editPhone': userData.profile?.phone || '',
+                    'editCity': userData.profile?.city || '',
+                    'editProfession': userData.profile?.profession || ''
+                };
+                
+                Object.entries(fields).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.value = value;
+                });
+            }
+            
+            showMessage('Mode édition activé', 'info');
+        }
+
+        function cancelEditProfile() {
+            console.log('❌ Annulation de l\'édition du profil');
+            
+            // Masquer le formulaire et afficher le résumé
+            const profileSummary = document.getElementById('profileSummary');
+            const profileEditForm = document.getElementById('profileEditForm');
+            const profileCardHeader = document.getElementById('profileCardHeader');
+            
+            if (profileSummary) profileSummary.classList.remove('hidden');
+            if (profileEditForm) profileEditForm.classList.add('hidden');
+            
+            // Restaurer le header original
+            if (profileCardHeader) {
+                profileCardHeader.innerHTML = `
+                    <h3>👤 Mon Profil</h3>
+                    <button class="btn btn-secondary btn-small" onclick="editProfile()">Modifier</button>
+                `;
+            }
+            
+            showMessage('Modifications annulées', 'info');
+        }
+
+        async function saveProfile() {
+            console.log('💾 Sauvegarde du profil');
+            
+            // Récupérer les valeurs du formulaire
+            const updatedData = {
+                profile: {
+                    firstName: document.getElementById('editFirstName').value.trim(),
+                    lastName: document.getElementById('editLastName').value.trim(),
+                    phone: document.getElementById('editPhone').value.trim(),
+                    city: document.getElementById('editCity').value.trim(),
+                    profession: document.getElementById('editProfession').value.trim()
+                }
+            };
+            
+            // Validation basique
+            if (!updatedData.profile.firstName || !updatedData.profile.lastName) {
+                showMessage('Le prénom et le nom sont obligatoires', 'error');
+                return;
+            }
+            
+            try {
+                showMessage('Enregistrement en cours...', 'info');
+                
+                // Mettre à jour dans Firebase
+                await FornapAuth.updateUserData(updatedData);
+                
+                // Mettre à jour les données locales
+                userData.profile = { ...userData.profile, ...updatedData.profile };
+                
+                // Rafraîchir l'affichage
+                displayProfileInfo(userData);
+                
+                // Retourner au mode affichage
+                cancelEditProfile();
+                
+                showMessage('Profil mis à jour avec succès !', 'success');
+                
+            } catch (error) {
+                console.error('❌ Erreur sauvegarde profil:', error);
+                showMessage('Erreur lors de la sauvegarde. Réessayez.', 'error');
+            }
         }
 
         // Initialisation
@@ -1221,6 +1548,264 @@
 
         .view-all:hover {
             text-decoration: underline;
+        }
+
+        /* Formulaire d'édition du profil */
+        .profile-edit-form {
+            padding-top: var(--space-6);
+        }
+        
+        .edit-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            margin-bottom: var(--space-2);
+            font-weight: var(--font-medium);
+            color: var(--noir-principal);
+        }
+        
+        .form-input {
+            padding: var(--space-3);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            font-size: var(--text-base);
+            transition: var(--transition-base);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--noir-principal);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-input:disabled {
+            background: var(--gris-tres-clair);
+            color: var(--gris-moyen);
+            cursor: not-allowed;
+        }
+        
+        .edit-form-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: flex-end;
+        }
+        
+        .edit-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            width: 100%;
+        }
+        
+        .edit-header h3 {
+            flex: 1;
+            text-align: left;
+        }
+
+        /* Section paramètres */
+        .settings-section {
+            margin-bottom: var(--space-8);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid var(--gris-clair);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h4 {
+            margin-bottom: var(--space-2);
+            color: var(--noir-principal);
+            font-weight: var(--font-medium);
+        }
+
+        .setting-info p {
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+        }
+
+        .setting-select {
+            padding: var(--space-2) var(--space-3);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            font-size: var(--text-sm);
+        }
+
+        .setting-select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gris-clair);
+            transition: var(--transition-base);
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--blanc-principal);
+            transition: var(--transition-base);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--noir-principal);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Zone de danger */
+        .danger-zone {
+            margin-top: var(--space-8);
+            padding: var(--space-6);
+            border: 2px solid var(--erreur);
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .danger-zone h4 {
+            color: var(--erreur);
+            margin-bottom: var(--space-3);
+            font-weight: var(--font-bold);
+        }
+
+        .danger-zone p {
+            color: var(--gris-moyen);
+            margin-bottom: var(--space-6);
+        }
+
+        .danger-actions {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .btn-danger {
+            background-color: var(--erreur);
+            color: var(--blanc-principal);
+            border-color: var(--erreur);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-danger-active {
+            background-color: #dc3545 !important;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+        }
+
+        /* Modal de suppression */
+        .danger-modal {
+            max-width: 600px;
+        }
+
+        .delete-account-content {
+            text-align: center;
+            padding: var(--space-6);
+        }
+
+        .danger-icon {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-6);
+            color: var(--erreur);
+        }
+
+        .delete-account-content h3 {
+            color: var(--erreur);
+            margin-bottom: var(--space-6);
+            font-weight: var(--font-bold);
+        }
+
+        .danger-warning {
+            margin-bottom: var(--space-6);
+            padding: var(--space-4);
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--erreur);
+            color: var(--gris-fonce);
+            text-align: left;
+        }
+
+        .deletion-list {
+            text-align: left;
+            margin-bottom: var(--space-8);
+            padding: var(--space-4);
+            background: var(--gris-tres-clair);
+            border-left: 4px solid var(--erreur);
+        }
+
+        .deletion-list li {
+            margin-bottom: var(--space-2);
+            color: var(--gris-fonce);
+        }
+
+        .confirmation-section {
+            margin-bottom: var(--space-8);
+            text-align: left;
+        }
+
+        .confirmation-section p {
+            margin-bottom: var(--space-4);
+            font-weight: var(--font-medium);
+            color: var(--noir-principal);
+        }
+
+        .delete-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
         }
 
         /* Responsive */

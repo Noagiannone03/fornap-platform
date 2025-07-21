@@ -45,7 +45,41 @@ class FornapComponents {
         
         instance.authState = isAuthenticated;
         
+        // Sauvegarder l'état dans localStorage pour éviter les sauts visuels
+        try {
+            if (isAuthenticated) {
+                localStorage.setItem('fornap_auth_state', 'true');
+            } else {
+                localStorage.removeItem('fornap_auth_state');
+            }
+        } catch (e) {
+            console.warn('Erreur sauvegarde état auth:', e);
+        }
+        
         // Mettre à jour toutes les navbars existantes
+        FornapComponents.syncNavbarState(isAuthenticated);
+
+        // Notifier tous les callbacks
+        instance.authStateCallbacks.forEach(callback => {
+            try {
+                callback(isAuthenticated);
+            } catch (error) {
+                console.error('❌ Erreur callback auth state:', error);
+            }
+        });
+    }
+
+    /**
+     * Synchronise l'état d'authentification (alias pour updateAuthState)
+     */
+    static syncAuthState(isAuthenticated) {
+        FornapComponents.updateAuthState(isAuthenticated);
+    }
+
+    /**
+     * Met à jour uniquement l'affichage de la navbar
+     */
+    static syncNavbarState(isAuthenticated) {
         const navbarAuth = document.getElementById('navbarAuth');
         const navbarMember = document.getElementById('navbarMember');
 
@@ -60,15 +94,6 @@ class FornapComponents {
             
             console.log('✅ État navbar mis à jour:', isAuthenticated ? 'connecté' : 'déconnecté');
         }
-
-        // Notifier tous les callbacks
-        instance.authStateCallbacks.forEach(callback => {
-            try {
-                callback(isAuthenticated);
-            } catch (error) {
-                console.error('❌ Erreur callback auth state:', error);
-            }
-        });
     }
 
     /**
@@ -112,8 +137,9 @@ class FornapComponents {
                            class="navbar-link ${activePage === 'home' ? 'active' : ''}">
                             Accueil
                         </a>
-                        <a href="${basePath}pages/membership.html" 
-                           class="navbar-link ${activePage === 'membership' ? 'active' : ''}">
+                        <a href="#" id="forfaitsLink"
+                           class="navbar-link ${activePage === 'membership' ? 'active' : ''}" 
+                           data-href="${basePath}pages/membership.html">
                             Nos Forfaits
                         </a>
                         <a href="#events" 
@@ -134,7 +160,8 @@ class FornapComponents {
                     <div class="navbar-actions">
                         <!-- Utilisateur non connecté -->
                         <div class="navbar-auth ${authHidden}" id="navbarAuth">
-                            <button id="loginBtn" class="btn btn-outline">Se connecter</button>
+                            <button onclick="window.location.href='${basePath}pages/login.html'" 
+                                    class="btn btn-outline">Se connecter</button>
                             <button onclick="window.location.href='${basePath}pages/membership.html'" 
                                     class="btn btn-primary">Devenir membre</button>
                         </div>
@@ -289,6 +316,30 @@ class FornapComponents {
             logoutBtn.addEventListener('click', authCallbacks.onLogout);
         }
 
+        // Gérer le clic sur le lien "Nos Forfaits"
+        const forfaitsLink = document.getElementById('forfaitsLink');
+        if (forfaitsLink) {
+            forfaitsLink.addEventListener('click', (event) => {
+                event.preventDefault(); // Empêcher le comportement par défaut du lien
+                
+                // Vérifier si l'utilisateur est connecté
+                const instance = FornapComponents.init();
+                const isAuthenticated = instance.authState || false;
+                
+                if (isAuthenticated) {
+                    // Si connecté, aller directement au processus de paiement
+                    console.log('🎯 Utilisateur connecté -> Redirection vers processus de paiement');
+                    window.location.href = basePath + 'pages/payment.html';
+                } else {
+                    // Si pas connecté, aller à la page des forfaits normalement
+                    const href = forfaitsLink.dataset.href;
+                    if (href) {
+                        window.location.href = href;
+                    }
+                }
+            });
+        }
+
         console.log('✅ Navbar FORNAP initialisée');
     }
 
@@ -301,17 +352,6 @@ class FornapComponents {
         } catch (e) {
             console.warn('⚠️ Impossible de sauvegarder l\'état auth dans localStorage');
         }
-    }
-
-    /**
-     * Synchronise l'état d'authentification avec sauvegarde
-     */
-    static syncAuthState(isAuthenticated) {
-        // Sauvegarder pour éviter le saut visuel au prochain chargement
-        FornapComponents.saveAuthState(isAuthenticated);
-        
-        // Mettre à jour immédiatement
-        FornapComponents.updateAuthState(isAuthenticated);
     }
 }
 

@@ -275,7 +275,7 @@
         <!-- Section Choix forfait -->
         <section id="planSection" class="journey-section hidden">
             <div class="container">
-                <div class="form-container">
+                <div class="form-container plan-selection-container">
                     <div class="form-header">
                         <h2>Choisissez votre forfait membre</h2>
                         <p>Sélectionnez l'adhésion qui correspond à vos besoins</p>
@@ -324,23 +324,7 @@
                             </div>
                         </div>
 
-                        <div class="plan-option premium" data-plan="honneur" onclick="contactForHonor()">
-                            <div class="plan-header">
-                                <h3>Membre d'Honneur</h3>
-                                <p class="plan-description">Soutenez le projet FORNAP</p>
-                                <div class="plan-pricing">
-                                    <span class="price special">Nous contacter</span>
-                                </div>
-                            </div>
-                            <div class="plan-benefits">
-                                <div class="benefit">✓ Tout du membre annuel</div>
-                                <div class="benefit premium-feature">👑 Accès illimité 24/7</div>
-                                <div class="benefit premium-feature">👑 Services premium exclusifs</div>
-                                <div class="benefit premium-feature">👑 Soutien financier du lieu</div>
-                                <div class="benefit premium-feature">👑 Reconnaissance publique</div>
-                                <div class="benefit premium-feature">👑 Accès aux décisions importantes</div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -2023,15 +2007,30 @@
             display: none;
         }
 
-        /* SECTION FORFAITS */
+        /* Container spécifique pour la sélection de forfait - juste un peu plus large */
+        .plan-selection-container {
+            max-width: 900px;
+            padding: var(--space-8);
+        }
+
+        /* SECTION FORFAITS - 2 colonnes équilibrées */
         .plans-showcase {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: var(--space-8);
             margin-top: var(--space-8);
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .plan-selection-container {
+                max-width: 100%;
+                padding: var(--space-6) var(--space-4);
+            }
+            
+            .plans-showcase {
+                grid-template-columns: 1fr;
+                gap: var(--space-6);
+            }
         }
 
         .plan-option {
@@ -2042,7 +2041,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            min-height: 450px;
+            min-height: 500px; /* Augmenté de 450px à 500px pour plus d'espace */
             display: flex;
             flex-direction: column;
             justify-content: space-between;

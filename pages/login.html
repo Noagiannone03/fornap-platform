@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - FORNAP</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    
+    <!-- GSAP pour animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Placeholder pour la navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- ========================================
+         CONTENU PRINCIPAL
+         ======================================== -->
+    <main class="main-content">
+        
+        <!-- Section Connexion -->
+        <section class="login-hero">
+            <div class="container">
+                <div class="login-content">
+                    
+                    <!-- Header de bienvenue -->
+                    <div class="login-header">
+                        <div class="welcome-icon">
+                            👋
+                        </div>
+                        <h1>Heureux de vous revoir parmi nous !</h1>
+                        <p class="login-subtitle">
+                            Connectez-vous à votre compte membre FORNAP pour accéder à votre espace personnel
+                        </p>
+                    </div>
+
+                    <!-- Formulaire de connexion -->
+                    <div class="login-form-container">
+                        <div class="login-form-card">
+                            <form id="loginForm" class="login-form">
+                                <div class="form-group">
+                                    <label for="loginEmail">Adresse email</label>
+                                    <input type="email" id="loginEmail" class="form-input" 
+                                           placeholder="votre@email.com" required autocomplete="email">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="loginPassword">Mot de passe</label>
+                                    <input type="password" id="loginPassword" class="form-input" 
+                                           placeholder="Votre mot de passe" required autocomplete="current-password">
+                                </div>
+
+                                <div class="form-options">
+                                    <label class="checkbox-field">
+                                        <input type="checkbox" id="rememberMe">
+                                        <span class="checkbox-mark"></span>
+                                        <span class="checkbox-label">Se souvenir de moi</span>
+                                    </label>
+                                    
+                                    <a href="#" id="forgotPassword" class="forgot-password">
+                                        Mot de passe oublié ?
+                                    </a>
+                                </div>
+
+                                <button type="submit" id="loginSubmit" class="btn btn-primary btn-large btn-full">
+                                    Se connecter
+                                </button>
+                            </form>
+
+                            <!-- Divider -->
+                            <div class="login-divider">
+                                <span>ou</span>
+                            </div>
+
+                            <!-- Actions alternatives -->
+                            <div class="login-alternatives">
+                                <p>Vous n'avez pas encore de compte ?</p>
+                                <a href="membership.html" class="btn btn-outline btn-large btn-full">
+                                    Devenir membre FORNAP
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features reminder -->
+                    <div class="login-features">
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <div class="feature-icon">📊</div>
+                                <h4>Dashboard personnalisé</h4>
+                                <p>Suivez votre activité et vos récompenses</p>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🎯</div>
+                                <h4>Accès prioritaire</h4>
+                                <p>Réservations et événements en avant-première</p>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">💎</div>
+                                <h4>Programme de fidélité</h4>
+                                <p>Gagnez des points et des récompenses exclusives</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Container pour les messages -->
+    <div id="messageContainer"></div>
+
+    <!-- Placeholder pour le footer -->
+    <div id="footer-placeholder"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/auth-service.js"></script>
+    <script src="../assets/js/components.js"></script>
+
+    <!-- ========================================
+         JAVASCRIPT PRINCIPAL
+         ======================================== -->
+    
+    <script>
+        console.log('🚀 FORNAP - Page de Connexion');
+
+        // Variables globales
+        let currentUser = null;
+
+        // Fonctions utilitaires
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer') || document.body;
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            container.appendChild(messageElement);
+
+            // Animation d'entrée avec GSAP
+            gsap.fromTo(messageElement, 
+                { x: 400, opacity: 0 },
+                { x: 0, opacity: 1, duration: 0.4, ease: "back.out(1.7)" }
+            );
+            
+            setTimeout(() => {
+                gsap.to(messageElement, {
+                    x: 400,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "back.in(1.7)",
+                    onComplete: () => messageElement.remove()
+                });
+            }, 4000);
+        }
+
+        function setLoading(loading) {
+            const submitBtn = document.getElementById('loginSubmit');
+            const form = document.getElementById('loginForm');
+            
+            if (submitBtn) {
+                if (loading) {
+                    submitBtn.textContent = 'Connexion...';
+                    submitBtn.disabled = true;
+                } else {
+                    submitBtn.textContent = 'Se connecter';
+                    submitBtn.disabled = false;
+                }
+            }
+
+            if (form) {
+                if (loading) {
+                    form.classList.add('loading');
+                } else {
+                    form.classList.remove('loading');
+                }
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            console.log('🔐 Tentative de connexion pour:', email);
+            setLoading(true);
+
+            try {
+                const user = await FornapAuth.signIn(email, password);
+                
+                showMessage('Connexion réussie ! Redirection...', 'success');
+                
+                // Animation de succès
+                gsap.to('.login-form-card', {
+                    scale: 1.05,
+                    duration: 0.3,
+                    ease: "back.out(1.7)",
+                    onComplete: () => {
+                        gsap.to('.login-form-card', {
+                            scale: 1,
+                            duration: 0.2
+                        });
+                    }
+                });
+                
+                // Rediriger vers le dashboard après un délai
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Erreur connexion:', error);
+                
+                let errorMessage = 'Email ou mot de passe incorrect';
+                if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Trop de tentatives échouées. Réessayez plus tard.';
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMessage = 'Ce compte a été désactivé. Contactez le support.';
+                }
+                
+                showMessage(errorMessage, 'error');
+                
+                // Animation d'erreur
+                gsap.to('.login-form-card', {
+                    x: -10,
+                    duration: 0.1,
+                    repeat: 5,
+                    yoyo: true,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        gsap.set('.login-form-card', { x: 0 });
+                    }
+                });
+                
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function handleForgotPassword() {
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            if (!email) {
+                showMessage('Veuillez d\'abord saisir votre adresse email', 'warning');
+                document.getElementById('loginEmail').focus();
+                return;
+            }
+
+            try {
+                await FornapAuth.resetPassword(email);
+                showMessage('Email de réinitialisation envoyé ! Vérifiez votre boîte mail.', 'success');
+            } catch (error) {
+                console.error('❌ Erreur reset password:', error);
+                showMessage('Erreur lors de l\'envoi de l\'email. Vérifiez votre adresse.', 'error');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await FornapAuth.signOut();
+                showMessage('Déconnexion réussie', 'success');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1000);
+            } catch (error) {
+                console.error('❌ Erreur déconnexion:', error);
+                showMessage('Erreur lors de la déconnexion', 'error');
+            }
+        }
+
+        function showLoginModal() {
+            showMessage('Vous êtes déjà sur la page de connexion !', 'info');
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('✅ DOM chargé - Page de Connexion');
+
+            try {
+                // Initialiser les services
+                await FornapAuth.init();
+                
+                // Initialiser les composants
+                initFornapComponents();
+
+                // Vérifier si déjà connecté
+                FornapAuth.onAuthStateChanged((user) => {
+                    currentUser = user;
+                    
+                    if (user) {
+                        console.log('👤 Utilisateur déjà connecté:', user.email);
+                        showMessage('Vous êtes déjà connecté ! Redirection vers le dashboard...', 'info');
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 2000);
+                    }
+                    
+                    FornapComponents.syncAuthState(!!user);
+                });
+
+                // Configurer les événements
+                setupEventListeners();
+
+                // Animation d'entrée
+                gsap.fromTo('.login-content', 
+                    { opacity: 0, y: 50 },
+                    { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+                );
+
+                console.log('🎯 Page de Connexion FORNAP prête !');
+
+            } catch (error) {
+                console.error('❌ Erreur initialisation:', error);
+                showMessage('Erreur lors du chargement. Veuillez recharger la page.', 'error');
+            }
+        });
+
+        function setupEventListeners() {
+            // Soumission du formulaire
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    handleLogin();
+                });
+            }
+
+            // Mot de passe oublié
+            const forgotPasswordLink = document.getElementById('forgotPassword');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleForgotPassword();
+                });
+            }
+
+            // Validation en temps réel
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    if (input.value.trim()) {
+                        input.classList.add('has-value');
+                    } else {
+                        input.classList.remove('has-value');
+                    }
+                });
+            });
+
+            console.log('✅ Événements configurés');
+        }
+
+        // Initialisation des composants FORNAP
+        function initFornapComponents() {
+            // Injecter la navbar
+            const navbarPlaceholder = document.getElementById('navbar-placeholder');
+            if (navbarPlaceholder) {
+                navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('login', '../');
+            }
+
+            // Injecter le footer
+            const footerPlaceholder = document.getElementById('footer-placeholder');
+            if (footerPlaceholder) {
+                footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
+            }
+
+            // Initialiser les événements navbar
+            setTimeout(() => {
+                FornapComponents.initNavbarEvents('../', {
+                    onLogin: showLoginModal,
+                    onLogout: handleLogout
+                });
+            }, 100);
+        }
+    </script>
+
+    <style>
+        /* ========================================
+           STYLES PAGE DE CONNEXION
+           ======================================== */
+        
+        .login-hero {
+            padding: var(--space-12) 0;
+            min-height: calc(100vh - 160px);
+            display: flex;
+            align-items: center;
+        }
+
+        .login-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        /* Header de bienvenue */
+        .login-header {
+            margin-bottom: var(--space-12);
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-6);
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .login-header h1 {
+            font-size: var(--text-4xl);
+            color: var(--noir-principal);
+            margin-bottom: var(--space-6);
+            font-weight: var(--font-bold);
+        }
+
+        .login-subtitle {
+            font-size: var(--text-xl);
+            color: var(--gris-moyen);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Formulaire de connexion */
+        .login-form-container {
+            margin-bottom: var(--space-12);
+        }
+
+        .login-form-card {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--blanc-principal);
+            border: 2px solid var(--noir-principal);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-base);
+        }
+
+        .login-form-card:hover {
+            box-shadow: var(--shadow-xl);
+        }
+
+        .login-form {
+            margin-bottom: var(--space-6);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-6);
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-3);
+            font-weight: var(--font-medium);
+            color: var(--noir-principal);
+            font-size: var(--text-lg);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-4);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            font-size: var(--text-base);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--noir-principal);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-input.has-value {
+            border-color: var(--succes);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-8);
+            font-size: var(--text-sm);
+        }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            cursor: pointer;
+        }
+
+        .checkbox-field input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-mark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-field:hover .checkbox-mark {
+            border-color: var(--noir-principal);
+        }
+
+        .checkbox-field input:checked ~ .checkbox-mark {
+            background: var(--noir-principal);
+            border-color: var(--noir-principal);
+        }
+
+        .checkbox-mark::after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid var(--blanc-principal);
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-field input:checked ~ .checkbox-mark::after {
+            display: block;
+        }
+
+        .checkbox-label {
+            color: var(--gris-moyen);
+        }
+
+        .forgot-password {
+            color: var(--noir-principal);
+            text-decoration: none;
+            font-weight: var(--font-medium);
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Divider */
+        .login-divider {
+            position: relative;
+            margin: var(--space-6) 0;
+            text-align: center;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gris-clair);
+        }
+
+        .login-divider span {
+            background: var(--blanc-principal);
+            padding: 0 var(--space-4);
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+        }
+
+        /* Alternatives */
+        .login-alternatives p {
+            margin-bottom: var(--space-4);
+            color: var(--gris-moyen);
+        }
+
+        /* Features */
+        .login-features {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: var(--space-6);
+            border: 2px solid var(--gris-clair);
+            background: var(--blanc-principal);
+            transition: var(--transition-base);
+        }
+
+        .feature-item:hover {
+            border-color: var(--noir-principal);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-icon {
+            font-size: var(--text-3xl);
+            margin-bottom: var(--space-4);
+        }
+
+        .feature-item h4 {
+            margin-bottom: var(--space-3);
+            color: var(--noir-principal);
+            font-weight: var(--font-bold);
+        }
+
+        .feature-item p {
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+            line-height: 1.5;
+        }
+
+        /* États de chargement */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-hero {
+                padding: var(--space-8) 0;
+            }
+
+            .login-header h1 {
+                font-size: var(--text-3xl);
+            }
+
+            .login-subtitle {
+                font-size: var(--text-lg);
+            }
+
+            .login-form-card {
+                padding: var(--space-6);
+                margin: 0 var(--space-4);
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: var(--space-4);
+                align-items: flex-start;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+            }
+        }
+    </style>
+</body>
+</html> 
