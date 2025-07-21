@@ -94,19 +94,7 @@
                     </div>
                 </div>
 
-                <!-- Informations forfait sélectionné -->
-                <div id="selectedPlanInfo" class="hidden text-center mt-2">
-                    <div style="border: 2px solid var(--noir-principal); padding: 2rem; background: var(--gris-tres-clair); max-width: 500px; margin: 0 auto;">
-                        <h3>Forfait sélectionné : <span id="selectedPlanName"></span></h3>
-                        <p style="font-size: 1.2rem; margin: 1rem 0;"><strong>Prix : <span id="selectedPlanPrice"></span><span id="selectedPlanPeriod"></span></strong></p>
-                        <p style="color: var(--gris-moyen); margin-bottom: 1.5rem;">
-                            En cliquant ci-dessous, vous démarrez le processus d'adhésion à FORNAP
-                        </p>
-                        <button id="proceedToPayment" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
-                            Devenir membre FORNAP
-                        </button>
-                    </div>
-                </div>
+
             </div>
         </section>
 
@@ -396,61 +384,18 @@
                     return;
                 }
 
-                // Réinitialiser les sélections
-                document.querySelectorAll('.pricing-card').forEach(c => {
-                    c.classList.remove('selected');
-                });
-                
-                // Sélectionner la nouvelle carte
-                card.classList.add('selected');
-                
-                // Stocker le forfait sélectionné
-                selectedPlan = plan;
+                // Stocker le forfait sélectionné pour la page payment
                 sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
                 
-                // Afficher les informations du forfait sélectionné
-                updateSelectedPlanDisplay(plan);
+                showMessage(`Forfait ${plan.name} sélectionné - Redirection...`, 'success');
                 
-                showMessage(`Forfait ${plan.name} sélectionné`, 'success');
-            }
-
-            function updateSelectedPlanDisplay(plan) {
-                const planInfo = document.getElementById('selectedPlanInfo');
-                const planName = document.getElementById('selectedPlanName');
-                const planPrice = document.getElementById('selectedPlanPrice');
-                const planPeriod = document.getElementById('selectedPlanPeriod');
-                
-                if (planInfo && planName && planPrice && planPeriod) {
-                    planName.textContent = plan.name;
-                    planPrice.textContent = plan.price + (plan.price !== 'special' ? '€' : '');
-                    planPeriod.textContent = plan.period;
-                    planInfo.classList.remove('hidden');
-                }
-            }
-
-            function startMembershipFlow() {
-                if (!selectedPlan) {
-                    showMessage('Veuillez sélectionner un forfait', 'error');
-                    return;
-                }
-
-                if (selectedPlan.id === 'honneur') {
-                    contactUs();
-                    return;
-                }
-
-                console.log('🎯 Démarrage du processus d\'adhésion');
-                console.log('📋 Forfait sélectionné:', selectedPlan);
-                
-                // Stocker le forfait sélectionné
-                sessionStorage.setItem('selectedPlan', JSON.stringify(selectedPlan));
-                
-                // Rediriger vers la page de paiement (flow corrigé)
-                showMessage('Redirection vers la création de compte...', 'info');
+                // Redirection directe vers payment.html
                 setTimeout(() => {
                     window.location.href = 'payment.html';
                 }, 1000);
             }
+
+
 
             function contactUs() {
                 showMessage('Redirection vers le formulaire de contact...', 'info');
@@ -495,9 +440,6 @@
             document.querySelectorAll('.contact-us').forEach(btn => {
                 btn.addEventListener('click', contactUs);
             });
-                     
-            // Bouton procéder au paiement
-            document.getElementById('proceedToPayment')?.addEventListener('click', startMembershipFlow);
 
             // FAQ events
             document.querySelectorAll('.faq-item').forEach(item => {

@@ -75,15 +75,15 @@
                             <div class="feature-chip">
                                 <span class="chip-icon">🏢</span>
                                 <span>Espace culturel vivant</span>
-                            </div>
+                    </div>
                             <div class="feature-chip">
                                 <span class="chip-icon">🤝</span>
                                 <span>Communauté bienveillante</span>
-                            </div>
+                    </div>
                             <div class="feature-chip">
                                 <span class="chip-icon">🚀</span>
                                 <span>Projets collaboratifs</span>
-                            </div>
+                    </div>
                         </div>
 
                         <div class="hero-actions">
@@ -160,24 +160,24 @@
                             <button class="btn btn-primary" onclick="nextSignupStep(2)" disabled id="nextBtn1">
                                 Continuer
                             </button>
-                        </div>
-                    </div>
+                                </div>
+                                </div>
 
                     <!-- Étape 2: Nom -->
                     <div class="signup-step" id="signupStep2" data-step="2">
                         <div class="form-header">
                             <h2>Et votre nom de famille ?</h2>
                             <p>Pour compléter votre identité membre</p>
-                        </div>
-
+                            </div>
+                            
                         <div class="form-content">
                             <div class="form-field">
                                 <label for="signupLastName">Votre nom</label>
                                 <input type="text" id="signupLastName" class="form-input form-input-large" 
                                        placeholder="Dupont" required autocomplete="family-name">
                             </div>
-                        </div>
-
+                            </div>
+                            
                         <div class="form-actions">
                             <button class="btn btn-secondary" onclick="previousSignupStep(1)">
                                 Retour
@@ -213,8 +213,33 @@
                         </div>
                     </div>
 
-                    <!-- Étape 4: Mot de passe -->
+                                        <!-- Étape 4: Numéro de téléphone -->
                     <div class="signup-step" id="signupStep4" data-step="4">
+                        <div class="form-header">
+                            <h2>Votre numéro de téléphone ?</h2>
+                            <p>Pour vous contacter en cas de besoin</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
+                                <label for="signupPhone">Numéro de téléphone</label>
+                                <input type="tel" id="signupPhone" class="form-input form-input-large" 
+                                       placeholder="06 12 34 56 78" required autocomplete="tel">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousSignupStep(3)">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="nextSignupStep(5)" disabled id="nextBtn4">
+                                Continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Étape 5: Mot de passe -->
+                    <div class="signup-step" id="signupStep5" data-step="5">
                         <div class="form-header">
                             <h2>Créez votre mot de passe</h2>
                             <p>Minimum 6 caractères pour sécuriser votre compte</p>
@@ -235,10 +260,10 @@
                         </div>
 
                         <div class="form-actions">
-                            <button class="btn btn-secondary" onclick="previousSignupStep(3)">
+                            <button class="btn btn-secondary" onclick="previousSignupStep(4)">
                                 Retour
                             </button>
-                            <button class="btn btn-primary" onclick="createAccount()" disabled id="nextBtn4">
+                            <button class="btn btn-primary" onclick="createAccount()" disabled id="nextBtn5">
                                 Créer mon compte
                             </button>
                         </div>
@@ -254,57 +279,66 @@
                     <div class="form-header">
                         <h2>Choisissez votre forfait membre</h2>
                         <p>Sélectionnez l'adhésion qui correspond à vos besoins</p>
-                    </div>
+                        </div>
 
-                    <div class="plans-showcase">
-                        <div class="plan-option" data-plan="basic" onclick="selectPlan('basic')">
+                                        <div class="plans-showcase">
+                        <div class="plan-option" data-plan="mensuel" onclick="selectPlan('mensuel')">
                             <div class="plan-header">
-                                <h3>Membre Découverte</h3>
+                                <h3>Membre Mensuel</h3>
+                                <p class="plan-description">Parfait pour découvrir FORNAP</p>
                                 <div class="plan-pricing">
-                                    <span class="price">29</span>
+                                    <span class="price">12</span>
                                     <span class="currency">€/mois</span>
                                 </div>
                             </div>
                             <div class="plan-benefits">
-                                <div class="benefit">✓ Accès aux espaces communs</div>
-                                <div class="benefit">✓ Événements communautaires</div>
-                                <div class="benefit">✓ Wi-Fi haut débit</div>
-                                <div class="benefit">✓ Café/thé inclus</div>
+                                <div class="benefit">✓ Accès au lieu en journée (9h-19h)</div>
+                                <div class="benefit">✓ Réductions boutique (-10%)</div>
+                                <div class="benefit">✓ Réservation espaces coworking</div>
+                                <div class="benefit">✓ Participation aux événements</div>
+                                <div class="benefit">✓ Accès WiFi haut débit</div>
+                                <div class="benefit">✓ Café/thé à volonté</div>
                             </div>
                         </div>
 
-                        <div class="plan-option featured" data-plan="pro" onclick="selectPlan('pro')">
+                        <div class="plan-option featured" data-plan="annuel" onclick="selectPlan('annuel')">
                             <div class="plan-badge">Recommandé</div>
                             <div class="plan-header">
-                                <h3>Membre Actif</h3>
+                                <h3>Membre Annuel</h3>
+                                <p class="plan-description">Le meilleur rapport qualité-prix</p>
                                 <div class="plan-pricing">
-                                    <span class="price">59</span>
-                                    <span class="currency">€/mois</span>
+                                    <span class="price">12</span>
+                                    <span class="currency">€/an</span>
                                 </div>
                             </div>
                             <div class="plan-benefits">
-                                <div class="benefit">✓ Tout du forfait Découverte</div>
-                                <div class="benefit">✓ Espace de travail dédié</div>
-                                <div class="benefit">✓ Accès 24h/24</div>
-                                <div class="benefit">✓ Salles de réunion (2h/mois)</div>
-                                <div class="benefit">✓ Impression/scan inclus</div>
+                                <div class="benefit">✓ Tout du membre mensuel</div>
+                                <div class="benefit exclusive">⭐ Programme de fidélité exclusif</div>
+                                <div class="benefit exclusive">⭐ Accès anticipés aux événements</div>
+                                <div class="benefit exclusive">⭐ Réductions supplémentaires (-20%)</div>
+                                <div class="benefit exclusive">⭐ Avantages VIP et cadeaux</div>
+                                <div class="benefit exclusive">⭐ Invité gratuit aux événements</div>
+                            </div>
+                            <div class="plan-savings">
+                                Économisez 132€ par an !
                             </div>
                         </div>
 
-                        <div class="plan-option" data-plan="premium" onclick="selectPlan('premium')">
+                        <div class="plan-option premium" data-plan="honneur" onclick="contactForHonor()">
                             <div class="plan-header">
-                                <h3>Membre Premium</h3>
+                                <h3>Membre d'Honneur</h3>
+                                <p class="plan-description">Soutenez le projet FORNAP</p>
                                 <div class="plan-pricing">
-                                    <span class="price">99</span>
-                                    <span class="currency">€/mois</span>
+                                    <span class="price special">Nous contacter</span>
                                 </div>
                             </div>
                             <div class="plan-benefits">
-                                <div class="benefit">✓ Tout du forfait Actif</div>
-                                <div class="benefit">✓ Bureau privé disponible</div>
-                                <div class="benefit">✓ Salles de réunion illimitées</div>
-                                <div class="benefit">✓ Support prioritaire</div>
-                                <div class="benefit">✓ Événements VIP</div>
+                                <div class="benefit">✓ Tout du membre annuel</div>
+                                <div class="benefit premium-feature">👑 Accès illimité 24/7</div>
+                                <div class="benefit premium-feature">👑 Services premium exclusifs</div>
+                                <div class="benefit premium-feature">👑 Soutien financier du lieu</div>
+                                <div class="benefit premium-feature">👑 Reconnaissance publique</div>
+                                <div class="benefit premium-feature">👑 Accès aux décisions importantes</div>
                             </div>
                         </div>
                     </div>
@@ -328,7 +362,7 @@
                                 Modifier le forfait
                             </button>
                         </div>
-                    </div>
+                        </div>
 
                     <!-- Formulaire paiement -->
                     <div class="payment-form-area">
@@ -397,10 +431,10 @@
                         <div class="form-actions">
                             <button class="btn btn-primary btn-large btn-full" onclick="processPayment()">
                                 Finaliser l'adhésion
-                            </button>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -427,9 +461,9 @@
                                     <div class="feature-details">
                                         <h4>Votre nouveau tiers lieu</h4>
                                         <p>Un espace de 500m² dédié à la créativité, au coworking et aux événements culturels</p>
-                                    </div>
-                                </div>
-                                
+                            </div>
+                        </div>
+
                                 <div class="intro-feature">
                                     <div class="feature-visual">🤝</div>
                                     <div class="feature-details">
@@ -498,22 +532,22 @@
                                         <span class="choice-icon">💼</span>
                                         <span class="choice-text">Espace de coworking inspirant</span>
                                     </div>
-                                </label>
-                                
+                            </label>
+                            
                                 <label class="choice-option" data-value="community">
                                     <input type="radio" name="motivation" value="community">
                                     <div class="choice-content">
                                         <span class="choice-icon">🤝</span>
                                         <span class="choice-text">Rencontrer d'autres créatifs</span>
                                     </div>
-                                </label>
+                            </label>
                                 
                                 <label class="choice-option" data-value="events">
                                     <input type="radio" name="motivation" value="events">
                                     <div class="choice-content">
                                         <span class="choice-icon">🎭</span>
                                         <span class="choice-text">Événements culturels uniques</span>
-                                    </div>
+                        </div>
                                 </label>
                                 
                                 <label class="choice-option" data-value="projects">
@@ -536,8 +570,33 @@
                         </div>
                     </div>
 
-                    <!-- Question 3: Découverte -->
+                    <!-- Question 3: Profession -->
                     <div class="know-step" id="knowStep3" data-step="3">
+                        <div class="form-header">
+                            <h2>Quelle est votre profession ?</h2>
+                            <p>Pour mieux comprendre notre communauté</p>
+                        </div>
+
+                        <div class="form-content">
+                            <div class="form-field">
+                                <label for="userProfession">Votre profession</label>
+                                <input type="text" id="userProfession" class="form-input form-input-large" 
+                                       placeholder="Développeur, Designer, Entrepreneur..." autocomplete="organization-title">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="previousKnowStep(2)">
+                                Retour
+                            </button>
+                            <button class="btn btn-primary" onclick="nextKnowStep(4)" disabled id="knowNextBtn3">
+                                Continuer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Question 4: Découverte -->
+                    <div class="know-step" id="knowStep4" data-step="4">
                         <div class="form-header">
                             <h2>Comment avez-vous entendu parler de nous ?</h2>
                             <p>Cela nous aide à mieux communiquer avec de futurs membres</p>
@@ -588,10 +647,10 @@
                         </div>
 
                         <div class="form-actions">
-                            <button class="btn btn-secondary" onclick="previousKnowStep(2)">
+                            <button class="btn btn-secondary" onclick="previousKnowStep(3)">
                                 Retour
                             </button>
-                            <button class="btn btn-primary" onclick="finalizeOnboarding()" disabled id="knowNextBtn3">
+                            <button class="btn btn-primary" onclick="finalizeOnboarding()" disabled id="knowNextBtn4">
                                 C'est parti !
                             </button>
                         </div>
@@ -651,7 +710,7 @@
     <div id="loadingModal" class="modal hidden">
         <div class="modal-backdrop"></div>
         <div class="modal-dialog">
-            <div class="modal-content">
+        <div class="modal-content">
                 <div class="loading-spinner"></div>
                 <h3 id="loadingTitle">Traitement en cours...</h3>
                 <p id="loadingMessage">Veuillez patienter</p>
@@ -700,41 +759,52 @@
         let currentKnowStep = 1;
         let userProfile = {};
 
-        // Plans disponibles
+        // Plans disponibles (alignés avec membership.html)
         const plans = {
-            basic: {
-                name: 'Membre Découverte',
-                price: 29,
+            mensuel: {
+                id: 'mensuel',
+                name: 'Membre Mensuel',
+                price: 12,
                 period: '/mois',
+                description: 'Parfait pour découvrir FORNAP',
                 features: [
-                    'Accès aux espaces communs',
-                    'Événements communautaires',
-                    'Wi-Fi haut débit',
-                    'Café/thé inclus'
+                    'Accès au lieu en journée (9h-19h)',
+                    'Réductions boutique (-10%)',
+                    'Réservation espaces coworking',
+                    'Participation aux événements',
+                    'Accès WiFi haut débit',
+                    'Café/thé à volonté'
                 ]
             },
-            pro: {
-                name: 'Membre Actif',
-                price: 59,
-                period: '/mois',
+            annuel: {
+                id: 'annuel',
+                name: 'Membre Annuel',
+                price: 12,
+                period: '/an',
+                description: 'Le meilleur rapport qualité-prix',
+                recommended: true,
                 features: [
-                    'Tout du forfait Découverte',
-                    'Espace de travail dédié',
-                    'Accès 24h/24',
-                    'Salles de réunion (2h/mois)',
-                    'Impression/scan inclus'
+                    'Tout du membre mensuel',
+                    '⭐ Programme de fidélité exclusif',
+                    '⭐ Accès anticipés aux événements',
+                    '⭐ Réductions supplémentaires (-20%)',
+                    '⭐ Avantages VIP et cadeaux',
+                    '⭐ Invité gratuit aux événements'
                 ]
             },
-            premium: {
-                name: 'Membre Premium',
-                price: 99,
-                period: '/mois',
+            honneur: {
+                id: 'honneur',
+                name: 'Membre d\'Honneur',
+                price: 'special',
+                period: '',
+                description: 'Soutenez le projet FORNAP',
                 features: [
-                    'Tout du forfait Actif',
-                    'Bureau privé disponible',
-                    'Salles de réunion illimitées',
-                    'Support prioritaire',
-                    'Événements VIP'
+                    'Tout du membre annuel',
+                    '👑 Accès illimité 24/7',
+                    '👑 Services premium exclusifs',
+                    '👑 Soutien financier du lieu',
+                    '👑 Reconnaissance publique',
+                    '👑 Accès aux décisions importantes'
                 ]
             }
         };
@@ -926,6 +996,15 @@
                 userProfile.email = email;
             }
 
+            if (currentSignupStep === 4) {
+                const phone = document.getElementById('signupPhone').value.trim();
+                if (!phone) {
+                    showMessage('Veuillez saisir votre numéro de téléphone', 'error');
+                    return;
+                }
+                userProfile.phone = phone;
+            }
+
             // Animation professionnelle
             const currentStep = document.getElementById(`signupStep${currentSignupStep}`);
             const nextStep = document.getElementById(`signupStep${stepNumber}`);
@@ -1044,9 +1123,15 @@
                 hideLoadingModal();
                 showMessage('Connexion réussie !', 'success');
                 
-                setTimeout(() => {
-                    showSection('planSection');
-                }, 1000);
+                // Vérifier si l'utilisateur a déjà un abonnement
+                const hasSubscription = await checkUserSubscriptionAndRedirect(user);
+                
+                if (!hasSubscription) {
+                    // Si pas d'abonnement, continuer vers la sélection des forfaits
+                    setTimeout(() => {
+                        showSection('planSection');
+                    }, 1000);
+                }
 
             } catch (error) {
                 hideLoadingModal();
@@ -1057,6 +1142,11 @@
 
         // Sélection de forfait avec animations
         function selectPlan(planId) {
+            if (planId === 'honneur') {
+                contactForHonor();
+                return;
+            }
+
             selectedPlan = { id: planId, ...plans[planId] };
             
             // Animation de sélection
@@ -1087,6 +1177,10 @@
                 showSection('paymentSection');
                 displaySelectedPlan();
             }, 600);
+        }
+
+        function contactForHonor() {
+            showMessage('Contactez-nous à contact@fornap.fr pour devenir membre d\'honneur', 'info');
         }
 
         function displaySelectedPlan() {
@@ -1189,7 +1283,23 @@
         }
 
         function startGettingToKnow() {
-            showSection('gettingToKnowSection');
+            // Si l'utilisateur est déjà connecté, passer directement à la section finale
+            if (currentUser) {
+                showMessage('Vous êtes déjà membre, bienvenue !', 'success');
+                setTimeout(() => {
+                    showSection('finalSection');
+                    // Animation finale
+                    const finalIcon = document.getElementById('finalIcon');
+                    gsap.set(finalIcon, { scale: 0 });
+                    gsap.to(finalIcon, {
+                        scale: 1,
+                        duration: 1,
+                        ease: "bounce.out"
+                    });
+                }, 1000);
+            } else {
+                showSection('gettingToKnowSection');
+            }
         }
 
         // Fonctions questions avec animations GSAP
@@ -1210,6 +1320,15 @@
                     return;
                 }
                 userProfile.motivation = motivation.value;
+            }
+
+            if (currentKnowStep === 3) {
+                const profession = document.getElementById('userProfession').value.trim();
+                if (!profession) {
+                    showMessage('Veuillez indiquer votre profession', 'error');
+                    return;
+                }
+                userProfile.profession = profession;
             }
 
             const currentStep = document.getElementById(`knowStep${currentKnowStep}`);
@@ -1305,6 +1424,71 @@
             }, 1500);
         }
 
+        // Vérifier la présélection de forfait depuis membership
+        function checkPreselectedPlan() {
+            const preselectedPlan = sessionStorage.getItem('selectedPlan');
+            if (preselectedPlan) {
+                try {
+                    const plan = JSON.parse(preselectedPlan);
+                    console.log('🎯 Forfait présélectionné:', plan);
+                    
+                    // Si c'est membre d'honneur, rediriger vers contact
+                    if (plan.id === 'honneur') {
+                        contactForHonor();
+                        return;
+                    }
+                    
+                    // Aller directement à la sélection des forfaits avec présélection
+                    showSection('planSection');
+                    
+                    // Présélectionner visuellement le forfait
+                    setTimeout(() => {
+                        const selectedCard = document.querySelector(`[data-plan="${plan.id}"]`);
+                        if (selectedCard) {
+                            selectedCard.classList.add('preselected');
+                            gsap.to(selectedCard, {
+                                scale: 1.05,
+                                borderColor: '#28A745',
+                                backgroundColor: '#F8F9FA',
+                                duration: 0.5,
+                                ease: "back.out(1.7)"
+                            });
+                        }
+                        showMessage(`Forfait ${plan.name} présélectionné`, 'success');
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('Erreur parsing forfait présélectionné:', error);
+                    sessionStorage.removeItem('selectedPlan');
+                }
+            }
+        }
+
+        // Vérifier si l'utilisateur a déjà un abonnement
+        async function checkUserSubscriptionAndRedirect(user) {
+            try {
+                // TODO: Vérifier en base de données si l'user a un abonnement actif
+                console.log('🔍 Vérification abonnement pour:', user.email);
+                
+                // Pour l'instant, simulation
+                // const hasActiveSubscription = await checkUserSubscription(user.uid);
+                const hasActiveSubscription = false; // À remplacer par vraie vérification
+                
+                if (hasActiveSubscription) {
+                    showMessage('Vous avez déjà un abonnement actif. Redirection vers votre dashboard...', 'info');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                    return true;
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Erreur vérification abonnement:', error);
+                return false;
+            }
+        }
+
         // Fonctions modales
         function showLoadingModal(message = 'Traitement en cours...') {
             const modal = document.getElementById('loadingModal');
@@ -1340,7 +1524,8 @@
                 { id: 'signupFirstName', btnId: 'nextBtn1' },
                 { id: 'signupLastName', btnId: 'nextBtn2' },
                 { id: 'signupEmail', btnId: 'nextBtn3' },
-                { id: 'signupPassword', btnId: 'nextBtn4' }
+                { id: 'signupPhone', btnId: 'nextBtn4' },
+                { id: 'signupPassword', btnId: 'nextBtn5' }
             ];
             
             signupFields.forEach(field => {
@@ -1369,6 +1554,15 @@
                     cityBtn.disabled = !cityInput.value.trim();
                 });
             }
+
+            // Validation profession
+            const professionInput = document.getElementById('userProfession');
+            const professionBtn = document.getElementById('knowNextBtn3');
+            if (professionInput && professionBtn) {
+                professionInput.addEventListener('input', () => {
+                    professionBtn.disabled = !professionInput.value.trim();
+                });
+            }
             
             // Validation radio buttons avec animations
             document.querySelectorAll('input[name="motivation"]').forEach(radio => {
@@ -1390,7 +1584,7 @@
             
             document.querySelectorAll('input[name="discovery"]').forEach(radio => {
                 radio.addEventListener('change', () => {
-                    const btn = document.getElementById('knowNextBtn3');
+                    const btn = document.getElementById('knowNextBtn4');
                     if (btn) {
                         btn.disabled = false;
                         gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
@@ -1453,7 +1647,15 @@
                     console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
                     
                     FornapComponents.syncAuthState(!!user);
+                    
+                    // Si user connecté, vérifier s'il a un abonnement et rediriger vers dashboard
+                    if (user) {
+                        checkUserSubscriptionAndRedirect(user);
+                    }
                 });
+
+                // Vérifier la présélection de forfait depuis membership
+                checkPreselectedPlan();
 
                 // Configuration
                 setupValidation();
@@ -1868,6 +2070,55 @@
             padding: var(--space-2) 0;
             color: var(--gris-moyen);
             border-bottom: 1px solid var(--gris-tres-clair);
+        }
+
+        .plan-description {
+            color: var(--gris-moyen);
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-4);
+            font-style: italic;
+        }
+
+        .plan-savings {
+            text-align: center;
+            margin-top: var(--space-4);
+            padding: var(--space-2);
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--succes);
+            border: 1px solid var(--succes);
+            font-weight: var(--font-medium);
+            font-size: var(--text-sm);
+        }
+
+        .benefit.exclusive {
+            background: rgba(255, 215, 0, 0.1);
+            margin: 0 calc(-1 * var(--space-6));
+            padding-left: var(--space-6);
+            padding-right: var(--space-6);
+            font-weight: var(--font-medium);
+        }
+
+        .benefit.premium-feature {
+            background: rgba(139, 69, 19, 0.1);
+            margin: 0 calc(-1 * var(--space-6));
+            padding-left: var(--space-6);
+            padding-right: var(--space-6);
+            font-weight: var(--font-medium);
+            color: #8B4513;
+        }
+
+        .plan-option.premium {
+            background: linear-gradient(135deg, var(--blanc-principal) 0%, var(--gris-tres-clair) 100%);
+        }
+
+        .plan-option.preselected {
+            border-color: var(--succes);
+            background: rgba(40, 167, 69, 0.05);
+        }
+
+        .price.special {
+            font-size: var(--text-lg) !important;
+            color: #8B4513;
         }
 
         /* SECTION PAIEMENT */
@@ -2358,26 +2609,32 @@
             background: var(--blanc-principal);
             max-width: 350px;
             font-weight: var(--font-medium);
+            box-shadow: var(--shadow-lg);
+            opacity: 1;
         }
 
         .message.success {
             border-color: var(--succes);
             color: var(--succes);
+            background: rgba(40, 167, 69, 0.1);
         }
 
         .message.error {
             border-color: var(--erreur);
             color: var(--erreur);
+            background: rgba(220, 53, 69, 0.1);
         }
 
         .message.warning {
             border-color: var(--warning);
             color: var(--warning);
+            background: rgba(255, 193, 7, 0.1);
         }
 
         .message.info {
             border-color: var(--info);
             color: var(--info);
+            background: rgba(13, 202, 240, 0.1);
         }
 
         /* AMÉLIORATIONS DES BOUTONS */
@@ -2404,6 +2661,18 @@
         .btn:disabled:hover {
             transform: none;
             box-shadow: none;
+        }
+
+        /* CORRECTION BOUTONS SECONDAIRES */
+        .btn-secondary {
+            background: var(--blanc-principal);
+            color: var(--noir-principal);
+            border: 2px solid var(--noir-principal);
+        }
+
+        .btn-secondary:hover {
+            background: var(--noir-principal);
+            color: var(--blanc-principal);
         }
 
         /* RESPONSIVE DESIGN */

@@ -578,10 +578,10 @@
                 profileSummary.innerHTML = `
                     <div class="profile-info">
                         <p><strong>${data.profile.firstName || ''} ${data.profile.lastName || ''}</strong></p>
-                        <p class="profile-email">${data.email || ''}</p>
-                        <p class="profile-phone">${data.profile.phone || 'Téléphone non renseigné'}</p>
-                        <p class="profile-profession">${data.profile.profession || 'Profession non renseignée'}</p>
-                        <p class="profile-company">${data.profile.company || 'Entreprise non renseignée'}</p>
+                        <p class="profile-email">📧 ${data.email || 'Email non renseigné'}</p>
+                        <p class="profile-phone">📞 ${data.profile.phone || 'Téléphone non renseigné'}</p>
+                        <p class="profile-city">🏙️ ${data.profile.city || 'Ville non renseignée'}</p>
+                        <p class="profile-profession">💼 ${data.profile.profession || 'Profession non renseignée'}</p>
                     </div>
                 `;
             }
