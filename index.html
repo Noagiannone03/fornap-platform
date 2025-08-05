@@ -24,7 +24,7 @@
                     <h1>Bienvenue chez FORNAP</h1>
                     <p class="hero-subtitle">Votre espace innovant alliant coworking, événements, boutique et communauté. Rejoignez une expérience unique où créativité et collaboration se rencontrent.</p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-large" onclick="window.location.href='pages/membership.html'">Découvrir nos forfaits</button>
+                        <button class="btn btn-primary btn-large" onclick="handleDiscoverPlans()">Découvrir nos forfaits</button>
                         <button class="btn btn-secondary btn-large" onclick="document.getElementById('about').scrollIntoView({ behavior: 'smooth' })">En savoir plus</button>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                     <div class="cta-card">
                         <h3>Prêt à nous rejoindre ?</h3>
                         <p>Choisissez votre forfait et devenez membre de la communauté FORNAP dès aujourd'hui</p>
-                        <button class="btn btn-primary btn-large" onclick="window.location.href='pages/membership.html'">
+                        <button class="btn btn-primary btn-large" onclick="handleDiscoverPlans()">
                             Voir les forfaits
                         </button>
                     </div>
@@ -195,6 +195,12 @@
 
         function showForgotPassword() {
             showMessage('Fonctionnalité de récupération de mot de passe à venir', 'info');
+        }
+
+        function handleDiscoverPlans() {
+            // Toujours aller à la page membership pour consulter les forfaits
+            // La logique de redirection se fera dans membership.html selon le statut
+            window.location.href = 'pages/membership.html';
         }
 
         // Initialisation

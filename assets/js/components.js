@@ -449,17 +449,12 @@ class FornapComponents {
                 
                 console.log('🔍 État authentification pour forfaits:', isAuthenticated ? 'connecté' : 'déconnecté');
                 
-                if (isAuthenticated) {
-                    // Si connecté, aller directement au processus de paiement
-                    console.log('🎯 Utilisateur connecté -> Redirection vers processus de paiement');
-                    window.location.href = basePath + 'pages/payment.html';
-                } else {
-                    // Si pas connecté, aller à la page des forfaits normalement
-                    console.log('🎯 Utilisateur déconnecté -> Redirection vers page forfaits');
-                    const href = forfaitsLink.dataset.href;
-                    if (href) {
-                        window.location.href = href;
-                    }
+                // Toujours aller à la page des forfaits, que l'utilisateur soit connecté ou pas
+                // La logique de redirection se fera dans membership.html selon le statut
+                console.log('🎯 Redirection vers page forfaits (connecté ou pas)');
+                const href = forfaitsLink.dataset.href;
+                if (href) {
+                    window.location.href = href;
                 }
             });
         }

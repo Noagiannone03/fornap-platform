@@ -384,15 +384,23 @@
                     return;
                 }
 
-                // Stocker le forfait sélectionné pour la page payment
-                sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
-                
-                showMessage(`Forfait ${plan.name} sélectionné - Redirection...`, 'success');
-                
-                // Redirection directe vers payment.html
-                setTimeout(() => {
-                    window.location.href = 'payment.html';
-                }, 1000);
+                // Vérifier si l'utilisateur est connecté
+                if (currentUser) {
+                    // Utilisateur connecté : redirection directe vers dashboard
+                    showMessage(`Forfait ${plan.name} sélectionné - Redirection vers votre dashboard...`, 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    // Utilisateur non connecté : parcours classique vers payment
+                    sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
+                    showMessage(`Forfait ${plan.name} sélectionné - Redirection...`, 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'payment.html';
+                    }, 1000);
+                }
             }
 
 
