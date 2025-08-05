@@ -227,7 +227,7 @@ class FornapComponents {
                            data-href="${basePath}pages/membership.html">
                             Nos Forfaits
                         </a>
-                        <a href="#events" 
+                        <a href="${basePath}pages/evenements/evenements.html" 
                            class="navbar-link ${activePage === 'events' ? 'active' : ''}">
                             Événements
                         </a>
@@ -302,7 +302,7 @@ class FornapComponents {
                         <h4>Services</h4>
                         <ul class="footer-links">
                             <li><a href="#coworking">Coworking</a></li>
-                            <li><a href="#events">Événements</a></li>
+                            <li><a href="${basePath}pages/evenements/evenements.html">Événements</a></li>
                             <li><a href="#shop">Boutique</a></li>
                             <li><a href="${basePath}pages/membership.html">Adhésion</a></li>
                         </ul>

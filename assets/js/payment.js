@@ -1,443 +1,1069 @@
-/* ========================================
-   FORNAP - Module Paiement
-   Gestion des paiements et abonnements
-   ======================================== */
+/**
+ * FORNAP Journey Experience Pro - JavaScript Principal
+ * Gestion du processus complet d'inscription et paiement
+ */
 
-// Variables du module
-let paymentInProgress = false;
+console.log('🚀 FORNAP - Journey Experience Pro');
 
-/* ========================================
-   AFFICHAGE DE LA SECTION PAIEMENT
-   ======================================== */
+// Variables globales
+let currentUser = null;
+let selectedPlan = null;
+let currentSection = 'welcome';
+let currentSignupStep = 1;
+let currentKnowStep = 1;
+let userProfile = {};
 
-function showPaymentSection() {
-    const selectedPlan = window.FORNAP.selectedPlan();
-    const currentUser = window.FORNAP.currentUser();
-    
-    if (!selectedPlan) {
-        window.FORNAP.showMessage('Veuillez sélectionner un forfait', 'error');
-        return;
+// Plans disponibles (alignés avec membership.html)
+const plans = {
+    mensuel: {
+        id: 'mensuel',
+        name: 'Membre Mensuel',
+        price: 12,
+        period: '/mois',
+        description: 'Parfait pour découvrir FORNAP',
+        features: [
+            'Accès au lieu en journée (9h-19h)',
+            'Réductions boutique (-10%)',
+            'Réservation espaces coworking',
+            'Participation aux événements',
+            'Accès WiFi haut débit',
+            'Café/thé à volonté'
+        ]
+    },
+    annuel: {
+        id: 'annuel',
+        name: 'Membre Annuel',
+        price: 12,
+        period: '/an',
+        description: 'Le meilleur rapport qualité-prix',
+        recommended: true,
+        features: [
+            'Tout du membre mensuel',
+            '⭐ Programme de fidélité exclusif',
+            '⭐ Accès anticipés aux événements',
+            '⭐ Réductions supplémentaires (-20%)',
+            '⭐ Avantages VIP et cadeaux',
+            '⭐ Invité gratuit aux événements'
+        ]
+    },
+    honneur: {
+        id: 'honneur',
+        name: 'Membre d\'Honneur',
+        price: 'special',
+        period: '',
+        description: 'Soutenez le projet FORNAP',
+        features: [
+            'Tout du membre annuel',
+            '👑 Accès illimité 24/7',
+            '👑 Services premium exclusifs',
+            '👑 Soutien financier du lieu',
+            '👑 Reconnaissance publique',
+            '👑 Accès aux décisions importantes'
+        ]
     }
+};
 
-    if (!currentUser) {
-        window.FORNAP.showMessage('Vous devez être connecté pour effectuer un paiement', 'error');
-        return;
+// Initialisation GSAP
+gsap.registerPlugin();
+
+// Fonctions utilitaires
+function showMessage(message, type = 'info') {
+    const container = document.getElementById('messageContainer');
+    if (!container) {
+        const messageContainer = document.createElement('div');
+        messageContainer.id = 'messageContainer';
+        document.body.appendChild(messageContainer);
     }
-
-    console.log('💳 Affichage section paiement');
-    window.FORNAP.hideAllSections();
     
-    createPaymentInterface(selectedPlan);
+    const messageElement = document.createElement('div');
+    messageElement.className = `message ${type}`;
+    messageElement.textContent = message;
+    document.getElementById('messageContainer').appendChild(messageElement);
+
+    gsap.fromTo(messageElement, 
+        { x: 400, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.4, ease: "back.out(1.7)" }
+    );
+    
+    setTimeout(() => {
+        gsap.to(messageElement, {
+            x: 400,
+            opacity: 0,
+            duration: 0.3,
+            ease: "back.in(1.7)",
+            onComplete: () => messageElement.remove()
+        });
+    }, 4000);
 }
 
-function createPaymentInterface(plan) {
-    const paymentHTML = `
-        <section class="form-section" id="dynamicPaymentSection">
-            <div class="form-container">
-                <h2 class="text-center mb-2">Finaliser votre adhésion</h2>
+async function handleLogout() {
+    try {
+        await FornapAuth.signOut();
+        showMessage('Déconnexion réussie', 'success');
+        setTimeout(() => {
+            window.location.href = '../index.html';
+        }, 1000);
+    } catch (error) {
+        console.error('❌ Erreur déconnexion:', error);
+        showMessage('Erreur lors de la déconnexion', 'error');
+    }
+}
+
+function showLoginModal() {
+    showMessage('Connectez-vous d\'abord sur la page d\'accueil', 'info');
+    setTimeout(() => {
+        window.location.href = '../index.html';
+    }, 2000);
+}
+
+// Navigation entre sections avec GSAP
+function showSection(sectionId) {
+    const currentActiveSection = document.querySelector('.journey-section.active');
+    const targetSection = document.getElementById(sectionId);
+    
+    if (!targetSection) return;
+
+    // Animation de sortie
+    if (currentActiveSection) {
+        gsap.to(currentActiveSection, {
+            opacity: 0,
+            y: -30,
+            duration: 0.3,
+            ease: "power2.in",
+            onComplete: () => {
+                currentActiveSection.classList.remove('active');
+                currentActiveSection.classList.add('hidden');
                 
-                <div class="payment-summary" style="border: 2px solid var(--noir-principal); padding: 1.5rem; margin-bottom: 2rem; background: var(--gris-tres-clair);">
-                    <h3 class="text-center mb-1">Récapitulatif</h3>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span><strong>Forfait :</strong></span>
-                        <span>${plan.name}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span><strong>Prix :</strong></span>
-                        <span>${plan.price}€/mois</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; border-top: 1px solid var(--noir-principal); padding-top: 0.5rem;">
-                        <span>Total :</span>
-                        <span>${plan.price}€</span>
-                    </div>
-                </div>
+                // Animation d'entrée
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
                 
-                <div class="payment-method">
-                    <h3 class="mb-1">Informations de paiement</h3>
-                    <p class="mb-1" style="color: var(--gris-moyen); font-size: 0.9rem;">
-                        Mode démo - Aucun paiement réel ne sera effectué
-                    </p>
-                    
-                    <div class="form-group">
-                        <label for="cardNumber">Numéro de carte</label>
-                        <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242" maxlength="19">
+                gsap.fromTo(targetSection, 
+                    { opacity: 0, y: 30 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 0.5, 
+                        ease: "power2.out",
+                        onComplete: () => {
+                            // Focus sur le premier input si présent
+                            const firstInput = targetSection.querySelector('input');
+                            if (firstInput) firstInput.focus();
+                        }
+                    }
+                );
+            }
+        });
+    } else {
+        targetSection.classList.remove('hidden');
+        targetSection.classList.add('active');
+        gsap.fromTo(targetSection, 
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+        );
+    }
+
+    currentSection = sectionId.replace('Section', '');
+    updateProgress();
+}
+
+function updateProgress() {
+    const stepMapping = {
+        'welcome': 1,
+        'signup': 2,
+        'login': 2,
+        'plan': 3,
+        'payment': 4,
+        'congratulations': 5,
+        'gettingToKnow': 5,
+        'final': 5
+    };
+    
+    const currentStepNumber = stepMapping[currentSection] || 1;
+    const progressWidth = ((currentStepNumber - 1) / 4) * 100;
+    
+    gsap.to('#progressFill', {
+        width: `${progressWidth}%`,
+        duration: 0.6,
+        ease: "power2.out"
+    });
+    
+    // Mettre à jour les indicateurs
+    for (let i = 1; i <= 5; i++) {
+        const indicator = document.getElementById(`step${i}`);
+        const circle = indicator.querySelector('.indicator-circle');
+        
+        indicator.classList.remove('active', 'completed');
+        
+        if (i < currentStepNumber) {
+            indicator.classList.add('completed');
+            gsap.to(circle, { scale: 1.1, duration: 0.3, ease: "back.out(1.7)" });
+        } else if (i === currentStepNumber) {
+            indicator.classList.add('active');
+            gsap.to(circle, { scale: 1.2, duration: 0.3, ease: "back.out(1.7)" });
+        } else {
+            gsap.to(circle, { scale: 1, duration: 0.3, ease: "power2.out" });
+        }
+    }
+}
+
+// Fonctions de navigation
+function startJourney() {
+    showSection('signupSection');
+}
+
+function showLoginForm() {
+    showSection('loginSection');
+}
+
+function backToWelcome() {
+    showSection('welcomeSection');
+}
+
+// Fonctions d'inscription avec animations GSAP
+function nextSignupStep(stepNumber) {
+    // Validation
+    if (currentSignupStep === 1) {
+        const firstName = document.getElementById('signupFirstName').value.trim();
+        if (!firstName) {
+            showMessage('Veuillez saisir votre prénom', 'error');
+            return;
+        }
+        userProfile.firstName = firstName;
+    }
+    
+    if (currentSignupStep === 2) {
+        const lastName = document.getElementById('signupLastName').value.trim();
+        if (!lastName) {
+            showMessage('Veuillez saisir votre nom', 'error');
+            return;
+        }
+        userProfile.lastName = lastName;
+    }
+    
+    if (currentSignupStep === 3) {
+        const email = document.getElementById('signupEmail').value.trim();
+        if (!email || !email.includes('@')) {
+            showMessage('Veuillez saisir une adresse email valide', 'error');
+            return;
+        }
+        userProfile.email = email;
+    }
+
+    if (currentSignupStep === 4) {
+        const phone = document.getElementById('signupPhone').value.trim();
+        if (!phone) {
+            showMessage('Veuillez saisir votre numéro de téléphone', 'error');
+            return;
+        }
+        userProfile.phone = phone;
+    }
+
+    // Animation professionnelle
+    const currentStep = document.getElementById(`signupStep${currentSignupStep}`);
+    const nextStep = document.getElementById(`signupStep${stepNumber}`);
+    
+    if (currentStep && nextStep) {
+        gsap.to(currentStep, {
+            x: -100,
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.in",
+            onComplete: () => {
+                currentStep.classList.remove('active');
+                nextStep.classList.add('active');
+                
+                gsap.fromTo(nextStep, 
+                    { x: 100, opacity: 0 },
+                    { 
+                        x: 0, 
+                        opacity: 1, 
+                        duration: 0.4, 
+                        ease: "power2.out",
+                        onComplete: () => {
+                            const input = nextStep.querySelector('input');
+                            if (input) input.focus();
+                        }
+                    }
+                );
+            }
+        });
+        
+        currentSignupStep = stepNumber;
+    }
+}
+
+function previousSignupStep(stepNumber) {
+    const currentStep = document.getElementById(`signupStep${currentSignupStep}`);
+    const prevStep = document.getElementById(`signupStep${stepNumber}`);
+    
+    if (currentStep && prevStep) {
+        gsap.to(currentStep, {
+            x: 100,
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.in",
+            onComplete: () => {
+                currentStep.classList.remove('active');
+                prevStep.classList.add('active');
+                
+                gsap.fromTo(prevStep, 
+                    { x: -100, opacity: 0 },
+                    { 
+                        x: 0, 
+                        opacity: 1, 
+                        duration: 0.4, 
+                        ease: "power2.out" 
+                    }
+                );
+            }
+        });
+        
+        currentSignupStep = stepNumber;
+    }
+}
+
+async function createAccount() {
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+    if (!password || password.length < 6) {
+        showMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showMessage('Les mots de passe ne correspondent pas', 'error');
+        return;
+    }
+
+    try {
+        showLoadingModal('Création de votre compte...');
+        
+        const user = await FornapAuth.signUp(userProfile.email, password, {
+            displayName: `${userProfile.firstName} ${userProfile.lastName}`,
+            firstName: userProfile.firstName,
+            lastName: userProfile.lastName,
+            phone: userProfile.phone
+        });
+
+        // Créer le profil utilisateur complet dans Firestore
+        await createUserProfile(user);
+
+        hideLoadingModal();
+        showMessage('Compte créé avec succès !', 'success');
+        
+        setTimeout(() => {
+            showSection('planSection');
+            applyPreselectedPlan(); // Appliquer le forfait présélectionné après création de compte
+        }, 1000);
+
+    } catch (error) {
+        hideLoadingModal();
+        console.error('❌ Erreur inscription:', error);
+        showMessage(error.message || 'Erreur lors de la création du compte', 'error');
+    }
+}
+
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) {
+        showMessage('Veuillez remplir tous les champs', 'error');
+        return;
+    }
+
+    try {
+        showLoadingModal('Connexion en cours...');
+        
+        const user = await FornapAuth.signIn(email, password);
+        
+        hideLoadingModal();
+        showMessage('Connexion réussie ! Redirection vers votre dashboard...', 'success');
+        
+        // CORRECTION : Les utilisateurs existants vont au dashboard, pas au processus de paiement
+        // Le processus de paiement est uniquement pour les nouveaux comptes
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1000);
+
+    } catch (error) {
+        hideLoadingModal();
+        console.error('❌ Erreur connexion:', error);
+        showMessage('Email ou mot de passe incorrect', 'error');
+    }
+}
+
+// Sélection de forfait avec animations
+function selectPlan(planId) {
+    if (planId === 'honneur') {
+        contactForHonor();
+        return;
+    }
+
+    selectedPlan = { id: planId, ...plans[planId] };
+    
+    // Animation de sélection
+    const planCards = document.querySelectorAll('.plan-option');
+    const selectedCard = document.querySelector(`[data-plan="${planId}"]`);
+    
+    planCards.forEach(card => {
+        if (card === selectedCard) {
+            gsap.to(card, {
+                scale: 1.05,
+                borderColor: '#28A745',
+                backgroundColor: '#F8F9FA',
+                duration: 0.3,
+                ease: "back.out(1.7)"
+            });
+        } else {
+            gsap.to(card, {
+                scale: 1,
+                borderColor: '#E9ECEF',
+                backgroundColor: '#FFFFFF',
+                duration: 0.3,
+                ease: "power2.out"
+            });
+        }
+    });
+    
+    setTimeout(() => {
+        showSection('paymentSection');
+        displaySelectedPlan();
+    }, 600);
+}
+
+function contactForHonor() {
+    showMessage('Contactez-nous à contact@fornap.fr pour devenir membre d\'honneur', 'info');
+}
+
+function displaySelectedPlan() {
+    const display = document.getElementById('selectedPlanDisplay');
+    if (display && selectedPlan) {
+        const price = selectedPlan.price;
+        const total = (price * 1.2).toFixed(2);
+        
+        display.innerHTML = `
+            <div class="plan-details">
+                <h4>${selectedPlan.name}</h4>
+                <div class="plan-cost">${selectedPlan.price}€${selectedPlan.period}</div>
+                <div class="plan-calculation">
+                    <div class="calc-line">
+                        <span>Sous-total</span>
+                        <span>${price}€</span>
                     </div>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label for="cardExpiry">Date d'expiration</label>
-                            <input type="text" id="cardExpiry" placeholder="MM/YY" value="12/25" maxlength="5">
-                        </div>
-                        <div class="form-group">
-                            <label for="cardCvc">Code CVC</label>
-                            <input type="text" id="cardCvc" placeholder="123" value="123" maxlength="3">
-                        </div>
+                    <div class="calc-line">
+                        <span>TVA (20%)</span>
+                        <span>${(price * 0.2).toFixed(2)}€</span>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="cardName">Nom sur la carte</label>
-                        <input type="text" id="cardName" placeholder="Nom complet" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="acceptTerms" required style="margin-right: 0.5rem;">
-                            J'accepte les <a href="#" style="color: var(--noir-principal); font-weight: bold;">conditions générales</a> et la <a href="#" style="color: var(--noir-principal); font-weight: bold;">politique de confidentialité</a>
-                        </label>
-                    </div>
-                    
-                    <button type="button" id="processPaymentBtn" class="btn btn-primary w-full mb-1">
-                        Confirmer le paiement - ${plan.price}€
-                    </button>
-                    
-                    <div class="payment-security" style="text-align: center; margin-top: 1rem; padding: 1rem; background: var(--blanc-principal); border: 1px solid var(--gris-clair);">
-                        <p style="font-size: 0.8rem; color: var(--gris-moyen);">
-                            🔒 Paiement sécurisé SSL<br>
-                            💳 Toutes les cartes acceptées<br>
-                            ✅ Annulation possible à tout moment
-                        </p>
+                    <div class="calc-total">
+                        <span><strong>Total</strong></span>
+                        <span><strong>${total}€</strong></span>
                     </div>
                 </div>
             </div>
-        </section>
-    `;
-
-    // Injecter le HTML
-    const mainContent = document.querySelector('.main-content');
-    const tempSection = document.createElement('div');
-    tempSection.innerHTML = paymentHTML;
-    const paymentSection = tempSection.firstElementChild;
-    mainContent.appendChild(paymentSection);
-
-    // Ajouter les événements
-    setupPaymentEvents();
-    
-    // Faire défiler vers la section
-    paymentSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-/* ========================================
-   GESTION DES ÉVÉNEMENTS DE PAIEMENT
-   ======================================== */
-
-function setupPaymentEvents() {
-    // Bouton de paiement
-    document.getElementById('processPaymentBtn').addEventListener('click', processPayment);
-    
-    // Formatage automatique des champs
-    document.getElementById('cardNumber').addEventListener('input', formatCardNumber);
-    document.getElementById('cardExpiry').addEventListener('input', formatCardExpiry);
-    document.getElementById('cardCvc').addEventListener('input', formatCardCvc);
-    
-    // Pré-remplir le nom si disponible
-    const currentUser = window.FORNAP.currentUser();
-    if (currentUser && currentUser.displayName) {
-        document.getElementById('cardName').value = currentUser.displayName;
+        `;
+        
+        gsap.fromTo(display, 
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+        );
     }
 }
 
-function formatCardNumber(e) {
-    let value = e.target.value.replace(/\s/g, '');
-    let formattedValue = value.replace(/(.{4})/g, '$1 ').trim();
-    e.target.value = formattedValue;
+function backToPlanSelection() {
+    showSection('planSection');
 }
-
-function formatCardExpiry(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    e.target.value = value;
-}
-
-function formatCardCvc(e) {
-    e.target.value = e.target.value.replace(/\D/g, '');
-}
-
-/* ========================================
-   TRAITEMENT DU PAIEMENT
-   ======================================== */
 
 async function processPayment() {
-    if (paymentInProgress) return;
-    
-    const currentUser = window.FORNAP.currentUser();
-    const selectedPlan = window.FORNAP.selectedPlan();
-    
-    if (!currentUser || !selectedPlan) {
-        window.FORNAP.showMessage('Données manquantes pour le paiement', 'error');
-        return;
-    }
-
-    // Validation des champs
-    if (!validatePaymentForm()) {
-        return;
-    }
-
-    console.log('💳 Traitement du paiement...');
-    paymentInProgress = true;
-    window.FORNAP.setLoading(true);
-    
-    try {
-        // Simulation du traitement de paiement
-        await simulatePaymentProcessing();
-        
-        // Créer l'enregistrement d'abonnement
-        await createSubscriptionRecord(currentUser, selectedPlan);
-        
-        // Mettre à jour le profil utilisateur
-        await updateUserSubscription(currentUser, selectedPlan);
-        
-        // Ajouter des points de fidélité pour l'inscription
-        await addLoyaltyPoints(currentUser, 100, 'inscription');
-        
-        window.FORNAP.showMessage('Paiement effectué avec succès ! Bienvenue chez FORNAP !', 'success');
-        
-        // Nettoyer l'interface
-        document.getElementById('dynamicPaymentSection').remove();
-        
-        // Rediriger vers la finalisation du profil
-        setTimeout(() => showAccountCompletion(), 1500);
-        
-    } catch (error) {
-        console.error('❌ Erreur paiement:', error);
-        window.FORNAP.showMessage('Erreur lors du paiement. Veuillez réessayer.', 'error');
-    } finally {
-        paymentInProgress = false;
-        window.FORNAP.setLoading(false);
-    }
-}
-
-function validatePaymentForm() {
-    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-    const cardExpiry = document.getElementById('cardExpiry').value;
-    const cardCvc = document.getElementById('cardCvc').value;
-    const cardName = document.getElementById('cardName').value;
     const acceptTerms = document.getElementById('acceptTerms').checked;
-
-    if (!cardNumber || cardNumber.length < 16) {
-        window.FORNAP.showMessage('Numéro de carte invalide', 'error');
-        return false;
-    }
-
-    if (!cardExpiry || !cardExpiry.match(/^\d{2}\/\d{2}$/)) {
-        window.FORNAP.showMessage('Date d\'expiration invalide', 'error');
-        return false;
-    }
-
-    if (!cardCvc || cardCvc.length < 3) {
-        window.FORNAP.showMessage('Code CVC invalide', 'error');
-        return false;
-    }
-
-    if (!cardName.trim()) {
-        window.FORNAP.showMessage('Nom sur la carte requis', 'error');
-        return false;
-    }
-
+    
     if (!acceptTerms) {
-        window.FORNAP.showMessage('Vous devez accepter les conditions générales', 'error');
-        return false;
+        showMessage('Veuillez accepter les conditions générales', 'error');
+        return;
     }
 
-    return true;
+    try {
+        showLoadingModal('Traitement du paiement...');
+        
+        await simulatePayment();
+        
+        hideLoadingModal();
+        
+        setTimeout(() => {
+            showSection('congratulationsSection');
+            triggerSuccessAnimation();
+        }, 500);
+
+    } catch (error) {
+        hideLoadingModal();
+        console.error('❌ Erreur paiement:', error);
+        showMessage('Erreur lors du traitement du paiement', 'error');
+    }
 }
 
-async function simulatePaymentProcessing() {
-    return new Promise(resolve => {
-        setTimeout(resolve, 2000); // Simulation de 2 secondes
+async function simulatePayment() {
+    const steps = [
+        { id: 'loadingStep1', delay: 1000 },
+        { id: 'loadingStep2', delay: 2000 },
+        { id: 'loadingStep3', delay: 1500 },
+        { id: 'loadingStep4', delay: 1000 }
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+        await new Promise(resolve => {
+            setTimeout(() => {
+                const step = document.getElementById(steps[i].id);
+                if (step) {
+                    step.style.color = '#28A745';
+                    step.innerHTML = step.innerHTML.replace('🔄', '✓');
+                }
+                resolve();
+            }, steps[i].delay);
+        });
+    }
+}
+
+function triggerSuccessAnimation() {
+    const successIcon = document.getElementById('successIcon');
+    
+    gsap.set(successIcon, { scale: 0, rotation: -180 });
+    gsap.to(successIcon, {
+        scale: 1,
+        rotation: 0,
+        duration: 0.8,
+        ease: "back.out(1.7)"
     });
 }
 
-/* ========================================
-   GESTION DES ABONNEMENTS
-   ======================================== */
-
-async function createSubscriptionRecord(user, plan) {
-    const subscriptionData = {
-        userId: user.uid,
-        planId: plan.id,
-        planName: plan.name,
-        price: plan.price,
-        currency: 'EUR',
-        status: 'active',
-        startDate: firebase.firestore.FieldValue.serverTimestamp(),
-        nextBillingDate: getNextBillingDate(),
-        paymentMethod: 'demo_card',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    return firebase.firestore()
-        .collection('subscriptions')
-        .doc(user.uid)
-        .set(subscriptionData);
+function startGettingToKnow() {
+    // Toujours faire le bienvenue, même si utilisateur connecté
+    showSection('gettingToKnowSection');
 }
 
-async function updateUserSubscription(user, plan) {
-    return firebase.firestore()
-        .collection('users')
-        .doc(user.uid)
-        .update({
-            membershipStatus: 'active',
-            currentPlan: plan.id,
-            planPrice: plan.price,
-            planName: plan.name,
-            subscriptionDate: firebase.firestore.FieldValue.serverTimestamp(),
-            nextBillingDate: getNextBillingDate(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+// Fonctions questions avec animations GSAP
+function nextKnowStep(stepNumber) {
+    if (currentKnowStep === 1) {
+        const city = document.getElementById('userCity').value.trim();
+        if (!city) {
+            showMessage('Veuillez indiquer votre ville', 'error');
+            return;
+        }
+        userProfile.city = city;
+    }
+    
+    if (currentKnowStep === 2) {
+        const motivation = document.querySelector('input[name="motivation"]:checked');
+        if (!motivation) {
+            showMessage('Veuillez sélectionner votre motivation', 'error');
+            return;
+        }
+        userProfile.motivation = motivation.value;
+    }
+
+    if (currentKnowStep === 3) {
+        const profession = document.getElementById('userProfession').value.trim();
+        if (!profession) {
+            showMessage('Veuillez indiquer votre profession', 'error');
+            return;
+        }
+        userProfile.profession = profession;
+    }
+
+    const currentStep = document.getElementById(`knowStep${currentKnowStep}`);
+    const nextStep = document.getElementById(`knowStep${stepNumber}`);
+    
+    if (currentStep && nextStep) {
+        gsap.to(currentStep, {
+            x: -100,
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.in",
+            onComplete: () => {
+                currentStep.classList.remove('active');
+                nextStep.classList.add('active');
+                
+                gsap.fromTo(nextStep, 
+                    { x: 100, opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                );
+            }
         });
+        
+        currentKnowStep = stepNumber;
+    }
 }
 
-async function addLoyaltyPoints(user, points, reason) {
-    const pointsData = {
-        userId: user.uid,
-        points: points,
-        reason: reason,
-        date: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Ajouter l'entrée de points
-    await firebase.firestore()
-        .collection('loyalty_points')
-        .add(pointsData);
-
-    // Mettre à jour le total de l'utilisateur
-    await firebase.firestore()
-        .collection('users')
-        .doc(user.uid)
-        .update({
-            loyaltyPoints: firebase.firestore.FieldValue.increment(points)
+function previousKnowStep(stepNumber) {
+    const currentStep = document.getElementById(`knowStep${currentKnowStep}`);
+    const prevStep = document.getElementById(`knowStep${stepNumber}`);
+    
+    if (currentStep && prevStep) {
+        gsap.to(currentStep, {
+            x: 100,
+            opacity: 0,
+            duration: 0.4,
+            ease: "power2.in",
+            onComplete: () => {
+                currentStep.classList.remove('active');
+                prevStep.classList.add('active');
+                
+                gsap.fromTo(prevStep, 
+                    { x: -100, opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                );
+            }
         });
+        
+        currentKnowStep = stepNumber;
+    }
 }
 
-function getNextBillingDate() {
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    return firebase.firestore.Timestamp.fromDate(nextMonth);
-}
-
-/* ========================================
-   FINALISATION DU PROFIL
-   ======================================== */
-
-function showAccountCompletion() {
-    const completionHTML = `
-        <section class="form-section" id="accountCompletionSection">
-            <div class="form-container">
-                <h2 class="text-center mb-2">Finaliser votre profil</h2>
-                <p class="text-center mb-2" style="color: var(--succes);">
-                    ✅ Paiement validé ! Complétez votre profil pour accéder à tous les services FORNAP.
-                </p>
-                
-                <div class="form-group">
-                    <label for="profileAddress">Adresse complète</label>
-                    <input type="text" id="profileAddress" placeholder="123 Rue de la Paix, 75001 Paris" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="profileCompany">Entreprise (optionnel)</label>
-                    <input type="text" id="profileCompany" placeholder="Nom de votre entreprise">
-                </div>
-                
-                <div class="form-group">
-                    <label for="profileInterests">Centres d'intérêt</label>
-                    <select id="profileInterests" multiple style="height: 100px;">
-                        <option value="coworking">Coworking</option>
-                        <option value="events">Événements</option>
-                        <option value="networking">Networking</option>
-                        <option value="innovation">Innovation</option>
-                        <option value="entrepreneurship">Entrepreneuriat</option>
-                        <option value="tech">Technologie</option>
-                        <option value="design">Design</option>
-                        <option value="marketing">Marketing</option>
-                    </select>
-                </div>
-                
-                <button type="button" id="completeProfileBtn" class="btn btn-primary w-full mb-1">
-                    Finaliser mon profil
-                </button>
-                
-                <button type="button" id="skipProfileBtn" class="btn btn-secondary w-full">
-                    Passer cette étape
-                </button>
-            </div>
-        </section>
-    `;
-
-    // Injecter le HTML
-    const mainContent = document.querySelector('.main-content');
-    const tempSection = document.createElement('div');
-    tempSection.innerHTML = completionHTML;
-    const completionSection = tempSection.firstElementChild;
-    mainContent.appendChild(completionSection);
-
-    // Ajouter les événements
-    document.getElementById('completeProfileBtn').addEventListener('click', completeProfile);
-    document.getElementById('skipProfileBtn').addEventListener('click', skipProfileCompletion);
-
-    // Faire défiler vers la section
-    completionSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-async function completeProfile() {
-    const address = document.getElementById('profileAddress').value;
-    const company = document.getElementById('profileCompany').value;
-    const interests = Array.from(document.getElementById('profileInterests').selectedOptions)
-        .map(option => option.value);
-
-    if (!address.trim()) {
-        window.FORNAP.showMessage('Adresse requise', 'error');
+async function finalizeOnboarding() {
+    const discovery = document.querySelector('input[name="discovery"]:checked');
+    if (!discovery) {
+        showMessage('Veuillez nous dire comment vous nous avez découverts', 'error');
         return;
     }
-
-    const currentUser = window.FORNAP.currentUser();
-    if (!currentUser) return;
-
+    
+    userProfile.discovery = discovery.value;
+    
     try {
-        await firebase.firestore()
-            .collection('users')
-            .doc(currentUser.uid)
-            .update({
-                'profile.address': address,
-                'profile.company': company || '',
-                'profile.interests': interests,
-                'profile.setupCompleted': true,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-        window.FORNAP.showMessage('Profil complété avec succès !', 'success');
-        finishOnboarding();
-
+        showLoadingModal('Finalisation de votre profil...');
+        
+        // Mettre à jour le profil utilisateur complet avec toutes les infos
+        if (currentUser) {
+            await updateUserProfile(currentUser, userProfile);
+            console.log('✅ Profil utilisateur complet:', userProfile);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        hideLoadingModal();
+        showSection('finalSection');
+        
+        // Animation finale
+        const finalIcon = document.getElementById('finalIcon');
+        gsap.set(finalIcon, { scale: 0 });
+        gsap.to(finalIcon, {
+            scale: 1,
+            duration: 1,
+            ease: "bounce.out"
+        });
+        
     } catch (error) {
-        console.error('❌ Erreur completion profil:', error);
-        window.FORNAP.showMessage('Erreur lors de la sauvegarde', 'error');
+        hideLoadingModal();
+        console.error('❌ Erreur finalisation:', error);
+        showMessage('Erreur lors de la finalisation', 'error');
     }
 }
 
-function skipProfileCompletion() {
-    window.FORNAP.showMessage('Vous pourrez compléter votre profil plus tard dans le dashboard', 'info');
-    finishOnboarding();
-}
-
-function finishOnboarding() {
-    // Nettoyer l'interface
-    document.getElementById('accountCompletionSection')?.remove();
-    
-    // Rediriger vers le dashboard
+function goToDashboard() {
+    showMessage('Redirection vers votre dashboard...', 'success');
     setTimeout(() => {
-        if (typeof showDashboard === 'function') {
-            showDashboard();
-        } else {
-            window.location.href = 'pages/dashboard.html';
-        }
+        window.location.href = 'dashboard.html';
     }, 1500);
 }
 
-/* ========================================
-   EXPORT DES FONCTIONS PUBLIQUES
-   ======================================== */
+// Vérifier la présélection de forfait depuis membership
+function checkPreselectedPlan() {
+    const preselectedPlan = sessionStorage.getItem('selectedPlan');
+    if (preselectedPlan) {
+        try {
+            const plan = JSON.parse(preselectedPlan);
+            console.log('🎯 Forfait présélectionné:', plan);
+            
+            // Si c'est membre d'honneur, rediriger vers contact
+            if (plan.id === 'honneur') {
+                contactForHonor();
+                return;
+            }
+            
+            // CORRECTION : Commencer par l'accueil, pas la sélection directe
+            // L'utilisateur doit d'abord s'authentifier ou créer un compte
+            showSection('welcomeSection');
+            
+            // Stocker le plan pour l'utiliser plus tard dans le parcours
+            window.preselectedPlan = plan;
+            
+            // Afficher un message informatif
+            showMessage(`Forfait ${plan.name} sélectionné - Veuillez vous connecter ou créer un compte`, 'info');
+            
+        } catch (error) {
+            console.error('Erreur parsing forfait présélectionné:', error);
+            sessionStorage.removeItem('selectedPlan');
+        }
+    }
+}
 
-// Rendre les fonctions disponibles globalement
-window.showPaymentSection = showPaymentSection;
+// Fonction pour présélectionner le forfait après authentification
+function applyPreselectedPlan() {
+    if (window.preselectedPlan) {
+        const plan = window.preselectedPlan;
+        
+        // Présélectionner visuellement le forfait
+        setTimeout(() => {
+            const selectedCard = document.querySelector(`[data-plan="${plan.id}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('preselected');
+                gsap.to(selectedCard, {
+                    scale: 1.05,
+                    borderColor: '#28A745',
+                    backgroundColor: '#F8F9FA',
+                    duration: 0.5,
+                    ease: "back.out(1.7)"
+                });
+            }
+            showMessage(`Forfait ${plan.name} présélectionné`, 'success');
+        }, 500);
+        
+        // Nettoyer
+        window.preselectedPlan = null;
+        sessionStorage.removeItem('selectedPlan');
+    }
+}
 
-console.log('💳 Module Payment FORNAP chargé'); 
+// Créer le profil utilisateur initial dans Firestore
+async function createUserProfile(user) {
+    try {
+        const db = firebase.firestore();
+        const profileData = {
+            uid: user.uid,
+            email: user.email,
+            firstName: userProfile.firstName || '',
+            lastName: userProfile.lastName || '',
+            phone: userProfile.phone || '',
+            displayName: `${userProfile.firstName} ${userProfile.lastName}`,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            // Champs qui seront remplis plus tard
+            city: '',
+            profession: '',
+            motivation: '',
+            discovery: ''
+        };
+
+        await db.collection('users').doc(user.uid).set(profileData);
+        console.log('✅ Profil utilisateur créé dans Firestore:', profileData);
+        
+    } catch (error) {
+        console.error('❌ Erreur création profil Firestore:', error);
+        throw error;
+    }
+}
+
+// Mettre à jour le profil utilisateur complet dans Firestore
+async function updateUserProfile(user, profileInfo) {
+    try {
+        const db = firebase.firestore();
+        const updateData = {
+            city: profileInfo.city || '',
+            profession: profileInfo.profession || '',
+            motivation: profileInfo.motivation || '',
+            discovery: profileInfo.discovery || '',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('users').doc(user.uid).update(updateData);
+        console.log('✅ Profil utilisateur mis à jour dans Firestore:', updateData);
+        
+    } catch (error) {
+        console.error('❌ Erreur mise à jour profil Firestore:', error);
+        throw error;
+    }
+}
+
+// Vérifier si l'utilisateur a déjà un abonnement
+async function checkUserSubscriptionAndRedirect(user) {
+    try {
+        // TODO: Vérifier en base de données si l'user a un abonnement actif
+        console.log('🔍 Vérification abonnement pour:', user.email);
+        
+        // Pour l'instant, simulation
+        // const hasActiveSubscription = await checkUserSubscription(user.uid);
+        const hasActiveSubscription = false; // À remplacer par vraie vérification
+        
+        if (hasActiveSubscription) {
+            showMessage('Vous avez déjà un abonnement actif. Redirection vers votre dashboard...', 'info');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Erreur vérification abonnement:', error);
+        return false;
+    }
+}
+
+// Fonctions modales
+function showLoadingModal(message = 'Traitement en cours...') {
+    const modal = document.getElementById('loadingModal');
+    const title = document.getElementById('loadingTitle');
+    const messageEl = document.getElementById('loadingMessage');
+    
+    if (title) title.textContent = message;
+    if (messageEl) messageEl.textContent = 'Veuillez patienter...';
+    
+    modal.classList.remove('hidden');
+    
+    gsap.fromTo(modal.querySelector('.modal-content'), 
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.7)" }
+    );
+}
+
+function hideLoadingModal() {
+    const modal = document.getElementById('loadingModal');
+    gsap.to(modal.querySelector('.modal-content'), {
+        scale: 0.8,
+        opacity: 0,
+        duration: 0.3,
+        ease: "back.in(1.7)",
+        onComplete: () => modal.classList.add('hidden')
+    });
+}
+
+// Validation en temps réel et gestion des interactions
+function setupValidation() {
+    // Champs signup
+    const signupFields = [
+        { id: 'signupFirstName', btnId: 'nextBtn1' },
+        { id: 'signupLastName', btnId: 'nextBtn2' },
+        { id: 'signupEmail', btnId: 'nextBtn3' },
+        { id: 'signupPhone', btnId: 'nextBtn4' },
+        { id: 'signupPassword', btnId: 'nextBtn5' }
+    ];
+    
+    signupFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const btn = document.getElementById(field.btnId);
+        
+        if (input && btn) {
+            input.addEventListener('input', () => {
+                const isValid = input.value.trim();
+                btn.disabled = !isValid;
+                
+                if (isValid) {
+                    gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
+                } else {
+                    gsap.to(btn, { scale: 0.95, opacity: 0.6, duration: 0.3 });
+                }
+            });
+        }
+    });
+    
+    // Validation ville
+    const cityInput = document.getElementById('userCity');
+    const cityBtn = document.getElementById('knowNextBtn1');
+    if (cityInput && cityBtn) {
+        cityInput.addEventListener('input', () => {
+            cityBtn.disabled = !cityInput.value.trim();
+        });
+    }
+
+    // Validation profession
+    const professionInput = document.getElementById('userProfession');
+    const professionBtn = document.getElementById('knowNextBtn3');
+    if (professionInput && professionBtn) {
+        professionInput.addEventListener('input', () => {
+            professionBtn.disabled = !professionInput.value.trim();
+        });
+    }
+}
+
+// Configuration des interactions des éléments de sélection
+function setupInteractiveElements() {
+    // Méthodes de paiement
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            // Réinitialiser tous les éléments
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.classList.remove('active');
+            });
+            
+            // Activer l'élément sélectionné
+            const selectedMethod = e.target.closest('.payment-method');
+            if (selectedMethod) {
+                selectedMethod.classList.add('active');
+                gsap.to(selectedMethod, { 
+                    scale: 1.02, 
+                    duration: 0.2, 
+                    ease: "back.out(1.7)",
+                    onComplete: () => {
+                        gsap.to(selectedMethod, { scale: 1, duration: 0.2 });
+                    }
+                });
+            }
+        });
+    });
+
+    // Choix de motivation - avec gestion améliorée des clics
+    document.querySelectorAll('.choice-option[data-value]').forEach(option => {
+        const radio = option.querySelector('input[type="radio"]');
+        
+        // Gestion du clic sur l'option entière
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            if (radio && !radio.checked) {
+                // Décocher tous les autres radios du même groupe
+                document.querySelectorAll(`input[name="${radio.name}"]`).forEach(r => {
+                    r.checked = false;
+                    const opt = r.closest('.choice-option');
+                    if (opt) {
+                        opt.classList.remove('selected');
+                        gsap.to(opt, { scale: 1, duration: 0.2 });
+                    }
+                });
+                
+                // Cocher ce radio et appliquer les animations
+                radio.checked = true;
+                option.classList.add('selected');
+                
+                // Trigger l'événement change manuellement
+                radio.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                // Animation de sélection
+                gsap.to(option, { 
+                    scale: 1.05, 
+                    duration: 0.2, 
+                    ease: "back.out(1.7)",
+                    onComplete: () => {
+                        gsap.to(option, { scale: 1.02, duration: 0.2 });
+                    }
+                });
+            }
+        });
+        
+        // Hover effects améliorés
+        option.addEventListener('mouseenter', () => {
+            if (!radio.checked) {
+                gsap.to(option, { scale: 1.01, duration: 0.2 });
+            }
+        });
+        
+        option.addEventListener('mouseleave', () => {
+            if (!radio.checked) {
+                gsap.to(option, { scale: 1, duration: 0.2 });
+            }
+        });
+    });
+    
+    // Validation radio buttons avec animations
+    document.querySelectorAll('input[name="motivation"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const btn = document.getElementById('knowNextBtn2');
+            if (btn) {
+                btn.disabled = false;
+                gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
+            }
+        });
+    });
+    
+    document.querySelectorAll('input[name="discovery"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const btn = document.getElementById('knowNextBtn4');
+            if (btn) {
+                btn.disabled = false;
+                gsap.to(btn, { scale: 1, opacity: 1, duration: 0.3 });
+            }
+        });
+    });
+}
+
+// Formatage des champs de paiement
+function formatPaymentInputs() {
+    const cardNumber = document.getElementById('cardNumber');
+    const expiryDate = document.getElementById('expiryDate');
+    const cvv = document.getElementById('cvv');
+
+    if (cardNumber) {
+        cardNumber.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+        });
+    }
+
+    if (expiryDate) {
+        expiryDate.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+    }
+
+    if (cvv) {
+        cvv.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+    }
+}
+
+// Initialisation des composants FORNAP
+function initFornapComponents() {
+    const navbarPlaceholder = document.getElementById('navbar-placeholder');
+    if (navbarPlaceholder) {
+        navbarPlaceholder.outerHTML = FornapComponents.generateNavbar('journey', '../');
+    }
+
+    const footerPlaceholder = document.getElementById('footer-placeholder');
+    if (footerPlaceholder) {
+        footerPlaceholder.outerHTML = FornapComponents.generateFooter('../');
+    }
+
+    setTimeout(() => {
+        FornapComponents.initNavbarEvents('../', {
+            onLogin: showLoginModal,
+            onLogout: handleLogout
+        });
+    }, 100);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('✅ DOM chargé - Journey Experience Pro');
+
+    try {
+        // Initialiser les services
+        await FornapAuth.init();
+        
+        // Initialiser les composants
+        initFornapComponents();
+
+        // Écouter les changements d'authentification
+        FornapAuth.onAuthStateChanged((user) => {
+            currentUser = user;
+            console.log('👤 Utilisateur:', user ? user.email : 'déconnecté');
+            
+            FornapComponents.syncAuthState(!!user);
+        });
+
+        // Vérifier la présélection de forfait depuis membership
+        checkPreselectedPlan();
+
+        // Configuration
+        setupValidation();
+        setupInteractiveElements();
+        formatPaymentInputs();
+        updateProgress();
+
+        // Animation d'entrée
+        gsap.fromTo('.welcome-hero', 
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+        );
+
+        console.log('🎯 FORNAP Journey Experience Pro prête !');
+
+    } catch (error) {
+        console.error('❌ Erreur initialisation:', error);
+        showMessage('Erreur lors du chargement. Veuillez recharger la page.', 'error');
+    }
+});

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation Événement - FORNAP</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="evenements-styles.css">
+</head>
+<body>
+    <!-- Navbar (injectée par les composants) -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <!-- Hero -->
+        <section class="payment-hero">
+            <div class="container">
+                <h1>Réservation de billet</h1>
+                <p>Finalisez votre réservation pour cet événement</p>
+            </div>
+        </section>
+        
+        <!-- Contenu de réservation -->
+        <section class="payment-content">
+            <div class="container">
+                <div class="payment-grid">
+                    <!-- Formulaire de réservation -->
+                    <div class="payment-form-section">
+                        <div class="form-container">
+                            <h2>Informations de réservation</h2>
+                            
+                            <!-- Sélection du nombre de billets -->
+                            <div class="form-group">
+                                <label for="ticketQuantity">Nombre de billets</label>
+                                <div class="quantity-selector">
+                                    <button type="button" class="quantity-btn" id="decreaseBtn">-</button>
+                                    <input type="number" id="ticketQuantity" min="1" max="10" value="1" class="quantity-input">
+                                    <button type="button" class="quantity-btn" id="increaseBtn">+</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Informations personnelles -->
+                            <div class="form-group">
+                                <label for="attendeeName">Nom du participant principal</label>
+                                <input type="text" id="attendeeName" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="attendeeEmail">Email de contact</label>
+                                <input type="email" id="attendeeEmail" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="attendeePhone">Téléphone</label>
+                                <input type="tel" id="attendeePhone" class="form-input">
+                            </div>
+                            
+                            <!-- Options supplémentaires -->
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="newsletterSubscribe">
+                                    <span class="checkbox-text">Recevoir les informations sur les prochains événements</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Paiement fictif -->
+                            <div class="payment-method">
+                                <h3>Mode de paiement</h3>
+                                <div class="payment-options">
+                                    <label class="radio-label">
+                                        <input type="radio" name="paymentMethod" value="card" checked>
+                                        <span class="radio-text">Carte bancaire</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="paymentMethod" value="paypal">
+                                        <span class="radio-text">PayPal</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-notice">
+                                    <p><strong>Note :</strong> Ce système de paiement est fictif à des fins de démonstration.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Bouton de validation -->
+                            <button class="btn btn-primary btn-large" id="confirmPaymentBtn">
+                                Confirmer la réservation
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Récapitulatif -->
+                    <div class="payment-summary">
+                        <div class="summary-card">
+                            <h3>Récapitulatif</h3>
+                            
+                            <!-- Détails de l'événement -->
+                            <div class="event-summary" id="eventSummary">
+                                <!-- Généré par JS -->
+                            </div>
+                            
+                            <!-- Détails financiers -->
+                            <div class="price-breakdown" id="priceBreakdown">
+                                <!-- Généré par JS -->
+                            </div>
+                            
+                            <!-- Total -->
+                            <div class="total-section">
+                                <div class="total-line">
+                                    <span class="total-label">Total à payer</span>
+                                    <span class="total-amount" id="totalAmount">0,00 €</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (injecté par les composants) -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Messages container -->
+    <div id="messageContainer"></div>
+
+    <!-- Modal de confirmation -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Réservation confirmée !</h3>
+            </div>
+            <div class="modal-body">
+                <div class="success-icon">✅</div>
+                <p>Votre réservation a été confirmée avec succès !</p>
+                <p>Vous recevrez un email de confirmation sous peu.</p>
+                <div class="booking-reference" id="bookingReference"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="backToEventsBtn">Retour aux événements</button>
+                <button class="btn btn-outline" id="viewDashboardBtn">Mon tableau de bord</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth-service.js"></script>
+    <script src="../../assets/js/components.js"></script>
+    <script src="event-payment-scripts.js"></script>
+</body>
+</html>

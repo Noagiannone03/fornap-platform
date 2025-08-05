@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail Événement - FORNAP</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="evenements-styles.css">
+</head>
+<body>
+    <!-- Navbar (injectée par les composants) -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <!-- Hero de l'événement -->
+        <section class="event-detail-hero" id="eventHero">
+            <!-- Contenu généré par JS -->
+        </section>
+        
+        <!-- Informations détaillées -->
+        <section class="event-detail-info">
+            <div class="container">
+                <!-- Bouton retour -->
+                <a href="evenements.html" class="btn-back">
+                    ← Retour aux événements
+                </a>
+                <div class="event-detail-grid">
+                    <!-- Colonne principale -->
+                    <div class="event-main-info" id="eventMainInfo">
+                        <!-- Contenu généré par JS -->
+                    </div>
+                    
+                    <!-- Sidebar -->
+                    <div class="event-sidebar">
+                        <div class="event-card-info" id="eventCardInfo">
+                            <!-- Carte d'infos générée par JS -->
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="event-actions">
+                            <button class="btn btn-like" id="likeBtn">
+                                <span class="like-icon">♥</span>
+                                <span class="like-text">Ajouter aux favoris</span>
+                            </button>
+                            <button class="btn btn-primary btn-large" id="bookTicketBtn">
+                                Prendre mon billet
+                            </button>
+                        </div>
+                        
+                        <!-- Événements similaires -->
+                        <div class="similar-events" id="similarEvents">
+                            <h3>Événements similaires</h3>
+                            <div class="similar-events-list" id="similarEventsList">
+                                <!-- Événements similaires générés par JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (injecté par les composants) -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Messages container -->
+    <div id="messageContainer"></div>
+
+    <!-- Modal de confirmation de connexion -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Connexion requise</h3>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Vous devez être connecté pour réserver un billet ou ajouter un événement à vos favoris.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelModalBtn">Annuler</button>
+                <button class="btn btn-primary" id="loginModalBtn">Se connecter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth-service.js"></script>
+    <script src="../../assets/js/components.js"></script>
+    <script src="event-detail-scripts.js"></script>
+</body>
+</html>

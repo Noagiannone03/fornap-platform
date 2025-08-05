@@ -40,11 +40,14 @@ fornap-platform/
 │   │   ├── auth-service.js    # Authentication singleton service
 │   │   ├── components.js      # Reusable UI components (navbar/footer)
 │   │   ├── utils.js           # Validation + utility functions
+│   │   ├── journey-utils.js   # Journey/form mechanics (progress, navigation, validation)
+│   │   ├── payment.js         # Payment page specific logic
 │   │   └── app.js            # Legacy code (being migrated)
 │   └── css/
-│       ├── main.css          # Page-specific styles + CSS variables
-│       └── components.css    # Reusable component styles
-├── pages/                    # Application pages
+│       ├── main.css          # Global styles + CSS variables
+│       ├── components.css    # Reusable component styles
+│       └── payment.css       # Payment page specific styles
+├── pages/                    # Application pages (HTML structure only)
 ├── docs/                     # Comprehensive French documentation
 └── index.html               # Landing page
 ```
@@ -67,6 +70,7 @@ await FornapAuth.init()                    // Initialize Firebase
 await FornapAuth.signIn(email, password)  // Sign in user
 await FornapAuth.signUp(email, password)  // Create account
 FornapAuth.onAuthStateChanged(callback)   // Listen for auth changes
+FornapAuth.getCurrentUser()               // Get current user (async)
 ```
 
 ### UI Components (`assets/js/components.js`)
@@ -75,6 +79,25 @@ FornapAuth.onAuthStateChanged(callback)   // Listen for auth changes
 FornapComponents.generateNavbar(activePage, basePath)  // Generate navigation
 FornapComponents.generateFooter(basePath)              // Generate footer
 FornapComponents.syncAuthState(isAuthenticated)        // Update UI state
+FornapComponents.initNavbar(activePage, basePath, authCallbacks)  // Complete navbar setup
+FornapComponents.initFooter(basePath)                  // Complete footer setup
+FornapComponents.onAuthStateChanged(callback)          // Listen to auth changes
+FornapComponents.updateAuthState(isAuthenticated)      // Update global auth state
+```
+
+### Utility Functions (`assets/js/utils.js`)
+```javascript
+// Global utilities: window.FornapUtils
+FornapUtils.showMessage(type, message)    // Display success/error messages
+FornapUtils.validateEmail(email)          // Email validation
+FornapUtils.validatePassword(password)    // Password validation
+FornapUtils.validatePhone(phone)          // Phone validation
+```
+
+### Journey Management (`assets/js/journey-utils.js`)
+```javascript
+// Form and navigation utilities
+// Use for multi-step forms, progress tracking, validation flows
 ```
 
 ## User Flow
@@ -116,23 +139,111 @@ Uses CSS custom properties (variables) design system:
 <link rel="stylesheet" href="../assets/css/components.css">
 ```
 
-## Adding New Pages
+## Adding New Pages - Système LEGO 🧱
 
-Use the template system:
-1. Copy `pages/page-template.html`
-2. Include required modules in order:
-```html
-<script src="../assets/js/config.js"></script>
-<script src="../assets/js/utils.js"></script>
-<script src="../assets/js/auth-service.js"></script>
-<script src="../assets/js/components.js"></script>
+### Blocs Réutilisables Disponibles
+
+**🎨 Composants UI (Lego visuels)**
+- `FornapComponents.generateNavbar()` - Navigation complète avec auth
+- `FornapComponents.generateFooter()` - Pied de page standard
+- `FornapUtils.showMessage()` - Messages success/error standardisés
+
+**🔧 Services (Lego fonctionnels)**
+- `FornapAuth` - Authentification complète Firebase
+- `FornapConfig` - Configuration centralisée
+- `FornapUtils` - Validations et utilitaires
+
+**📋 Formulaires (Lego interactifs)**
+- `journey-utils.js` - Navigation multi-étapes, progress tracking
+
+### Template pour Nouvelle Page
+
+1. **Copier le template de base:**
+```bash
+cp pages/page-template.html pages/your-page.html
 ```
-3. Initialize services:
+
+2. **Assembler les blocs CSS requis:**
+```html
+<!-- TOUJOURS inclure ces 2 fichiers de base -->
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<!-- Ajouter CSS spécifique si nécessaire -->
+<link rel="stylesheet" href="../assets/css/your-page.css">
+```
+
+3. **Assembler les blocs JS requis (ORDRE IMPORTANT):**
+```html
+<!-- BLOC 1: Configuration -->
+<script src="../assets/js/config.js"></script>
+
+<!-- BLOC 2: Utilitaires de base -->
+<script src="../assets/js/utils.js"></script>
+
+<!-- BLOC 3: Services d'authentification -->
+<script src="../assets/js/auth-service.js"></script>
+
+<!-- BLOC 4: Composants UI -->
+<script src="../assets/js/components.js"></script>
+
+<!-- BLOC 5: Utilitaires formulaires (si formulaire multi-étapes) -->
+<script src="../assets/js/journey-utils.js"></script>
+
+<!-- BLOC 6: Logique spécifique à votre page -->
+<script src="../assets/js/your-page.js"></script>
+```
+
+4. **Pattern d'initialisation standard:**
 ```javascript
+// Dans your-page.js
 document.addEventListener('DOMContentLoaded', async () => {
+    // ÉTAPE 1: Initialiser l'authentification
     await FornapAuth.init();
-    // Your page logic here
+    
+    // ÉTAPE 2: Injecter navbar et footer (composants Lego)
+    document.getElementById('navbar-container').innerHTML = 
+        FornapComponents.generateNavbar('your-page', '../');
+    document.getElementById('footer-container').innerHTML = 
+        FornapComponents.generateFooter('../');
+    
+    // ÉTAPE 3: Configurer la synchronisation d'état
+    FornapComponents.onAuthStateChanged((isAuthenticated) => {
+        // Logique selon état auth
+    });
+    
+    // ÉTAPE 4: Votre logique spécifique
+    initYourPageLogic();
 });
+```
+
+### Patterns de Réutilisation Courants
+
+**🔐 Page avec authentification requise:**
+```javascript
+FornapAuth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        window.location.href = '../login.html';
+        return;
+    }
+    // Logique page protégée
+});
+```
+
+**📝 Page avec formulaire:**
+```javascript
+// Utiliser les validations Lego
+const isValidEmail = FornapUtils.validateEmail(email);
+const isValidPhone = FornapUtils.validatePhone(phone);
+
+// Afficher messages avec Lego UI  
+FornapUtils.showMessage('success', 'Données sauvegardées !');
+FornapUtils.showMessage('error', 'Erreur de validation');
+```
+
+**🎯 Page avec navigation dynamique:**
+```javascript
+// Navbar s'adapte automatiquement à la page active
+FornapComponents.generateNavbar('current-page-name', '../');
 ```
 
 ## State Management
@@ -150,14 +261,55 @@ FornapUtils.showMessage('error', 'Your error message');
 FornapUtils.showMessage('success', 'Success message');
 ```
 
-## Code Conventions
+## Code Conventions & Architecture LEGO
 
+### Principes Fondamentaux
+- **Modularité**: Chaque bloc LEGO a une responsabilité unique
+- **Réutilisabilité**: Un bloc peut être utilisé sur plusieurs pages
+- **Prédictibilité**: Même interface pour chaque type de bloc
+- **Composition**: Assembler les blocs plutôt que recréer
+
+### Conventions de Nommage
 - **Language**: All code comments and documentation in French
-- **Naming**: camelCase for JavaScript, kebab-case for CSS classes
+- **JavaScript**: camelCase for variables/functions (`FornapAuth`, `generateNavbar`)  
+- **CSS**: kebab-case for classes (`.fornap-navbar`, `.btn-primary`)
 - **Global Objects**: All services exposed on `window` object with `Fornap` prefix
 - **Console Logging**: Use emojis for easy debugging (✅ success, ❌ error, 📝 info)
-- **No ES6 modules**: Uses traditional script includes with global objects
+
+### Architecture des Fichiers (LEGO System)
+```
+assets/js/
+├── config.js          [LEGO CONFIG] Configuration centralisée
+├── utils.js           [LEGO UTILS] Validations et utilitaires
+├── auth-service.js    [LEGO AUTH] Service d'authentification
+├── components.js      [LEGO UI] Composants navbar/footer
+├── journey-utils.js   [LEGO FORMS] Gestion formulaires multi-étapes
+└── [page-name].js     [LEGO PAGE] Logique spécifique à une page
+
+assets/css/
+├── main.css           [LEGO STYLES] Variables CSS et styles globaux
+├── components.css     [LEGO UI] Styles des composants réutilisables  
+└── [page-name].css    [LEGO PAGE] Styles spécifiques à une page
+```
+
+### Règles d'Architecture
+- **NO ES6 modules**: Uses traditional script includes with global objects
+- **NO inline code**: Separate HTML, CSS, and JavaScript into dedicated files
+- **Page-specific files**: Each page should have its own JS and CSS files when needed
+- **Reusable components**: Extract common mechanics into utility files
+- **Clean HTML**: HTML files should contain only structure, no embedded styles or scripts
 - **CSS**: Mobile-first responsive design with CSS Grid/Flexbox
+
+### Pattern de Composition LEGO
+```javascript
+// ❌ MAUVAIS: Réécrire la navbar à chaque fois
+function createCustomNavbar() {
+    return '<nav>...</nav>'; // Code dupliqué
+}
+
+// ✅ BON: Réutiliser le bloc LEGO existant
+const navbar = FornapComponents.generateNavbar('page-name', '../');
+```
 
 ## Testing Approach
 

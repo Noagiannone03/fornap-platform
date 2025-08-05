@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Événements - FORNAP</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="evenements-styles.css">
+</head>
+<body>
+    <!-- Navbar (injectée par les composants) -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="events-hero">
+            <div class="container">
+                <h1>Événements FORNAP</h1>
+                <p>Découvrez tous les événements qui se déroulent dans notre espace de coworking</p>
+            </div>
+        </section>
+        
+        <!-- Événement principal en avant -->
+        <section class="hero-event">
+            <div class="container">
+                <div class="hero-event-content" id="heroEventContent">
+                    <!-- Événement héro généré par JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation par catégories -->
+        <section class="categories-nav">
+            <div class="container">
+                <h2>Parcourir par catégorie</h2>
+                <div class="categories-grid" id="categoriesGrid">
+                    <!-- Catégories générées par JS -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Événements à la une -->
+        <section class="featured-events">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Événements à la une</h2>
+                    <p>Les événements les plus populaires cette semaine</p>
+                </div>
+                
+                <div class="featured-slider-container">
+                    <button class="slider-btn slider-prev" id="featuredPrev">‹</button>
+                    <div class="featured-slider" id="featuredSlider">
+                        <div class="featured-events-track" id="featuredEventsTrack">
+                            <!-- Événements à la une générés par JS -->
+                        </div>
+                    </div>
+                    <button class="slider-btn slider-next" id="featuredNext">›</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recherche et filtres -->
+        <section class="search-section">
+            <div class="container">
+                <div class="search-header">
+                    <h2>Trouvez votre événement</h2>
+                    <p>Parcourez tous nos événements ou affinez votre recherche</p>
+                </div>
+                
+                <div class="search-controls">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Rechercher par nom, artiste, lieu..." class="search-input">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">Tous les événements</button>
+                        <button class="filter-tab" data-filter="musique">Musique</button>
+                        <button class="filter-tab" data-filter="conference">Conférences</button>
+                        <button class="filter-tab" data-filter="atelier">Ateliers</button>
+                        <button class="filter-tab" data-filter="networking">Networking</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Liste des événements -->
+        <section class="events-listing">
+            <div class="container">
+                <div class="listing-header">
+                    <div class="results-info">
+                        <span id="resultsCount">Chargement...</span>
+                    </div>
+                    <div class="sort-controls">
+                        <select id="sortSelect" class="sort-select">
+                            <option value="date">Trier par date</option>
+                            <option value="price">Trier par prix</option>
+                            <option value="popularity">Trier par popularité</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="events-masonry" id="eventsGrid">
+                    <!-- Événements générés par JS -->
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination" id="pagination">
+                        <!-- Pagination générée par JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (injecté par les composants) -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Messages container -->
+    <div id="messageContainer"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP
+         ======================================== -->
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/auth-service.js"></script>
+    <script src="../../assets/js/components.js"></script>
+    <script src="evenements-scripts.js"></script>
+</body>
+</html>
