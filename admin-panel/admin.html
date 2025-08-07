@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORNAP - Dashboard Admin</title>
+    
+    <!-- CSS - Styles Admin FORNAP (isolation des conflits) -->
+    <link rel="stylesheet" href="assets/css/admin-core.css">
+    <link rel="stylesheet" href="assets/css/admin-components.css">
+    <link rel="stylesheet" href="assets/css/admin-modules.css">
+    <!-- Fixes CSS d'urgence - chargé en dernier pour priorité absolue -->
+    <link rel="stylesheet" href="assets/css/admin-fixes.css">
+</head>
+<body class="admin-body">
+    <!-- Écran de chargement -->
+    <div id="adminLoader" class="admin-loader">
+        <div class="loader-content">
+            <div class="apple-spinner"></div>
+            <p>Chargement du dashboard...</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Admin Container -->
+    <div id="adminDashboard" class="admin-dashboard hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <h2>FORNAP</h2>
+                    <span class="admin-badge">Admin</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-menu" id="adminNavMenu">
+                    <!-- Navigation générée dynamiquement -->
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="admin-user-info" id="adminUserInfo">
+                    <!-- Info admin générée dynamiquement -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- Header avec breadcrumb -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                    <nav class="breadcrumb" id="breadcrumb">
+                        <span class="breadcrumb-home">Accueil</span>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <button class="header-btn" id="notificationsBtn" title="Notifications">
+                        <span class="notification-icon">🔔</span>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <div class="admin-profile-dropdown">
+                        <button class="profile-btn" id="profileBtn">
+                            <div class="profile-avatar">👤</div>
+                            <span class="profile-name" id="adminProfileName">Admin</span>
+                        </button>
+                        <div class="dropdown-menu" id="profileDropdown">
+                            <a href="#" class="dropdown-item">Paramètres</a>
+                            <a href="#" class="dropdown-item" id="logoutBtn">Déconnexion</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="admin-content" id="adminContent">
+                <!-- Module Dashboard Home (par défaut) -->
+                <div class="module-container active" data-module="dashboard">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <h3 id="totalUsers">--</h3>
+                                <p>Utilisateurs</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">🎫</div>
+                            <div class="stat-info">
+                                <h3 id="totalEvents">--</h3>
+                                <p>Événements</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-info">
+                                <h3 id="totalRevenue">--€</h3>
+                                <p>Revenus</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-info">
+                                <h3 id="activeMembers">--</h3>
+                                <p>Membres Actifs</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-widgets">
+                        <div class="widget recent-activity">
+                            <h3>Activité Récente</h3>
+                            <div class="activity-list" id="recentActivity">
+                                <!-- Générée dynamiquement -->
+                            </div>
+                        </div>
+                        
+                        <div class="widget quick-stats">
+                            <h3>Statistiques Rapides</h3>
+                            <div class="quick-stats-content" id="quickStats">
+                                <!-- Générée dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Les autres modules seront injectés ici dynamiquement -->
+                <div class="module-container" data-module="events">
+                    <!-- Module Événements -->
+                </div>
+                
+                <div class="module-container" data-module="users">
+                    <!-- Module Utilisateurs -->
+                </div>
+                
+                <!-- Zone pour nouveaux modules futurs -->
+                <div id="dynamicModules">
+                    <!-- Nouveaux modules injectés ici -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notifications Toast -->
+    <div id="adminNotifications" class="admin-notifications-container">
+        <!-- Notifications générées dynamiquement -->
+    </div>
+
+    <!-- Modals Container -->
+    <div id="adminModals" class="admin-modals-container">
+        <!-- Modals générées dynamiquement -->
+    </div>
+
+    <!-- Messages Container -->
+    <div id="messageContainer"></div>
+
+    <!-- ========================================
+         SCRIPTS FIREBASE
+         ======================================== -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- ========================================
+         MODULES FORNAP - Architecture LEGO
+         ======================================== -->
+    <!-- BLOC 1: Configuration -->
+    <script src="../assets/js/config.js"></script>
+    
+    <!-- BLOC 2: Utilitaires de base -->
+    <script src="../assets/js/utils.js"></script>
+    
+    <!-- BLOC 3: Service d'authentification -->
+    <script src="../assets/js/auth-service.js"></script>
+    
+    <!-- BLOC 4: Core Admin - Service principal -->
+    <script src="assets/js/admin-core.js"></script>
+    
+    <!-- BLOC 5: Service d'authentification admin -->
+    <script src="assets/js/admin-auth.js"></script>
+    
+    <!-- BLOC 6: Composants UI Admin -->
+    <script src="assets/js/admin-components.js"></script>
+    
+    <!-- BLOC 7: Modules spécialisés -->
+    <script src="assets/js/modules/events-module.js"></script>
+    <script src="assets/js/modules/users-module.js"></script>
+    
+    <!-- BLOC 8: Initialisation -->
+    <script src="assets/js/admin-init.js"></script>
+</body>
+</html>

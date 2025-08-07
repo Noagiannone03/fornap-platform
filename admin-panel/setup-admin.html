@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 FORNAP - Configuration Automatique Admin</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .setup-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .setup-header {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .setup-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .setup-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .setup-form {
+            padding: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input, select {
+            padding: 12px 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        .role-select {
+            position: relative;
+        }
+
+        .role-description {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .setup-button {
+            width: 100%;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .setup-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .setup-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-message {
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-weight: 500;
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .status-loading {
+            background: #e2e3e5;
+            color: #6c757d;
+            border: 2px solid #d6d8db;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: #007AFF;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            padding: 4px 0;
+            color: #666;
+        }
+
+        .info-box li:before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .setup-container {
+                margin: 10px;
+            }
+            
+            .setup-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-header">
+            <h1>🚀 Configuration Admin Automatique</h1>
+            <p>Créez votre premier compte administrateur FORNAP en quelques clics</p>
+        </div>
+
+        <div class="setup-form">
+            <div class="info-box">
+                <h3>🎯 Ce que cette page va faire :</h3>
+                <ul>
+                    <li>Créer automatiquement un utilisateur dans Firebase Authentication</li>
+                    <li>Générer le profil admin dans Firestore</li>
+                    <li>Configurer les permissions et rôles</li>
+                    <li>Vous donner l'accès immédiat au dashboard admin</li>
+                </ul>
+            </div>
+
+            <form id="setupForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">Prénom *</label>
+                        <input type="text" id="firstName" required placeholder="Super">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Nom *</label>
+                        <input type="text" id="lastName" required placeholder="Admin">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="email">Email Administrateur *</label>
+                        <input type="email" id="email" required placeholder="admin@fornap.com">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="password">Mot de passe *</label>
+                        <input type="password" id="password" required placeholder="Minimum 6 caractères" minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="department">Département</label>
+                        <input type="text" id="department" placeholder="Direction, IT, Marketing...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="role">Rôle Administrateur *</label>
+                        <select id="role" required>
+                            <option value="super_admin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="moderator">Moderator</option>
+                            <option value="editor">Editor</option>
+                        </select>
+                        <div class="role-description" id="roleDescription">
+                            Accès total - Toutes les permissions
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="setup-button" id="setupButton">
+                    🚀 Créer le Compte Admin
+                </button>
+            </form>
+
+            <div id="statusMessage" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyALz161yfiLaOeHU82DQNJV4PkzAXO1wzM",
+            authDomain: "nap-7aa80.firebaseapp.com",
+            projectId: "nap-7aa80",
+            storageBucket: "nap-7aa80.firebasestorage.app",
+            messagingSenderId: "434731738248",
+            appId: "1:434731738248:web:481644f3a6e809c06d2b3d",
+            measurementId: "G-3HVC6HNG02"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Descriptions des rôles
+        const roleDescriptions = {
+            'super_admin': 'Accès total - Toutes les permissions',
+            'admin': 'Gestion complète des utilisateurs et événements',
+            'moderator': 'Modération des utilisateurs et gestion des événements',
+            'editor': 'Création et modification des événements uniquement'
+        };
+
+        // Mettre à jour la description du rôle
+        document.getElementById('role').addEventListener('change', function() {
+            const selectedRole = this.value;
+            document.getElementById('roleDescription').textContent = roleDescriptions[selectedRole];
+        });
+
+        // Fonction pour afficher les messages
+        function showStatus(type, message) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.innerHTML = message;
+            statusDiv.style.display = 'block';
+        }
+
+        // Fonction pour créer le compte admin
+        async function createAdminAccount(userData) {
+            try {
+                showStatus('loading', '<div class="loading-spinner"></div>Création du compte en cours...');
+                
+                // 1. Créer l'utilisateur dans Firebase Authentication
+                console.log('🔐 Création de l\'utilisateur dans Authentication...');
+                const userCredential = await auth.createUserWithEmailAndPassword(userData.email, userData.password);
+                const user = userCredential.user;
+                
+                console.log('✅ Utilisateur créé avec UID:', user.uid);
+                
+                // 2. Créer les données admin
+                const adminData = {
+                    email: userData.email,
+                    role: userData.role,
+                    status: 'active',
+                    createdAt: firebase.firestore.Timestamp.now(),
+                    profile: {
+                        firstName: userData.firstName,
+                        lastName: userData.lastName,
+                        department: userData.department || 'Non spécifié'
+                    },
+                    lastLogin: null,
+                    loginCount: 0,
+                    createdBy: 'setup-admin-page',
+                    setupMethod: 'automated'
+                };
+
+                // 3. Sauvegarder dans Firestore
+                console.log('💾 Création du profil admin dans Firestore...');
+                await db.collection('admins').doc(user.uid).set(adminData);
+                
+                console.log('✅ Profil admin créé avec succès');
+
+                // 4. Déconnexion automatique pour permettre la connexion normale
+                await auth.signOut();
+                
+                // 5. Message de succès
+                showStatus('success', `
+                    🎉 <strong>Compte admin créé avec succès !</strong><br><br>
+                    📧 <strong>Email:</strong> ${userData.email}<br>
+                    👤 <strong>Nom:</strong> ${userData.firstName} ${userData.lastName}<br>
+                    🏆 <strong>Rôle:</strong> ${userData.role}<br>
+                    🆔 <strong>UID:</strong> ${user.uid}<br><br>
+                    ➡️ <strong>Prochaine étape:</strong> Ouvrez <a href="admin.html" style="color: #007AFF; text-decoration: none;">admin.html</a> et connectez-vous !
+                `);
+
+                // Désactiver le formulaire
+                document.getElementById('setupForm').style.opacity = '0.5';
+                document.getElementById('setupButton').disabled = true;
+                document.getElementById('setupButton').innerHTML = '✅ Compte Créé !';
+
+            } catch (error) {
+                console.error('❌ Erreur lors de la création:', error);
+                
+                let errorMessage = 'Erreur inconnue';
+                
+                // Messages d'erreur personnalisés
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Cette adresse email est déjà utilisée';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Adresse email invalide';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Création de compte désactivée dans Firebase';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
+                
+                showStatus('error', `❌ <strong>Erreur :</strong> ${errorMessage}`);
+            }
+        }
+
+        // Gestionnaire de soumission du formulaire
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Récupérer les données du formulaire
+            const formData = {
+                firstName: document.getElementById('firstName').value.trim(),
+                lastName: document.getElementById('lastName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                department: document.getElementById('department').value.trim(),
+                role: document.getElementById('role').value
+            };
+            
+            // Validation basique
+            if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+                showStatus('error', '❌ Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                showStatus('error', '❌ Le mot de passe doit contenir au moins 6 caractères');
+                return;
+            }
+            
+            // Créer le compte
+            await createAdminAccount(formData);
+        });
+
+        console.log('🚀 Page de configuration admin prête !');
+    </script>
+</body>
+</html>

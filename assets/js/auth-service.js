@@ -40,7 +40,13 @@ class FornapAuthService {
             // Écouter les changements d'état d'authentification
             this.auth.onAuthStateChanged((user) => {
                 this.currentUser = user;
+                console.log('🔄 Firebase Auth state changed:', user ? user.email : 'déconnecté');
                 this.notifyAuthStateChange(user);
+                
+                // Mettre à jour la dernière connexion si connecté
+                if (user) {
+                    this.updateLastLogin(user.uid);
+                }
             });
 
             this.isInitialized = true;
@@ -207,12 +213,34 @@ class FornapAuthService {
 
     /**
      * Met à jour la dernière connexion
+     * Détecte automatiquement si c'est un admin ou un membre
      */
     async updateLastLogin(uid) {
         try {
-            await this.db.collection('members').doc(uid).update({
-                lastLogin: firebase.firestore.Timestamp.now()
-            });
+            // Essayer d'abord dans la collection admins
+            const adminDoc = await this.db.collection('admins').doc(uid).get();
+            
+            if (adminDoc.exists) {
+                // C'est un admin - mettre à jour dans admins
+                await this.db.collection('admins').doc(uid).update({
+                    lastLogin: firebase.firestore.Timestamp.now(),
+                    loginCount: firebase.firestore.FieldValue.increment(1)
+                });
+                console.log('✅ Dernière connexion admin mise à jour');
+            } else {
+                // Vérifier si le document existe dans users avant de le mettre à jour
+                const userDoc = await this.db.collection('users').doc(uid).get();
+                
+                if (userDoc.exists) {
+                    // C'est un utilisateur standard
+                    await this.db.collection('users').doc(uid).update({
+                        lastLogin: firebase.firestore.Timestamp.now()
+                    });
+                    console.log('✅ Dernière connexion utilisateur mise à jour');
+                } else {
+                    console.warn('⚠️ Aucun document trouvé pour UID:', uid);
+                }
+            }
         } catch (error) {
             console.error('❌ Erreur mise à jour dernière connexion:', error);
         }
@@ -229,6 +257,24 @@ class FornapAuthService {
         }
 
         try {
+            // Essayer d'abord dans la collection admins
+            const adminDoc = await this.db.collection('admins').doc(userId).get();
+            
+            if (adminDoc.exists) {
+                const adminData = adminDoc.data();
+                return {
+                    email: adminData.email || this.currentUser.email,
+                    userType: 'admin',
+                    role: adminData.role,
+                    profile: adminData.profile || {},
+                    subscription: null, // Les admins n'ont pas d'abonnement
+                    loyaltyPoints: 0,
+                    createdAt: adminData.createdAt,
+                    lastLogin: adminData.lastLogin
+                };
+            }
+            
+            // Puis dans la collection users
             const doc = await this.db.collection('users').doc(userId).get();
             
             if (doc.exists) {

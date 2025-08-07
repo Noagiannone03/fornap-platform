@@ -1,0 +1,476 @@
+/**
+ * FORNAP Admin - CSS Core
+ * Styles de base et variables pour le dashboard admin
+ * Design Apple moderne avec animations fluides
+ */
+
+/* ========================================
+   VARIABLES CSS - Design System Apple
+   ======================================== */
+:root {
+    /* Couleurs principales - Apple Style */
+    --admin-primary: #007AFF;
+    --admin-primary-hover: #0051D5;
+    --admin-primary-light: rgba(0, 122, 255, 0.1);
+    
+    --admin-secondary: #5AC8FA;
+    --admin-success: #30D158;
+    --admin-warning: #FF9F0A;
+    --admin-error: #FF3B30;
+    
+    /* Couleurs neutres */
+    --admin-black: #000000;
+    --admin-dark: #1C1C1E;
+    --admin-gray-dark: #2C2C2E;
+    --admin-gray: #48484A;
+    --admin-gray-light: #8E8E93;
+    --admin-gray-lighter: #C7C7CC;
+    --admin-gray-lightest: #F2F2F7;
+    --admin-white: #FFFFFF;
+    
+    /* Couleurs de surface */
+    --admin-bg-primary: #FFFFFF;
+    --admin-bg-secondary: #F9F9F9;
+    --admin-bg-tertiary: #F2F2F7;
+    --admin-bg-elevated: #FFFFFF;
+    
+    --admin-sidebar-bg: #F9F9F9;
+    --admin-sidebar-item-hover: rgba(0, 122, 255, 0.08);
+    --admin-sidebar-item-active: rgba(0, 122, 255, 0.15);
+    
+    /* Ombres Apple */
+    --admin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --admin-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --admin-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --admin-shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.16);
+    
+    /* Bordures */
+    --admin-border-color: rgba(0, 0, 0, 0.08);
+    --admin-border-radius-sm: 6px;
+    --admin-border-radius-md: 12px;
+    --admin-border-radius-lg: 16px;
+    --admin-border-radius-xl: 24px;
+    
+    /* Espacement */
+    --admin-spacing-xs: 4px;
+    --admin-spacing-sm: 8px;
+    --admin-spacing-md: 16px;
+    --admin-spacing-lg: 24px;
+    --admin-spacing-xl: 32px;
+    --admin-spacing-xxl: 48px;
+    
+    /* Typographie */
+    --admin-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --admin-font-size-xs: 12px;
+    --admin-font-size-sm: 14px;
+    --admin-font-size-md: 16px;
+    --admin-font-size-lg: 18px;
+    --admin-font-size-xl: 24px;
+    --admin-font-size-xxl: 32px;
+    
+    /* Transitions */
+    --admin-transition-fast: 0.15s cubic-bezier(0.4, 0.0, 0.2, 1);
+    --admin-transition-normal: 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    --admin-transition-slow: 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    /* Dimensions */
+    --admin-sidebar-width: 280px;
+    --admin-sidebar-collapsed-width: 80px;
+    --admin-header-height: 64px;
+}
+
+/* ========================================
+   RESET & BASE - Isolation Admin
+   ======================================== */
+body.admin-body,
+body.admin-body * {
+    box-sizing: border-box !important;
+}
+
+body.admin-body {
+    font-family: var(--admin-font-family) !important;
+    font-size: var(--admin-font-size-md) !important;
+    line-height: 1.5 !important;
+    color: var(--admin-dark) !important;
+    background-color: var(--admin-bg-secondary) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+}
+
+/* ========================================
+   LAYOUT PRINCIPAL - Isolation Admin
+   ======================================== */
+body.admin-body .admin-dashboard {
+    display: flex !important;
+    min-height: 100vh !important;
+    background-color: var(--admin-bg-secondary) !important;
+}
+
+body.admin-body .admin-dashboard.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   SIDEBAR - Isolation Admin
+   ======================================== */
+body.admin-body .admin-sidebar {
+    width: var(--admin-sidebar-width) !important;
+    background-color: var(--admin-sidebar-bg) !important;
+    border-right: 1px solid var(--admin-border-color) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    transition: all var(--admin-transition-normal) !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 1000 !important;
+    backdrop-filter: saturate(180%) blur(20px) !important;
+}
+
+.admin-sidebar.collapsed {
+    width: var(--admin-sidebar-collapsed-width);
+}
+
+.sidebar-header {
+    padding: var(--admin-spacing-lg);
+    border-bottom: 1px solid var(--admin-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--admin-header-height);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--admin-spacing-sm);
+}
+
+.sidebar-logo h2 {
+    font-size: var(--admin-font-size-lg);
+    font-weight: 600;
+    margin: 0;
+    color: var(--admin-dark);
+}
+
+.admin-badge {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    color: var(--admin-white);
+    padding: var(--admin-spacing-xs) var(--admin-spacing-sm);
+    border-radius: var(--admin-border-radius-sm);
+    font-size: var(--admin-font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    padding: var(--admin-spacing-sm);
+    border-radius: var(--admin-border-radius-sm);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all var(--admin-transition-fast);
+}
+
+.sidebar-toggle:hover {
+    background-color: var(--admin-gray-lightest);
+}
+
+.sidebar-toggle span {
+    width: 16px;
+    height: 2px;
+    background-color: var(--admin-gray);
+    transition: all var(--admin-transition-fast);
+    border-radius: 1px;
+}
+
+/* ========================================
+   NAVIGATION SIDEBAR
+   ======================================== */
+.sidebar-nav {
+    flex: 1;
+    padding: var(--admin-spacing-md);
+    overflow-y: auto;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    margin-bottom: var(--admin-spacing-xs);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: var(--admin-spacing-md);
+    color: var(--admin-dark);
+    text-decoration: none;
+    border-radius: var(--admin-border-radius-md);
+    transition: all var(--admin-transition-fast);
+    font-weight: 500;
+    gap: var(--admin-spacing-md);
+}
+
+.nav-link:hover {
+    background-color: var(--admin-sidebar-item-hover);
+    transform: translateX(2px);
+}
+
+.nav-link.active {
+    background-color: var(--admin-sidebar-item-active);
+    color: var(--admin-primary);
+}
+
+.nav-icon {
+    font-size: var(--admin-font-size-lg);
+    min-width: 24px;
+    text-align: center;
+}
+
+.nav-text {
+    font-size: var(--admin-font-size-sm);
+    transition: opacity var(--admin-transition-fast);
+}
+
+.admin-sidebar.collapsed .nav-text {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ========================================
+   MAIN CONTENT AREA - Isolation Admin
+   ======================================== */
+body.admin-body .admin-main {
+    flex: 1 !important;
+    margin-left: var(--admin-sidebar-width) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    transition: margin-left var(--admin-transition-normal) !important;
+    background-color: var(--admin-bg-secondary) !important;
+    position: relative !important;
+}
+
+body.admin-body .admin-sidebar.collapsed + .admin-main {
+    margin-left: var(--admin-sidebar-collapsed-width) !important;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.admin-header {
+    background-color: var(--admin-bg-elevated);
+    border-bottom: 1px solid var(--admin-border-color);
+    padding: 0 var(--admin-spacing-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--admin-header-height);
+    backdrop-filter: saturate(180%) blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--admin-spacing-xs);
+}
+
+.page-title {
+    font-size: var(--admin-font-size-xl);
+    font-weight: 600;
+    margin: 0;
+    color: var(--admin-dark);
+}
+
+.breadcrumb {
+    font-size: var(--admin-font-size-sm);
+    color: var(--admin-gray-light);
+    display: flex;
+    align-items: center;
+    gap: var(--admin-spacing-xs);
+}
+
+.breadcrumb-separator::before {
+    content: '›';
+    margin: 0 var(--admin-spacing-xs);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--admin-spacing-md);
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    padding: var(--admin-spacing-sm);
+    border-radius: var(--admin-border-radius-sm);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--admin-transition-fast);
+}
+
+.header-btn:hover {
+    background-color: var(--admin-gray-lightest);
+    transform: scale(1.05);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--admin-error);
+    color: var(--admin-white);
+    font-size: var(--admin-font-size-xs);
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 16px;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+/* ========================================
+   CONTENT AREA - Isolation Admin
+   ======================================== */
+body.admin-body .admin-content {
+    flex: 1 !important;
+    padding: var(--admin-spacing-xl) !important;
+    overflow-y: auto !important;
+    position: relative !important;
+}
+
+body.admin-body .module-container {
+    display: none !important;
+    animation: slideIn var(--admin-transition-slow) !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+body.admin-body .module-container.active {
+    display: block !important;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ========================================
+   LOADER
+   ======================================== */
+.admin-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--admin-bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loader-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--admin-spacing-lg);
+}
+
+.apple-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--admin-gray-lighter);
+    border-top-color: var(--admin-primary);
+    border-radius: 50%;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform var(--admin-transition-normal);
+    }
+    
+    .admin-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+    
+    .admin-main {
+        margin-left: 0;
+    }
+    
+    .admin-header {
+        padding: 0 var(--admin-spacing-md);
+    }
+    
+    .admin-content {
+        padding: var(--admin-spacing-md);
+    }
+    
+    .page-title {
+        font-size: var(--admin-font-size-lg);
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-header {
+        padding: var(--admin-spacing-md);
+    }
+    
+    .sidebar-logo h2 {
+        font-size: var(--admin-font-size-md);
+    }
+    
+    .admin-content {
+        padding: var(--admin-spacing-sm);
+    }
+}
