@@ -35,30 +35,28 @@ class FornapComponents {
     }
 
     /**
-     * Met à jour l'état d'authentification globalement
+     * Met à jour l'état d'authentification globalement - CORRECTION À LA SOURCE
      */
     static updateAuthState(isAuthenticated) {
         const instance = FornapComponents.init();
         
-        // Ne rien faire si l'état n'a pas changé
-        if (instance.authState === isAuthenticated) return;
-        
+        // Toujours mettre à jour, même si l'état semble identique (pour forcer la sync)
         instance.authState = isAuthenticated;
         
-        // Sauvegarder l'état dans localStorage pour éviter les sauts visuels
+        // Sauvegarder l'état dans localStorage IMMÉDIATEMENT
         try {
             if (isAuthenticated) {
                 localStorage.setItem('fornap_auth_state', 'true');
                 localStorage.setItem('fornap_auth_timestamp', Date.now().toString());
             } else {
-                localStorage.removeItem('fornap_auth_state');
-                localStorage.removeItem('fornap_auth_timestamp');
+                localStorage.setItem('fornap_auth_state', 'false');
+                localStorage.setItem('fornap_auth_timestamp', Date.now().toString());
             }
         } catch (e) {
             console.warn('Erreur sauvegarde état auth:', e);
         }
         
-        // Mettre à jour toutes les navbars existantes avec animation fluide
+        // Synchroniser la navbar immédiatement
         FornapComponents.syncNavbarStateSmooth(isAuthenticated);
 
         // Notifier tous les callbacks
@@ -69,6 +67,8 @@ class FornapComponents {
                 console.error('❌ Erreur callback auth state:', error);
             }
         });
+        
+        console.log('🔄 État auth mis à jour globalement:', isAuthenticated);
     }
 
     /**
@@ -99,59 +99,26 @@ class FornapComponents {
     }
 
     /**
-     * Met à jour l'affichage de la navbar avec animation fluide (évite le flash)
+     * Met à jour l'affichage de la navbar instantanément - CORRECTION À LA SOURCE
      */
     static syncNavbarStateSmooth(isAuthenticated) {
         const navbarAuth = document.getElementById('navbarAuth');
         const navbarMember = document.getElementById('navbarMember');
-        const navbarSkeleton = document.getElementById('navbarSkeleton');
 
         if (navbarAuth && navbarMember) {
-            // Masquer le skeleton s'il existe
-            if (navbarSkeleton) {
-                navbarSkeleton.style.display = 'none';
-                navbarSkeleton.remove(); // Supprimer complètement le skeleton
-            }
-
-            // Animation fluide avec GSAP si disponible, sinon transition CSS
-            if (typeof gsap !== 'undefined') {
-                if (isAuthenticated) {
-                    // Transition vers état connecté
-                    gsap.to(navbarAuth, { 
-                        opacity: 0, 
-                        duration: 0.2, 
-                        onComplete: () => {
-                            navbarAuth.classList.add('hidden');
-                            navbarMember.classList.remove('hidden');
-                            gsap.fromTo(navbarMember, 
-                                { opacity: 0 },
-                                { opacity: 1, duration: 0.3 }
-                            );
-                        }
-                    });
-                } else {
-                    // Transition vers état déconnecté
-                    gsap.to(navbarMember, { 
-                        opacity: 0, 
-                        duration: 0.2, 
-                        onComplete: () => {
-                            navbarMember.classList.add('hidden');
-                            navbarAuth.classList.remove('hidden');
-                            gsap.fromTo(navbarAuth, 
-                                { opacity: 0 },
-                                { opacity: 1, duration: 0.3 }
-                            );
-                        }
-                    });
-                }
+            // Synchronisation instantanée - pas d'animation qui cause des sauts
+            if (isAuthenticated) {
+                navbarAuth.classList.add('hidden');
+                navbarMember.classList.remove('hidden');
             } else {
-                // Fallback sans animation
-                FornapComponents.syncNavbarState(isAuthenticated);
+                navbarMember.classList.add('hidden');
+                navbarAuth.classList.remove('hidden');
             }
             
-            console.log('✅ État navbar mis à jour (smooth):', isAuthenticated ? 'connecté' : 'déconnecté');
+            console.log('✅ État navbar mis à jour (instantané):', isAuthenticated ? 'connecté' : 'déconnecté');
         }
     }
+
 
     /**
      * Génère la navbar FORNAP avec état initial correct
@@ -162,52 +129,36 @@ class FornapComponents {
     static generateNavbar(activePage = '', basePath = '') {
         const instance = FornapComponents.init();
         
-        // Amélioration du pré-chargement de l'état d'authentification
+        // CORRECTION À LA SOURCE: Déterminer l'état d'authentification de manière fiable
         let initialAuthState = instance.authState;
-        let showLoadingState = false;
         
+        // Si l'état n'est pas encore connu, utiliser localStorage comme source fiable
         if (initialAuthState === null) {
-            // Essayer de deviner l'état depuis localStorage
             try {
                 const lastAuthState = localStorage.getItem('fornap_auth_state');
-                const lastAuthTimestamp = localStorage.getItem('fornap_auth_timestamp');
-                const currentTime = Date.now();
-                
-                // Vérifier si l'état sauvegardé est récent (moins de 30 minutes)
-                if (lastAuthState && lastAuthTimestamp && 
-                    (currentTime - parseInt(lastAuthTimestamp)) < 30 * 60 * 1000) {
-                    initialAuthState = lastAuthState === 'true';
-                    showLoadingState = false; // État connu, pas besoin de skeleton
+                if (lastAuthState === 'true') {
+                    initialAuthState = true;
                 } else {
-                    // Si l'état est trop ancien ou inexistant, montrer déconnecté par défaut
-                    initialAuthState = false;
-                    showLoadingState = false; // Montrer les boutons auth directement
+                    initialAuthState = false; // Par défaut déconnecté
                 }
             } catch (e) {
-                initialAuthState = false;
-                showLoadingState = false; // En cas d'erreur, montrer auth
+                initialAuthState = false; // Par défaut déconnecté en cas d'erreur
             }
         }
 
-        // Classes pour l'état initial (éviter le saut visuel)
-        // Si on est connecté : masquer auth, montrer member
-        // Si on n'est pas connecté mais état connu : montrer auth, masquer member  
-        // Si état inconnu (loading) : montrer skeleton, masquer les deux
-        const authHidden = initialAuthState ? 'hidden' : (showLoadingState ? 'hidden' : '');
+        // Classes pour l'état initial - PAS DE SKELETON, état direct
+        const authHidden = initialAuthState ? 'hidden' : '';
         const memberHidden = initialAuthState ? '' : 'hidden';
-        const loadingClass = showLoadingState ? 'navbar-loading' : '';
         
         // Debug log
         console.log('🔍 État navbar initial:', {
             initialAuthState,
-            showLoadingState,
             authHidden,
-            memberHidden,
-            loadingClass
+            memberHidden
         });
 
         return `
-        <nav class="fornap-navbar ${loadingClass}">
+        <nav class="fornap-navbar">
             <div class="container">
                 <div class="navbar-content">
                     <!-- Logo -->
@@ -243,14 +194,6 @@ class FornapComponents {
                     
                     <!-- Actions Utilisateur -->
                     <div class="navbar-actions">
-                        <!-- Skeleton de chargement (affiché pendant l'initialisation) -->
-                        ${showLoadingState ? `
-                        <div class="navbar-skeleton" id="navbarSkeleton">
-                            <div class="skeleton-btn skeleton-btn-outline"></div>
-                            <div class="skeleton-btn skeleton-btn-primary"></div>
-                        </div>
-                        ` : ''}
-                        
                         <!-- Utilisateur non connecté -->
                         <div class="navbar-auth ${authHidden}" id="navbarAuth">
                             <button onclick="window.location.href='${basePath}pages/login.html'" 
