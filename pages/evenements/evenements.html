@@ -24,73 +24,34 @@
             </div>
         </section>
         
-        <!-- Événement principal en avant -->
-        <section class="hero-event">
+        <!-- Événements à la une (compacte) -->
+        <section class="featured-events-compact">
             <div class="container">
-                <div class="hero-event-content" id="heroEventContent">
-                    <!-- Événement héro généré par JS -->
+                <div class="featured-grid" id="featuredEventsGrid">
+                    <!-- Top 3 événements générés par JS -->
                 </div>
             </div>
         </section>
 
-        <!-- Navigation par catégories -->
-        <section class="categories-nav">
+        <!-- Liste des événements avec recherche intégrée -->
+        <section class="events-listing">
             <div class="container">
-                <h2>Parcourir par catégorie</h2>
-                <div class="categories-grid" id="categoriesGrid">
-                    <!-- Catégories générées par JS -->
-                </div>
-            </div>
-        </section>
-        
-        <!-- Événements à la une -->
-        <section class="featured-events">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Événements à la une</h2>
-                    <p>Les événements les plus populaires cette semaine</p>
-                </div>
-                
-                <div class="featured-slider-container">
-                    <button class="slider-btn slider-prev" id="featuredPrev">‹</button>
-                    <div class="featured-slider" id="featuredSlider">
-                        <div class="featured-events-track" id="featuredEventsTrack">
-                            <!-- Événements à la une générés par JS -->
-                        </div>
-                    </div>
-                    <button class="slider-btn slider-next" id="featuredNext">›</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recherche et filtres -->
-        <section class="search-section">
-            <div class="container">
-                <div class="search-header">
-                    <h2>Trouvez votre événement</h2>
-                    <p>Parcourez tous nos événements ou affinez votre recherche</p>
-                </div>
-                
-                <div class="search-controls">
+                <!-- Barre de recherche et filtres intégrés -->
+                <div class="integrated-controls">
                     <div class="search-box">
                         <input type="text" id="searchInput" placeholder="Rechercher par nom, artiste, lieu..." class="search-input">
                         <button class="search-btn">🔍</button>
                     </div>
                     
                     <div class="filter-tabs">
-                        <button class="filter-tab active" data-filter="all">Tous les événements</button>
+                        <button class="filter-tab active" data-filter="all">Tous</button>
                         <button class="filter-tab" data-filter="musique">Musique</button>
                         <button class="filter-tab" data-filter="conference">Conférences</button>
                         <button class="filter-tab" data-filter="atelier">Ateliers</button>
                         <button class="filter-tab" data-filter="networking">Networking</button>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Liste des événements -->
-        <section class="events-listing">
-            <div class="container">
                 <div class="listing-header">
                     <div class="results-info">
                         <span id="resultsCount">Chargement...</span>
