@@ -176,8 +176,8 @@ class FornapEventsModule {
                 </div>
                 
                 <div class="data-cell">
-                    <div class="data-avatar" style="background-image: url('${event.image || ''}')">
-                        ${event.image ? '' : event.title.charAt(0).toUpperCase()}
+                    <div class="data-avatar" style="background-image: url('${event.imageUrl || ''}')">
+                        ${event.imageUrl ? '' : event.title.charAt(0).toUpperCase()}
                     </div>
                     <div>
                         <div class="data-main">${event.title}</div>
@@ -522,6 +522,40 @@ class FornapEventsModule {
     }
 
     /**
+     * Gère l'upload d'image
+     */
+    handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            window.AdminComponents.showNotification('error', 'Veuillez sélectionner un fichier image');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            window.AdminComponents.showNotification('error', 'L\'image ne doit pas dépasser 5MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageUpload = document.querySelector('.image-upload');
+            if (imageUpload) {
+                imageUpload.innerHTML = `
+                    <img src="${e.target.result}" style="max-width: 200px; max-height: 150px; border-radius: 8px;">
+                    <div class="image-upload-text">Image sélectionnée: ${file.name}</div>
+                    <button type="button" class="btn-admin btn-secondary btn-small" 
+                            onclick="this.parentElement.innerHTML='<div class=\\'image-upload-icon\\'>🖼️</div><div class=\\'image-upload-text\\'>Cliquez pour ajouter une image</div><input type=\\'file\\' id=\\'eventImage\\' name=\\'image\\' accept=\\'image/*\\' style=\\'display: none;\\'>'; FornapEventsModule.setupFormListeners()">
+                        Changer
+                    </button>
+                `;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    /**
      * Applique les filtres aux événements
      */
     applyFilters() {
@@ -600,6 +634,28 @@ class FornapEventsModule {
     }
 
     /**
+     * Upload une image sur Firebase Storage
+     */
+    async uploadEventImage(file) {
+        if (!file) return null;
+        
+        try {
+            const storage = window.FornapAuth.storage;
+            const timestamp = Date.now();
+            const fileName = `events/${timestamp}_${file.name}`;
+            const storageRef = storage.ref(fileName);
+            
+            const snapshot = await storageRef.put(file);
+            const downloadURL = await snapshot.ref.getDownloadURL();
+            
+            return downloadURL;
+        } catch (error) {
+            console.error('❌ Erreur upload image:', error);
+            throw new Error('Erreur lors de l\'upload de l\'image');
+        }
+    }
+
+    /**
      * Sauvegarde un événement
      */
     async saveEvent(eventData = null) {
@@ -614,6 +670,13 @@ class FornapEventsModule {
             if (!eventData.title || !eventData.category || !eventData.date) {
                 window.AdminComponents.showNotification('error', 'Veuillez remplir tous les champs requis');
                 return;
+            }
+
+            // Upload de l'image si présente
+            if (eventData.image && eventData.image instanceof File) {
+                window.AdminComponents.showNotification('info', 'Upload de l\'image en cours...');
+                eventData.imageUrl = await this.uploadEventImage(eventData.image);
+                delete eventData.image; // Supprimer l'objet File
             }
 
             const db = window.FornapAuth.db;

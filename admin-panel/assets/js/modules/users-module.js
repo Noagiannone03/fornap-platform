@@ -742,19 +742,51 @@ class FornapUsersModule {
     async loadUsers() {
         try {
             const db = window.FornapAuth.db;
+            this.users = [];
             
             // Charger depuis la collection 'users'
-            const usersSnapshot = await db.collection('users')
-                .orderBy('createdAt', 'desc')
-                .get();
+            try {
+                const usersSnapshot = await db.collection('users')
+                    .orderBy('createdAt', 'desc')
+                    .get();
 
-            this.users = [];
-            usersSnapshot.forEach(doc => {
-                this.users.push({
-                    id: doc.id,
-                    ...doc.data()
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    this.users.push({
+                        id: doc.id,
+                        ...userData,
+                        source: 'users'
+                    });
                 });
-            });
+                
+                console.log(`✅ ${this.users.length} utilisateurs chargés depuis 'users'`);
+            } catch (error) {
+                console.log('⚠️ Collection users vide ou inexistante:', error.message);
+            }
+            
+            // Charger également depuis la collection 'members' (legacy)
+            try {
+                const membersSnapshot = await db.collection('members')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                membersSnapshot.forEach(doc => {
+                    const memberData = doc.data();
+                    // Éviter les doublons basés sur l'email
+                    const existingUser = this.users.find(u => u.email === memberData.email);
+                    if (!existingUser) {
+                        this.users.push({
+                            id: doc.id,
+                            ...memberData,
+                            source: 'members'
+                        });
+                    }
+                });
+                
+                console.log(`✅ Total ${this.users.length} utilisateurs chargés (users + members)`);
+            } catch (error) {
+                console.log('⚠️ Collection members vide ou inexistante:', error.message);
+            }
 
             this.filteredUsers = [...this.users];
             

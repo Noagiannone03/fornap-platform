@@ -396,10 +396,10 @@ class FornapAdminComponents {
 const adminComponents = new FornapAdminComponents();
 window.AdminComponents = adminComponents;
 
-// Méthodes statiques pour compatibilité
-window.AdminComponents.closeNotification = (id) => adminComponents.closeNotification(id);
-window.AdminComponents.closeModal = (id, cancelled) => adminComponents.closeModal(id, cancelled);
-window.AdminComponents.confirmAction = (id) => adminComponents.confirmAction(id);
-window.AdminComponents.submitForm = (id) => adminComponents.submitForm(id);
+// Méthodes statiques pour compatibilité - Pas de redirection pour éviter les récursions
+window.AdminComponents.closeNotification = window.AdminComponents.closeNotification || ((id) => adminComponents.closeNotification(id));
+window.AdminComponents.closeModal = window.AdminComponents.closeModal || ((id, cancelled) => adminComponents.closeModal(id, cancelled));
+window.AdminComponents.confirmAction = window.AdminComponents.confirmAction || ((id) => adminComponents.confirmAction(id));
+window.AdminComponents.submitForm = window.AdminComponents.submitForm || ((id) => adminComponents.submitForm(id));
 
 console.log('✅ Service Admin Components chargé');
