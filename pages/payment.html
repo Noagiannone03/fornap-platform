@@ -14,6 +14,7 @@
     
     <!-- CSS spécifique à la page -->
     <link rel="stylesheet" href="../assets/css/payment.css">
+    <link rel="stylesheet" href="../assets/css/qr-scanner.css">
 </head>
 <body>
     <!-- Placeholder pour la navbar - sera remplacée par le composant -->
@@ -94,9 +95,15 @@
                                 Créer mon compte membre
                             </button>
                             
-                            <button class="btn btn-secondary btn-large" onclick="showLoginForm()">
-                                J'ai déjà un compte
+                            <button class="btn btn-primary btn-large btn-cta" onclick="showQRScanner()">
+                                J'ai déjà un QR code
                             </button>
+                            
+                            <div class="secondary-actions">
+                                <button class="btn btn-link btn-small" onclick="showLoginForm()">
+                                    J'ai déjà un compte
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -130,6 +137,159 @@
                         </button>
                         <button class="btn btn-primary" onclick="handleLogin()">
                             Se connecter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Scan QR Code -->
+        <section id="qrScanSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Scanner votre QR code FORNAP</h2>
+                        <p>Uploadez une photo de votre QR code d'ancien membre</p>
+                    </div>
+
+                    <div class="form-content">
+                        <div class="qr-upload-zone" id="qrUploadZone">
+                            <div class="upload-visual">
+                                <div class="upload-icon">📷</div>
+                                <h4>Choisissez une photo de votre QR code</h4>
+                                <p>Formats acceptés: JPG, PNG</p>
+                            </div>
+                            
+                            <input type="file" id="qrFileInput" accept="image/*" class="hidden">
+                            
+                            <div class="upload-preview" id="uploadPreview" style="display: none;">
+                                <img id="previewImage" alt="Aperçu QR code">
+                                <button class="btn btn-outline btn-small" onclick="resetQRUpload()">
+                                    Changer d'image
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="backToWelcome()">
+                            Retour
+                        </button>
+                        <button class="btn btn-primary" onclick="processQRCode()" disabled id="processQRBtn">
+                            Scanner le QR code
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Création mot de passe ancien membre -->
+        <section id="legacyPasswordSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2 id="legacyWelcomeTitle">Bon retour parmi nous !</h2>
+                        <p id="legacyWelcomeMessage">Créez votre mot de passe pour accéder à votre compte</p>
+                    </div>
+
+                    <div class="member-info-card" id="memberInfoCard">
+                        <!-- Informations du membre seront affichées ici -->
+                    </div>
+
+                    <div class="form-content">
+                        <div class="form-field">
+                            <label for="legacyPassword">Créer un mot de passe</label>
+                            <input type="password" id="legacyPassword" class="form-input" 
+                                   placeholder="Minimum 6 caractères" minlength="6" required>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label for="legacyPasswordConfirm">Confirmer le mot de passe</label>
+                            <input type="password" id="legacyPasswordConfirm" class="form-input" 
+                                   placeholder="Retapez votre mot de passe" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="backToQRScan()">
+                            Retour
+                        </button>
+                        <button class="btn btn-primary" onclick="createLegacyAccount()" disabled id="createLegacyBtn">
+                            Créer mon compte
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Membre actif retrouvé -->
+        <section id="activeMemberSection" class="journey-section hidden">
+            <div class="container">
+                <div class="success-container">
+                    <div class="success-visual">
+                        <div class="success-icon">🎉</div>
+                    </div>
+
+                    <div class="success-content">
+                        <h1>Heureux de vous revoir !</h1>
+                        <p class="success-subtitle">
+                            Vous avez été parmi les premiers à rejoindre l'aventure FORNAP
+                        </p>
+
+                        <div class="welcome-back-info">
+                            <div class="info-card">
+                                <h3>Votre statut membre</h3>
+                                <div class="status-badge active">
+                                    ✅ Abonnement actif
+                                </div>
+                                <p id="membershipDetails">
+                                    <!-- Détails de l'abonnement -->
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="project-evolution">
+                            <h3>Découvrez la nouvelle plateforme</h3>
+                            <p>Nous avons évolué ! Découvrez toutes les nouveautés de la plateforme FORNAP et complétez votre profil pour profiter pleinement de l'expérience.</p>
+                        </div>
+
+                        <button class="btn btn-primary btn-large" onclick="completeActiveMemberProfile()">
+                            Découvrir les nouveautés
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Membre expiré -->
+        <section id="expiredMemberSection" class="journey-section hidden">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Bon retour parmi nous !</h2>
+                        <p>Votre ancien abonnement a expiré, mais nous sommes ravis de vous revoir</p>
+                    </div>
+
+                    <div class="expired-member-info">
+                        <div class="info-card warning">
+                            <h3>Statut de votre abonnement</h3>
+                            <div class="status-badge expired">
+                                ⏰ Abonnement expiré
+                            </div>
+                            <p id="expiredMembershipDetails">
+                                <!-- Détails de l'ancien abonnement -->
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="renewal-offer">
+                        <h3>Renouvelez votre aventure FORNAP</h3>
+                        <p>Choisissez un nouveau forfait pour continuer à profiter de la communauté et des nouveaux services de la plateforme.</p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-primary btn-large" onclick="renewExpiredMembership()">
+                            Choisir un nouveau forfait
                         </button>
                     </div>
                 </div>
@@ -730,7 +890,9 @@
     <script src="../assets/js/utils.js"></script>
     <script src="../assets/js/auth-service.js"></script>
     <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/qr-scanner-service.js"></script>
     <script src="../assets/js/journey-utils.js"></script>
+    <script src="../assets/js/qr-journey.js"></script>
 
     <!-- ========================================
          JAVASCRIPT PRINCIPAL
