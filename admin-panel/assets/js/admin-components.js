@@ -31,6 +31,7 @@ class FornapAdminComponents {
         const notification = document.createElement('div');
         notification.className = `admin-notification ${type}`;
         notification.id = notificationId;
+        notification.dataset.timestamp = Date.now();
         
         const content = `
             <div class="notification-icon">${icons[type] || icons.info}</div>
@@ -38,7 +39,7 @@ class FornapAdminComponents {
                 ${title ? `<div class="notification-title">${title}</div>` : ''}
                 <div class="notification-message">${message}</div>
             </div>
-            <button class="notification-close" onclick="FornapAdminComponents.closeNotification('${notificationId}')">×</button>
+            <button class="notification-close" onclick="window.AdminComponents.closeNotification('${notificationId}')">×</button>
         `;
         
         notification.innerHTML = content;
@@ -95,59 +96,54 @@ class FornapAdminComponents {
     }
 
     /**
-     * Crée et affiche une modal
+     * Affiche une modal de confirmation
      */
-    showModal(options = {}) {
-        const modalId = `modal-${++this.modalId}`;
+    showConfirmModal(options = {}) {
+        const {
+            title = 'Confirmation',
+            message = 'Êtes-vous sûr ?',
+            type = 'default',
+            confirmText = 'Confirmer',
+            cancelText = 'Annuler',
+            onConfirm = () => {},
+            onCancel = () => {}
+        } = options;
+
+        const modalId = `confirm-modal-${++this.modalId}`;
         
-        const defaults = {
-            title: 'Modal',
-            content: '',
-            size: 'medium', // small, medium, large, full
-            closable: true,
-            actions: [],
-            onClose: null,
-            onShow: null
+        const iconsByType = {
+            danger: '⚠️',
+            warning: '⚠️',
+            success: '✅',
+            info: 'ℹ️',
+            default: '❓'
         };
-        
-        const config = { ...defaults, ...options };
-        
-        // Créer la structure de la modal
-        const modalBackdrop = document.createElement('div');
-        modalBackdrop.className = 'modal-backdrop';
-        modalBackdrop.id = modalId;
-        
-        const modal = document.createElement('div');
-        modal.className = `modal modal-${config.size}`;
-        
-        let actionsHTML = '';
-        if (config.actions.length > 0) {
-            actionsHTML = '<div class="modal-footer">';
-            config.actions.forEach(action => {
-                const btnClass = action.class || 'btn-secondary';
-                actionsHTML += `
-                    <button class="btn-admin ${btnClass}" 
-                            onclick="FornapAdminComponents.handleModalAction('${modalId}', '${action.id}')">
-                        ${action.text}
-                    </button>
-                `;
-            });
-            actionsHTML += '</div>';
-        }
-        
-        modal.innerHTML = `
-            <div class="modal-header">
-                <h3 class="modal-title">${config.title}</h3>
-                ${config.closable ? `<button class="modal-close" onclick="FornapAdminComponents.closeModal('${modalId}')">×</button>` : ''}
+
+        const modalHtml = `
+            <div class="modal-backdrop" id="${modalId}">
+                <div class="modal confirm-modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">
+                            <span class="modal-icon">${iconsByType[type] || iconsByType.default}</span>
+                            ${title}
+                        </h3>
+                    </div>
+                    <div class="modal-body">
+                        <p class="confirm-message">${message}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-admin btn-secondary" onclick="window.AdminComponents.closeModal('${modalId}', true)">
+                            ${cancelText}
+                        </button>
+                        <button class="btn-admin btn-${type === 'danger' ? 'error' : 'primary'}" 
+                                onclick="window.AdminComponents.confirmAction('${modalId}')">
+                            ${confirmText}
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                ${config.content}
-            </div>
-            ${actionsHTML}
         `;
-        
-        modalBackdrop.appendChild(modal);
-        
+
         // Ajouter au DOM
         let container = document.getElementById('adminModals');
         if (!container) {
@@ -156,467 +152,254 @@ class FornapAdminComponents {
             container.className = 'admin-modals-container';
             document.body.appendChild(container);
         }
-        
-        container.appendChild(modalBackdrop);
-        
-        // Event listeners
-        if (config.closable) {
-            modalBackdrop.addEventListener('click', (e) => {
-                if (e.target === modalBackdrop) {
-                    this.closeModal(modalId);
-                }
-            });
-        }
-        
-        // Stockage de la config
+
+        container.innerHTML = modalHtml;
+
+        // Stocker les callbacks
         this.activeModals.set(modalId, {
-            element: modalBackdrop,
-            config: config
+            onConfirm,
+            onCancel,
+            element: document.getElementById(modalId)
         });
-        
-        // Animation d'ouverture
-        modalBackdrop.style.opacity = '0';
-        modal.style.transform = 'scale(0.9) translateY(20px)';
-        
-        setTimeout(() => {
-            modalBackdrop.style.opacity = '1';
-            modal.style.transform = 'scale(1) translateY(0)';
-        }, 10);
-        
-        // Callback onShow
-        if (config.onShow) {
-            setTimeout(() => config.onShow(modalId), 100);
-        }
-        
-        // Bloquer le scroll du body
-        document.body.style.overflow = 'hidden';
-        
+
         return modalId;
     }
 
     /**
      * Ferme une modal
      */
-    closeModal(modalId) {
+    closeModal(modalId, cancelled = false) {
         const modalData = this.activeModals.get(modalId);
         if (!modalData) return;
-        
-        const { element, config } = modalData;
-        const modal = element.querySelector('.modal');
-        
-        // Animation de fermeture
-        element.style.opacity = '0';
-        modal.style.transform = 'scale(0.9) translateY(20px)';
-        
-        setTimeout(() => {
-            if (element.parentNode) {
-                element.parentNode.removeChild(element);
-            }
-            
-            // Réactiver le scroll si plus de modals
-            if (this.activeModals.size <= 1) {
-                document.body.style.overflow = '';
-            }
-            
-            this.activeModals.delete(modalId);
-            
-            // Callback onClose
-            if (config.onClose) {
-                config.onClose(modalId);
-            }
-        }, this.animationDuration);
+
+        const modal = modalData.element;
+        if (modal) {
+            // Animation de fermeture
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            }, this.animationDuration);
+        }
+
+        // Appeler le callback d'annulation si nécessaire
+        if (cancelled && modalData.onCancel) {
+            modalData.onCancel();
+        }
+
+        this.activeModals.delete(modalId);
     }
 
     /**
-     * Gère les actions des modals
+     * Confirme une action et ferme la modal
      */
-    handleModalAction(modalId, actionId) {
+    confirmAction(modalId) {
         const modalData = this.activeModals.get(modalId);
         if (!modalData) return;
-        
-        const action = modalData.config.actions.find(a => a.id === actionId);
-        if (action && action.handler) {
-            action.handler(modalId);
+
+        // Appeler le callback de confirmation
+        if (modalData.onConfirm) {
+            modalData.onConfirm();
+        }
+
+        this.closeModal(modalId);
+    }
+
+    /**
+     * Affiche un indicateur de chargement
+     */
+    showLoading(message = 'Chargement...') {
+        let loader = document.getElementById('globalLoader');
+        if (!loader) {
+            loader = document.createElement('div');
+            loader.id = 'globalLoader';
+            loader.className = 'loading-overlay';
+            document.body.appendChild(loader);
+        }
+
+        loader.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <div class="loading-message">${message}</div>
+            </div>
+        `;
+
+        loader.style.display = 'flex';
+    }
+
+    /**
+     * Cache l'indicateur de chargement
+     */
+    hideLoading() {
+        const loader = document.getElementById('globalLoader');
+        if (loader) {
+            loader.style.display = 'none';
         }
     }
 
     /**
-     * Crée un formulaire modal
+     * Crée un formulaire modal générique
      */
     showFormModal(options = {}) {
-        const defaults = {
-            title: 'Formulaire',
-            fields: [],
-            submitText: 'Valider',
-            cancelText: 'Annuler',
-            onSubmit: null,
-            validation: true
-        };
-        
-        const config = { ...defaults, ...options };
-        
-        // Générer le HTML du formulaire
-        let formHTML = '<form id="modalForm" class="modal-form">';
-        
-        config.fields.forEach(field => {
-            formHTML += this.generateFormField(field);
-        });
-        
-        formHTML += '</form>';
-        
-        // Configuration des actions
-        const actions = [
-            {
-                id: 'cancel',
-                text: config.cancelText,
-                class: 'btn-secondary',
-                handler: (modalId) => this.closeModal(modalId)
-            },
-            {
-                id: 'submit',
-                text: config.submitText,
-                class: 'btn-primary',
-                handler: (modalId) => this.handleFormSubmit(modalId, config)
-            }
-        ];
-        
-        return this.showModal({
-            title: config.title,
-            content: formHTML,
-            actions: actions,
-            size: config.size || 'medium',
-            onShow: (modalId) => {
-                // Focus sur le premier champ
-                const firstInput = document.querySelector(`#${modalId} input, #${modalId} textarea, #${modalId} select`);
-                if (firstInput) {
-                    setTimeout(() => firstInput.focus(), 100);
-                }
-            }
-        });
-    }
+        const {
+            title = 'Formulaire',
+            fields = [],
+            submitText = 'Valider',
+            cancelText = 'Annuler',
+            onSubmit = () => {},
+            onCancel = () => {}
+        } = options;
 
-    /**
-     * Génère un champ de formulaire
-     */
-    generateFormField(field) {
-        const { type, name, label, placeholder, value, options, required, validation } = field;
+        const modalId = `form-modal-${++this.modalId}`;
         
-        let fieldHTML = `
-            <div class="form-group">
-                <label class="form-label" for="${name}">
-                    ${label}
-                    ${required ? '<span class="required">*</span>' : ''}
-                </label>
-        `;
-        
-        switch (type) {
-            case 'text':
-            case 'email':
-            case 'password':
-            case 'number':
-                fieldHTML += `
-                    <input type="${type}" 
-                           id="${name}" 
-                           name="${name}" 
-                           class="form-input" 
-                           placeholder="${placeholder || ''}"
-                           value="${value || ''}"
-                           ${required ? 'required' : ''}>
-                `;
-                break;
-                
-            case 'textarea':
-                fieldHTML += `
-                    <textarea id="${name}" 
-                              name="${name}" 
-                              class="form-textarea" 
-                              placeholder="${placeholder || ''}"
-                              ${required ? 'required' : ''}>${value || ''}</textarea>
-                `;
-                break;
-                
-            case 'select':
-                fieldHTML += `<select id="${name}" name="${name}" class="form-select" ${required ? 'required' : ''}>`;
-                if (options) {
-                    options.forEach(option => {
-                        const selected = option.value === value ? 'selected' : '';
-                        fieldHTML += `<option value="${option.value}" ${selected}>${option.text}</option>`;
-                    });
-                }
-                fieldHTML += '</select>';
-                break;
-                
-            case 'checkbox':
-                const checked = value ? 'checked' : '';
-                fieldHTML += `
-                    <div class="form-checkbox">
-                        <input type="checkbox" 
-                               id="${name}" 
-                               name="${name}" 
-                               value="1" 
-                               ${checked}>
-                        <label for="${name}">${label}</label>
+        const fieldsHtml = fields.map(field => {
+            const {
+                name,
+                label,
+                type = 'text',
+                required = false,
+                placeholder = '',
+                value = '',
+                options = []
+            } = field;
+
+            let inputHtml = '';
+            
+            switch (type) {
+                case 'select':
+                    inputHtml = `
+                        <select name="${name}" class="form-input" ${required ? 'required' : ''}>
+                            <option value="">Sélectionner...</option>
+                            ${options.map(opt => 
+                                `<option value="${opt.value}" ${opt.value === value ? 'selected' : ''}>${opt.label}</option>`
+                            ).join('')}
+                        </select>
+                    `;
+                    break;
+                    
+                case 'textarea':
+                    inputHtml = `
+                        <textarea name="${name}" class="form-textarea" rows="4" 
+                                placeholder="${placeholder}" ${required ? 'required' : ''}>${value}</textarea>
+                    `;
+                    break;
+                    
+                default:
+                    inputHtml = `
+                        <input type="${type}" name="${name}" class="form-input" 
+                               placeholder="${placeholder}" value="${value}" ${required ? 'required' : ''}>
+                    `;
+            }
+
+            return `
+                <div class="form-group">
+                    <label class="form-label">${label}${required ? ' *' : ''}</label>
+                    ${inputHtml}
+                </div>
+            `;
+        }).join('');
+
+        const modalHtml = `
+            <div class="modal-backdrop" id="${modalId}">
+                <div class="modal form-modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">${title}</h3>
+                        <button class="modal-close" onclick="window.AdminComponents.closeModal('${modalId}', true)">×</button>
                     </div>
-                `;
-                break;
+                    <div class="modal-body">
+                        <form id="${modalId}-form">
+                            ${fieldsHtml}
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-admin btn-secondary" onclick="window.AdminComponents.closeModal('${modalId}', true)">
+                            ${cancelText}
+                        </button>
+                        <button class="btn-admin btn-primary" onclick="window.AdminComponents.submitForm('${modalId}')">
+                            ${submitText}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Ajouter au DOM
+        let container = document.getElementById('adminModals');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'adminModals';
+            container.className = 'admin-modals-container';
+            document.body.appendChild(container);
         }
-        
-        fieldHTML += '<div class="form-error" id="error-' + name + '"></div>';
-        fieldHTML += '</div>';
-        
-        return fieldHTML;
+
+        container.innerHTML = modalHtml;
+
+        // Stocker les callbacks
+        this.activeModals.set(modalId, {
+            onSubmit,
+            onCancel,
+            element: document.getElementById(modalId)
+        });
+
+        return modalId;
     }
 
     /**
-     * Gère la soumission d'un formulaire modal
+     * Soumet un formulaire modal
      */
-    handleFormSubmit(modalId, config) {
-        const form = document.getElementById('modalForm');
+    submitForm(modalId) {
+        const modalData = this.activeModals.get(modalId);
+        if (!modalData) return;
+
+        const form = document.getElementById(`${modalId}-form`);
         if (!form) return;
-        
-        // Collecter les données
+
+        // Valider le formulaire
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Récupérer les données
         const formData = new FormData(form);
-        const data = {};
-        
-        for (const [key, value] of formData.entries()) {
-            data[key] = value;
+        const data = Object.fromEntries(formData.entries());
+
+        // Appeler le callback
+        if (modalData.onSubmit) {
+            modalData.onSubmit(data);
         }
-        
-        // Validation si activée
-        if (config.validation) {
-            const errors = this.validateForm(config.fields, data);
-            if (Object.keys(errors).length > 0) {
-                this.displayFormErrors(errors);
-                return;
-            }
-        }
-        
-        // Callback de soumission
-        if (config.onSubmit) {
-            const result = config.onSubmit(data, modalId);
-            
-            // Si la fonction retourne une promesse
-            if (result && typeof result.then === 'function') {
-                // Désactiver le bouton pendant le traitement
-                const submitBtn = form.closest('.modal').querySelector('.btn-primary');
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = 'Traitement...';
-                }
-                
-                result
-                    .then(() => {
-                        this.closeModal(modalId);
-                        this.showNotification('success', 'Opération réussie');
-                    })
-                    .catch((error) => {
-                        this.showNotification('error', error.message || 'Une erreur est survenue');
-                    })
-                    .finally(() => {
-                        if (submitBtn) {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = config.submitText;
-                        }
-                    });
-            } else {
-                this.closeModal(modalId);
-            }
-        }
+
+        this.closeModal(modalId);
     }
 
     /**
-     * Valide un formulaire
+     * Nettoie toutes les notifications et modals
      */
-    validateForm(fields, data) {
-        const errors = {};
-        
-        fields.forEach(field => {
-            const value = data[field.name];
-            
-            // Champ requis
-            if (field.required && (!value || value.trim() === '')) {
-                errors[field.name] = 'Ce champ est requis';
-                return;
-            }
-            
-            // Validation email
-            if (field.type === 'email' && value) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(value)) {
-                    errors[field.name] = 'Format email invalide';
-                }
-            }
-            
-            // Validation personnalisée
-            if (field.validation && value) {
-                const validationResult = field.validation(value, data);
-                if (validationResult !== true) {
-                    errors[field.name] = validationResult;
-                }
-            }
-        });
-        
-        return errors;
-    }
-
-    /**
-     * Affiche les erreurs de formulaire
-     */
-    displayFormErrors(errors) {
-        // Nettoyer les erreurs précédentes
-        document.querySelectorAll('.form-error').forEach(el => {
-            el.textContent = '';
-            el.parentElement.classList.remove('has-error');
-        });
-        
-        // Afficher les nouvelles erreurs
-        Object.entries(errors).forEach(([field, message]) => {
-            const errorEl = document.getElementById(`error-${field}`);
-            if (errorEl) {
-                errorEl.textContent = message;
-                errorEl.parentElement.classList.add('has-error');
-            }
-        });
-    }
-
-    /**
-     * Crée une modal de confirmation
-     */
-    showConfirmModal(options = {}) {
-        const defaults = {
-            title: 'Confirmation',
-            message: 'Êtes-vous sûr ?',
-            confirmText: 'Confirmer',
-            cancelText: 'Annuler',
-            onConfirm: null,
-            type: 'warning' // warning, danger, info
-        };
-        
-        const config = { ...defaults, ...options };
-        
-        const icons = {
-            warning: '⚠️',
-            danger: '❌',
-            info: 'ℹ️'
-        };
-        
-        const content = `
-            <div class="confirm-modal-content">
-                <div class="confirm-icon ${config.type}">
-                    ${icons[config.type] || icons.warning}
-                </div>
-                <div class="confirm-message">
-                    ${config.message}
-                </div>
-            </div>
-        `;
-        
-        const actions = [
-            {
-                id: 'cancel',
-                text: config.cancelText,
-                class: 'btn-secondary',
-                handler: (modalId) => this.closeModal(modalId)
-            },
-            {
-                id: 'confirm',
-                text: config.confirmText,
-                class: config.type === 'danger' ? 'btn-error' : 'btn-primary',
-                handler: (modalId) => {
-                    this.closeModal(modalId);
-                    if (config.onConfirm) {
-                        config.onConfirm();
-                    }
-                }
-            }
-        ];
-        
-        return this.showModal({
-            title: config.title,
-            content: content,
-            actions: actions,
-            size: 'small'
-        });
-    }
-
-    /**
-     * Affiche un loader dans un élément
-     */
-    showLoader(element, message = 'Chargement...') {
-        if (typeof element === 'string') {
-            element = document.getElementById(element);
+    cleanup() {
+        // Fermer toutes les notifications
+        for (const [id] of this.activeNotifications) {
+            this.closeNotification(id);
         }
-        
-        if (!element) return;
-        
-        const loader = document.createElement('div');
-        loader.className = 'admin-loader-overlay';
-        loader.innerHTML = `
-            <div class="admin-loader-content">
-                <div class="apple-spinner"></div>
-                <p>${message}</p>
-            </div>
-        `;
-        
-        element.style.position = 'relative';
-        element.appendChild(loader);
-        
-        return loader;
-    }
 
-    /**
-     * Masque un loader
-     */
-    hideLoader(element) {
-        if (typeof element === 'string') {
-            element = document.getElementById(element);
+        // Fermer toutes les modals
+        for (const [id] of this.activeModals) {
+            this.closeModal(id);
         }
-        
-        if (!element) return;
-        
-        const loader = element.querySelector('.admin-loader-overlay');
-        if (loader) {
-            loader.remove();
-        }
-    }
 
-    /**
-     * Crée une table de données
-     */
-    createDataTable(container, options = {}) {
-        const defaults = {
-            columns: [],
-            data: [],
-            pagination: true,
-            search: true,
-            actions: [],
-            rowsPerPage: 10
-        };
-        
-        const config = { ...defaults, ...options };
-        
-        // Implementation de la table de données
-        // Cette fonction sera étendue selon les besoins
-        
-        return {
-            refresh: () => {
-                // Rafraîchir les données
-            },
-            addRow: (row) => {
-                // Ajouter une ligne
-            },
-            removeRow: (id) => {
-                // Supprimer une ligne
-            }
-        };
+        // Cacher le loader
+        this.hideLoading();
     }
 }
 
 // Instance globale
-const fornapAdminComponents = new FornapAdminComponents();
+const adminComponents = new FornapAdminComponents();
+window.AdminComponents = adminComponents;
 
-// Export global avec alias
-window.FornapAdminComponents = fornapAdminComponents;
-window.AdminComponents = fornapAdminComponents; // Alias plus court
+// Méthodes statiques pour compatibilité
+window.AdminComponents.closeNotification = (id) => adminComponents.closeNotification(id);
+window.AdminComponents.closeModal = (id, cancelled) => adminComponents.closeModal(id, cancelled);
+window.AdminComponents.confirmAction = (id) => adminComponents.confirmAction(id);
+window.AdminComponents.submitForm = (id) => adminComponents.submitForm(id);
 
-console.log('✅ Composants admin chargés');
+console.log('✅ Service Admin Components chargé');

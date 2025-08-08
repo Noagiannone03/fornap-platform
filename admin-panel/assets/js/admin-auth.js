@@ -1,394 +1,263 @@
 /**
- * FORNAP Admin - Service d'Authentification Admin
- * Gestion spécialisée de l'authentification pour le dashboard admin
- * Étend le service d'authentification de base avec vérifications admin
+ * FORNAP Admin - Authentification Service
+ * Service d'authentification pour le dashboard admin
+ * Gestion des permissions, rôles et session admin
  */
 
-class FornapAdminAuthService {
+class FornapAdminAuth {
     constructor() {
-        this.baseAuth = window.FornapAuth;
-        this.currentAdminUser = null;
-        this.adminData = null;
-        this.isAdminAuthenticated = false;
+        this.currentAdmin = null;
+        this.permissions = [];
+        this.role = null;
+        this.initialized = false;
         this.authCallbacks = [];
         
-        // Configuration des rôles admin
-        this.adminRoles = {
-            SUPER_ADMIN: 'super_admin',
-            ADMIN: 'admin', 
-            MODERATOR: 'moderator',
-            EDITOR: 'editor'
-        };
-        
-        // Permissions par rôle
-        this.permissions = {
-            [this.adminRoles.SUPER_ADMIN]: ['*'], // Toutes les permissions
-            [this.adminRoles.ADMIN]: [
-                'users.read', 'users.write', 'users.delete',
+        // Configuration des permissions par rôle
+        this.rolePermissions = {
+            'super_admin': ['*'], // Toutes les permissions
+            'admin': [
+                'statistics.read',
                 'events.read', 'events.write', 'events.delete',
-                'statistics.read', 'settings.read', 'settings.write'
+                'users.read', 'users.write', 'users.delete',
+                'settings.read', 'settings.write'
             ],
-            [this.adminRoles.MODERATOR]: [
-                'users.read', 'users.write',
+            'moderator': [
+                'statistics.read',
                 'events.read', 'events.write',
-                'statistics.read'
+                'users.read', 'users.write'
             ],
-            [this.adminRoles.EDITOR]: [
+            'editor': [
                 'events.read', 'events.write',
-                'statistics.read'
+                'users.read'
             ]
         };
+        
+        // Liste des administrateurs autorisés (à remplacer par une config sécurisée)
+        this.authorizedAdmins = [
+            {
+                email: 'admin@fornap.com',
+                role: 'super_admin',
+                profile: { firstName: 'Super', lastName: 'Admin' }
+            },
+            {
+                email: 'moderator@fornap.com', 
+                role: 'moderator',
+                profile: { firstName: 'Modérateur', lastName: 'FORNAP' }
+            }
+        ];
     }
 
     /**
      * Initialise le service d'authentification admin
      */
     async init() {
+        if (this.initialized) return;
+
         try {
-            // S'assurer que le service de base est initialisé
-            if (!this.baseAuth.isInitialized) {
-                await this.baseAuth.init();
+            console.log('🔐 Initialisation de l\'authentification admin...');
+            
+            // Vérifier si un utilisateur est connecté
+            await this.checkCurrentUser();
+            
+            this.initialized = true;
+            console.log('✅ Authentification admin initialisée');
+            
+        } catch (error) {
+            console.error('❌ Erreur initialisation auth admin:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Vérifier l'utilisateur connecté
+     */
+    async checkCurrentUser() {
+        return new Promise((resolve) => {
+            if (!window.FornapAuth || !window.FornapAuth.auth) {
+                resolve(false);
+                return;
             }
 
-            // Écouter les changements d'état du service de base
-            this.baseAuth.onAuthStateChanged(async (user) => {
-                console.log('🔍 Service admin - changement état auth:', user ? user.email : 'déconnecté');
+            const unsubscribe = window.FornapAuth.auth.onAuthStateChanged(async (user) => {
+                unsubscribe(); // Ne s'abonner qu'une fois
                 
                 if (user) {
-                    try {
-                        await this.checkAdminStatus(user);
-                    } catch (error) {
-                        console.error('❌ Erreur vérification admin status:', error);
-                        this.clearAdminState();
+                    console.log('👤 Utilisateur connecté:', user.email);
+                    const isAdmin = await this.validateAdminUser(user);
+                    
+                    if (isAdmin) {
+                        console.log('✅ Utilisateur admin validé:', this.currentAdmin?.role);
+                        this.notifyAuthChange(true, this.currentAdmin);
+                        resolve(true);
+                    } else {
+                        console.log('❌ Utilisateur non autorisé comme admin');
+                        this.currentAdmin = null;
+                        this.notifyAuthChange(false);
+                        resolve(false);
                     }
                 } else {
-                    this.clearAdminState();
+                    console.log('❌ Aucun utilisateur connecté');
+                    this.currentAdmin = null;
+                    this.notifyAuthChange(false);
+                    resolve(false);
                 }
             });
-
-            console.log('✅ Service d\'authentification admin initialisé');
-        } catch (error) {
-            console.error('❌ Erreur initialisation admin auth:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Vérifie le statut administrateur de l'utilisateur
-     */
-    async checkAdminStatus(user) {
-        try {
-            // Récupérer les données admin depuis Firestore
-            const adminDoc = await this.baseAuth.db
-                .collection('admins')
-                .doc(user.uid)
-                .get();
-
-            if (adminDoc.exists) {
-                const adminData = adminDoc.data();
-                
-                // Vérifier si le compte admin est actif
-                if (adminData.status === 'active') {
-                    this.currentAdminUser = user;
-                    this.adminData = adminData;
-                    this.isAdminAuthenticated = true;
-                    
-                    // La mise à jour de la dernière connexion est maintenant gérée
-                    // automatiquement par le service d'auth de base lors du onAuthStateChanged
-                    
-                    console.log('✅ Utilisateur admin authentifié:', {
-                        email: adminData.email,
-                        role: adminData.role,
-                        permissions: this.getUserPermissions()
-                    });
-                    
-                    this.notifyAuthStateChange(true, adminData);
-                } else {
-                    console.warn('⚠️ Compte admin désactivé');
-                    this.clearAdminState();
-                    throw new Error('Compte administrateur désactivé');
-                }
-            } else {
-                console.warn('⚠️ Utilisateur non autorisé pour l\'admin');
-                this.clearAdminState();
-                throw new Error('Accès administrateur non autorisé');
-            }
-        } catch (error) {
-            console.error('❌ Erreur vérification statut admin:', error);
-            
-            // Éviter les boucles infinies en marquant l'erreur
-            if (!error.adminCheckFailed) {
-                error.adminCheckFailed = true;
-                this.clearAdminState();
-            }
-            
-            throw error;
-        }
-    }
-
-    /**
-     * Connexion admin avec vérification des privilèges
-     */
-    async signInAdmin(email, password) {
-        try {
-            // Connexion normale d'abord
-            const user = await this.baseAuth.signIn(email, password);
-            
-            // Vérification admin automatique via onAuthStateChanged
-            // Attendre un peu que la vérification se fasse
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            if (!this.isAdminAuthenticated) {
-                // Forcer la déconnexion si pas admin
-                await this.baseAuth.signOut();
-                throw new Error('Privilèges administrateur requis');
-            }
-            
-            return {
-                user: this.currentAdminUser,
-                adminData: this.adminData
-            };
-        } catch (error) {
-            console.error('❌ Erreur connexion admin:', error);
-            this.clearAdminState();
-            throw error;
-        }
-    }
-
-    /**
-     * Déconnexion admin
-     */
-    async signOutAdmin() {
-        try {
-            // Nettoyer l'état admin d'abord
-            this.clearAdminState();
-            
-            // Puis déconnexion normale
-            await this.baseAuth.signOut();
-            
-            console.log('✅ Déconnexion admin réussie');
-        } catch (error) {
-            console.error('❌ Erreur déconnexion admin:', error);
-            // Forcer le nettoyage même en cas d'erreur
-            this.clearAdminState();
-            throw error;
-        }
-    }
-
-    /**
-     * Vérifier si l'utilisateur a une permission spécifique
-     */
-    hasPermission(permission) {
-        if (!this.isAdminAuthenticated || !this.adminData) {
-            return false;
-        }
-
-        const userRole = this.adminData.role;
-        const userPermissions = this.permissions[userRole] || [];
-
-        // Super admin a toutes les permissions
-        if (userPermissions.includes('*')) {
-            return true;
-        }
-
-        return userPermissions.includes(permission);
-    }
-
-    /**
-     * Récupérer toutes les permissions de l'utilisateur
-     */
-    getUserPermissions() {
-        if (!this.isAdminAuthenticated || !this.adminData) {
-            return [];
-        }
-
-        return this.permissions[this.adminData.role] || [];
-    }
-
-    /**
-     * Créer un compte administrateur
-     * (Seuls les super admins peuvent créer d'autres admins)
-     */
-    async createAdminAccount(userData) {
-        if (!this.hasPermission('users.create') && !this.hasPermission('*')) {
-            throw new Error('Permission insuffisante pour créer un compte admin');
-        }
-
-        try {
-            const adminData = {
-                email: userData.email,
-                role: userData.role || this.adminRoles.EDITOR,
-                status: 'active',
-                createdAt: firebase.firestore.Timestamp.now(),
-                createdBy: this.currentAdminUser.uid,
-                profile: {
-                    firstName: userData.firstName || '',
-                    lastName: userData.lastName || '',
-                    department: userData.department || '',
-                    phone: userData.phone || ''
-                },
-                lastLogin: null,
-                loginCount: 0
-            };
-
-            // Créer dans la collection admins
-            await this.baseAuth.db
-                .collection('admins')
-                .doc(userData.uid)
-                .set(adminData);
-
-            console.log('✅ Compte admin créé:', userData.email);
-            return adminData;
-        } catch (error) {
-            console.error('❌ Erreur création compte admin:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Mettre à jour les données d'un admin
-     */
-    async updateAdminData(uid, updateData) {
-        if (!this.hasPermission('users.write') && !this.hasPermission('*')) {
-            throw new Error('Permission insuffisante');
-        }
-
-        try {
-            await this.baseAuth.db
-                .collection('admins')
-                .doc(uid)
-                .update({
-                    ...updateData,
-                    updatedAt: firebase.firestore.Timestamp.now(),
-                    updatedBy: this.currentAdminUser.uid
-                });
-
-            // Si c'est l'utilisateur actuel, mettre à jour les données locales
-            if (uid === this.currentAdminUser.uid) {
-                this.adminData = { ...this.adminData, ...updateData };
-            }
-
-            console.log('✅ Données admin mises à jour');
-        } catch (error) {
-            console.error('❌ Erreur mise à jour admin:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Lister tous les administrateurs
-     */
-    async getAdminsList() {
-        if (!this.hasPermission('users.read') && !this.hasPermission('*')) {
-            throw new Error('Permission insuffisante');
-        }
-
-        try {
-            const snapshot = await this.baseAuth.db
-                .collection('admins')
-                .orderBy('createdAt', 'desc')
-                .get();
-
-            const admins = [];
-            snapshot.forEach(doc => {
-                admins.push({
-                    uid: doc.id,
-                    ...doc.data()
-                });
-            });
-
-            return admins;
-        } catch (error) {
-            console.error('❌ Erreur récupération liste admins:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Mettre à jour la dernière connexion
-     * DEPRECATED: La mise à jour est maintenant gérée automatiquement 
-     * par le service d'authentification de base qui détecte le type d'utilisateur
-     */
-    async updateAdminLastLogin(uid) {
-        console.log('⚠️ updateAdminLastLogin est deprecated - utilisation automatique par le service de base');
-        // La mise à jour est maintenant gérée par FornapAuthService.updateLastLogin()
-        // qui détecte automatiquement si c'est un admin ou un membre
-    }
-
-    /**
-     * Nettoyer l'état admin
-     */
-    clearAdminState() {
-        this.currentAdminUser = null;
-        this.adminData = null;
-        this.isAdminAuthenticated = false;
-        this.notifyAuthStateChange(false, null);
-    }
-
-    /**
-     * Ajouter un callback pour les changements d'état admin
-     */
-    onAuthStateChanged(callback) {
-        this.authCallbacks.push(callback);
-        
-        // Appeler immédiatement si déjà authentifié
-        if (this.isAdminAuthenticated) {
-            callback(true, this.adminData);
-        }
-    }
-
-    /**
-     * Notifier les changements d'état
-     */
-    notifyAuthStateChange(isAuthenticated, adminData) {
-        this.authCallbacks.forEach(callback => {
-            try {
-                callback(isAuthenticated, adminData);
-            } catch (error) {
-                console.error('❌ Erreur callback admin auth:', error);
-            }
         });
     }
 
     /**
-     * Vérifier si l'utilisateur est admin
+     * Valide qu'un utilisateur est admin
+     */
+    async validateAdminUser(user) {
+        try {
+            // Chercher dans la liste des admins autorisés
+            const adminConfig = this.authorizedAdmins.find(admin => 
+                admin.email === user.email
+            );
+            
+            if (!adminConfig) {
+                console.warn('⚠️ Email non autorisé pour admin:', user.email);
+                return false;
+            }
+
+            // Définir l'admin actuel
+            this.currentAdmin = {
+                uid: user.uid,
+                email: user.email,
+                role: adminConfig.role,
+                profile: adminConfig.profile,
+                lastLogin: new Date()
+            };
+
+            // Définir les permissions
+            this.role = adminConfig.role;
+            this.permissions = this.rolePermissions[adminConfig.role] || [];
+
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Erreur validation admin:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Connecte un administrateur
+     */
+    async signInAdmin(email, password) {
+        try {
+            console.log('🔑 Tentative de connexion admin:', email);
+            
+            // Vérifier d'abord si l'email est autorisé
+            const adminConfig = this.authorizedAdmins.find(admin => 
+                admin.email === email
+            );
+            
+            if (!adminConfig) {
+                throw new Error('Cet email n\'a pas les privilèges administrateur');
+            }
+
+            // Se connecter via le service d'auth principal
+            const result = await window.FornapAuth.signIn(email, password);
+            
+            if (result.user) {
+                // Valider comme admin
+                const isAdmin = await this.validateAdminUser(result.user);
+                
+                if (!isAdmin) {
+                    await window.FornapAuth.signOut();
+                    throw new Error('Privilèges administrateur insuffisants');
+                }
+
+                console.log('✅ Connexion admin réussie');
+                return { 
+                    success: true, 
+                    adminData: this.currentAdmin 
+                };
+                
+            } else {
+                throw new Error('Erreur de connexion');
+            }
+            
+        } catch (error) {
+            console.error('❌ Erreur connexion admin:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Vérifie si l'utilisateur actuel est admin
      */
     isAdmin() {
-        return this.isAdminAuthenticated;
+        return this.currentAdmin !== null && this.role !== null;
     }
 
     /**
-     * Récupérer les données admin actuelles
+     * Retourne les données de l'admin actuel
      */
     getCurrentAdmin() {
-        return this.adminData;
+        return this.currentAdmin;
     }
 
     /**
-     * Récupérer le rôle de l'admin actuel
+     * Vérifie une permission spécifique
      */
-    getCurrentRole() {
-        return this.adminData ? this.adminData.role : null;
+    hasPermission(permission) {
+        if (!this.permissions) return false;
+        
+        // Super admin a toutes les permissions
+        if (this.permissions.includes('*')) return true;
+        
+        // Vérifier la permission spécifique
+        return this.permissions.includes(permission);
     }
 
     /**
-     * Vérifier si l'utilisateur peut accéder à un module
+     * Vérifie l'accès à un module
      */
-    canAccessModule(moduleName) {
+    canAccessModule(moduleId) {
         const modulePermissions = {
-            'dashboard': ['statistics.read'],
-            'users': ['users.read'],
-            'events': ['events.read'],
-            'settings': ['settings.read']
+            'dashboard': 'statistics.read',
+            'events': 'events.read',
+            'users': 'users.read',
+            'analytics': 'statistics.read',
+            'settings': 'settings.read'
         };
+        
+        const requiredPermission = modulePermissions[moduleId];
+        if (!requiredPermission) return false;
+        
+        return this.hasPermission(requiredPermission);
+    }
 
-        const requiredPermissions = modulePermissions[moduleName] || [];
-        return requiredPermissions.some(permission => this.hasPermission(permission));
+    /**
+     * Ajoute un callback d'état d'authentification
+     */
+    onAuthStateChanged(callback) {
+        this.authCallbacks.push(callback);
+        
+        // Si déjà initialisé, appeler immédiatement
+        if (this.initialized) {
+            callback(this.isAdmin(), this.currentAdmin);
+        }
+    }
+
+    /**
+     * Notifie les callbacks du changement d'état
+     */
+    notifyAuthChange(isAuthenticated, adminData = null) {
+        this.authCallbacks.forEach(callback => {
+            try {
+                callback(isAuthenticated, adminData);
+            } catch (error) {
+                console.error('❌ Erreur callback auth:', error);
+            }
+        });
     }
 }
 
 // Instance globale du service admin
-const fornapAdminAuth = new FornapAdminAuthService();
+const fornapAdminAuth = new FornapAdminAuth();
 
 // Export global
 window.FornapAdminAuth = fornapAdminAuth;

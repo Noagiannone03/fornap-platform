@@ -616,22 +616,41 @@ class FornapEventsModule {
                 return;
             }
 
-            // Préparation des données
-            const eventDoc = {
-                ...eventData,
-                createdAt: firebase.firestore.Timestamp.now(),
-                updatedAt: firebase.firestore.Timestamp.now(),
-                createdBy: window.FornapAdminAuth.getCurrentAdmin().uid,
-                attendees: 0,
-                price: parseFloat(eventData.price) || 0,
-                maxAttendees: parseInt(eventData.maxAttendees) || null,
-                tags: eventData.tags ? eventData.tags.split(',').map(t => t.trim()) : []
-            };
-
             const db = window.FornapAuth.db;
-            const docRef = await db.collection('events').add(eventDoc);
+            
+            if (this.currentView === 'edit' && this.selectedEvent) {
+                // Mode modification
+                const eventDoc = {
+                    ...eventData,
+                    updatedAt: firebase.firestore.Timestamp.now(),
+                    price: parseFloat(eventData.price) || 0,
+                    maxAttendees: parseInt(eventData.maxAttendees) || null,
+                    tags: eventData.tags ? eventData.tags.split(',').map(t => t.trim()) : []
+                };
 
-            window.AdminComponents.showNotification('success', 'Événement créé avec succès');
+                await db.collection('events').doc(this.selectedEvent.id).update(eventDoc);
+                window.AdminComponents.showNotification('success', 'Événement modifié avec succès');
+                
+            } else {
+                // Mode création
+                const eventDoc = {
+                    ...eventData,
+                    createdAt: firebase.firestore.Timestamp.now(),
+                    updatedAt: firebase.firestore.Timestamp.now(),
+                    createdBy: window.FornapAdminAuth.getCurrentAdmin().uid,
+                    attendees: 0,
+                    price: parseFloat(eventData.price) || 0,
+                    maxAttendees: parseInt(eventData.maxAttendees) || null,
+                    tags: eventData.tags ? eventData.tags.split(',').map(t => t.trim()) : []
+                };
+
+                await db.collection('events').add(eventDoc);
+                window.AdminComponents.showNotification('success', 'Événement créé avec succès');
+            }
+            
+            // Réinitialiser les variables d'édition
+            this.selectedEvent = null;
+            this.currentView = 'list';
             
             // Recharger et retourner à la liste
             await this.loadEvents();
@@ -728,8 +747,72 @@ class FornapEventsModule {
     }
 
     generatePagination() {
-        // Implementation pagination
-        return '<div class="pagination-container"></div>';
+        if (this.filteredEvents.length <= this.eventsPerPage) {
+            return '<div class="pagination-container"></div>';
+        }
+        
+        const totalPages = Math.ceil(this.filteredEvents.length / this.eventsPerPage);
+        const currentPage = this.currentPage;
+        
+        let paginationHTML = '<div class="pagination-container"><div class="pagination">';
+        
+        // Bouton précédent
+        if (currentPage > 1) {
+            paginationHTML += `<button class="page-btn" onclick="FornapEventsModule.goToPage(${currentPage - 1})">←</button>`;
+        } else {
+            paginationHTML += `<button class="page-btn disabled">←</button>`;
+        }
+        
+        // Numéros de pages
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+        
+        if (startPage > 1) {
+            paginationHTML += `<button class="page-btn" onclick="FornapEventsModule.goToPage(1)">1</button>`;
+            if (startPage > 2) {
+                paginationHTML += `<span class="page-separator">...</span>`;
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === currentPage ? 'active' : '';
+            paginationHTML += `<button class="page-btn ${activeClass}" onclick="FornapEventsModule.goToPage(${i})">${i}</button>`;
+        }
+        
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                paginationHTML += `<span class="page-separator">...</span>`;
+            }
+            paginationHTML += `<button class="page-btn" onclick="FornapEventsModule.goToPage(${totalPages})">${totalPages}</button>`;
+        }
+        
+        // Bouton suivant
+        if (currentPage < totalPages) {
+            paginationHTML += `<button class="page-btn" onclick="FornapEventsModule.goToPage(${currentPage + 1})">→</button>`;
+        } else {
+            paginationHTML += `<button class="page-btn disabled">→</button>`;
+        }
+        
+        paginationHTML += '</div>';
+        
+        // Informations de pagination
+        const startItem = (currentPage - 1) * this.eventsPerPage + 1;
+        const endItem = Math.min(currentPage * this.eventsPerPage, this.filteredEvents.length);
+        
+        paginationHTML += `<div class="pagination-info">
+            Affichage de ${startItem} à ${endItem} sur ${this.filteredEvents.length} événements
+        </div>`;
+        
+        paginationHTML += '</div>';
+        
+        return paginationHTML;
+    }
+    
+    updatePagination() {
+        const paginationContainer = document.querySelector('.pagination-container');
+        if (paginationContainer) {
+            paginationContainer.outerHTML = this.generatePagination();
+        }
     }
 
     generateCategoryStats(byCategory) {
@@ -796,31 +879,290 @@ class FornapEventsModule {
     }
 
     static async editEvent(id) {
-        // Implementation edit
+        const event = window.FornapEventsModule.events.find(e => e.id === id);
+        if (!event) {
+            window.AdminComponents.showNotification('error', 'Événement non trouvé');
+            return;
+        }
+
+        window.FornapEventsModule.currentView = 'edit';
+        window.FornapEventsModule.selectedEvent = event;
+        
+        // Réutiliser le formulaire de création mais pré-rempli
+        window.FornapEventsModule.showCreateView();
+        
+        // Pré-remplir les champs
+        setTimeout(() => {
+            document.querySelector('[name="title"]').value = event.title || '';
+            document.querySelector('[name="category"]').value = event.category || '';
+            document.querySelector('[name="description"]').value = event.description || '';
+            document.querySelector('[name="date"]').value = event.date || '';
+            document.querySelector('[name="startTime"]').value = event.startTime || '';
+            document.querySelector('[name="endTime"]').value = event.endTime || '';
+            document.querySelector('[name="location"]').value = event.location || '';
+            document.querySelector('[name="address"]').value = event.address || '';
+            document.querySelector('[name="price"]').value = event.price || '';
+            document.querySelector('[name="maxAttendees"]').value = event.maxAttendees || '';
+            document.querySelector('[name="status"]').value = event.status || 'draft';
+            document.querySelector('[name="tags"]').value = event.tags?.join(', ') || '';
+            
+            // Changer le titre et le bouton
+            document.querySelector('.module-title').textContent = 'Modifier l\'Événement';
+            document.querySelector('button[type="submit"]').textContent = 'Sauvegarder les modifications';
+        }, 100);
     }
 
     static async viewEvent(id) {
-        // Implementation view
+        const event = window.FornapEventsModule.events.find(e => e.id === id);
+        if (!event) {
+            window.AdminComponents.showNotification('error', 'Événement non trouvé');
+            return;
+        }
+
+        const modalHtml = `
+            <div class="modal-backdrop" onclick="this.remove()">
+                <div class="modal" onclick="event.stopPropagation()" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">${event.title}</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="event-details">
+                            <div class="detail-section">
+                                <div class="detail-field">
+                                    <div class="detail-label">Catégorie</div>
+                                    <div class="detail-value">${window.FornapEventsModule.eventCategories[event.category] || event.category}</div>
+                                </div>
+                                <div class="detail-field">
+                                    <div class="detail-label">Statut</div>
+                                    <span class="status-badge status-${event.status || 'draft'}">
+                                        ${window.FornapEventsModule.eventStatuses[event.status] || 'Brouillon'}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>Date et Lieu</h4>
+                                <div class="detail-field">
+                                    <div class="detail-label">Date</div>
+                                    <div class="detail-value">${window.FornapEventsModule.formatDate(event.date)}</div>
+                                </div>
+                                <div class="detail-field">
+                                    <div class="detail-label">Heure</div>
+                                    <div class="detail-value">${event.startTime || 'Non défini'} - ${event.endTime || 'Non défini'}</div>
+                                </div>
+                                <div class="detail-field">
+                                    <div class="detail-label">Lieu</div>
+                                    <div class="detail-value">${event.location || 'Non défini'}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>Participation</h4>
+                                <div class="detail-field">
+                                    <div class="detail-label">Participants</div>
+                                    <div class="detail-value">${event.attendees || 0} / ${event.maxAttendees || '∞'}</div>
+                                </div>
+                                <div class="detail-field">
+                                    <div class="detail-label">Prix</div>
+                                    <div class="detail-value">${event.price ? event.price + '€' : 'Gratuit'}</div>
+                                </div>
+                                <div class="detail-field">
+                                    <div class="detail-label">Revenus</div>
+                                    <div class="detail-value">${window.FornapEventsModule.calculateRevenue(event)}€</div>
+                                </div>
+                            </div>
+                            
+                            ${event.description ? `
+                                <div class="detail-section">
+                                    <h4>Description</h4>
+                                    <div class="detail-value">${event.description}</div>
+                                </div>
+                            ` : ''}
+                            
+                            ${event.tags && event.tags.length > 0 ? `
+                                <div class="detail-section">
+                                    <h4>Tags</h4>
+                                    <div class="detail-value">${event.tags.join(', ')}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-admin btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Fermer</button>
+                        <button class="btn-admin btn-primary" onclick="this.closest('.modal-backdrop').remove(); FornapEventsModule.editEvent('${id}')">Modifier</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('adminModals').innerHTML = modalHtml;
     }
 
     static async duplicateEvent(id) {
-        // Implementation duplicate
+        const event = window.FornapEventsModule.events.find(e => e.id === id);
+        if (!event) {
+            window.AdminComponents.showNotification('error', 'Événement non trouvé');
+            return;
+        }
+
+        try {
+            const duplicatedEvent = {
+                ...event,
+                title: event.title + ' (Copie)',
+                status: 'draft',
+                attendees: 0,
+                createdAt: firebase.firestore.Timestamp.now(),
+                updatedAt: firebase.firestore.Timestamp.now(),
+                createdBy: window.FornapAdminAuth.getCurrentAdmin().uid
+            };
+
+            delete duplicatedEvent.id;
+
+            const db = window.FornapAuth.db;
+            await db.collection('events').add(duplicatedEvent);
+
+            window.AdminComponents.showNotification('success', 'Événement dupliqué avec succès');
+            await window.FornapEventsModule.loadEvents();
+            window.FornapEventsModule.refreshEventsGrid();
+
+        } catch (error) {
+            console.error('❌ Erreur duplication:', error);
+            window.AdminComponents.showNotification('error', 'Erreur lors de la duplication');
+        }
     }
 
     static toggleEventSelection(id) {
-        // Implementation selection
+        if (window.FornapEventsModule.selectedEvents.has(id)) {
+            window.FornapEventsModule.selectedEvents.delete(id);
+        } else {
+            window.FornapEventsModule.selectedEvents.add(id);
+        }
+        
+        // Mettre à jour l'interface
+        const toolbar = document.querySelector('.toolbar-right');
+        if (toolbar && window.FornapEventsModule.selectedEvents.size > 0) {
+            let deleteBtn = toolbar.querySelector('.bulk-delete-btn');
+            if (!deleteBtn) {
+                deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-admin btn-error bulk-delete-btn';
+                deleteBtn.onclick = () => FornapEventsModule.deleteSelected();
+                toolbar.appendChild(deleteBtn);
+            }
+            deleteBtn.innerHTML = `🗑️ Supprimer (${window.FornapEventsModule.selectedEvents.size})`;
+        } else if (toolbar) {
+            const deleteBtn = toolbar.querySelector('.bulk-delete-btn');
+            if (deleteBtn) deleteBtn.remove();
+        }
     }
 
-    static deleteSelected() {
-        // Implementation delete multiple
+    static async deleteSelected() {
+        if (window.FornapEventsModule.selectedEvents.size === 0) {
+            window.AdminComponents.showNotification('warning', 'Aucun événement sélectionné');
+            return;
+        }
+
+        const eventCount = window.FornapEventsModule.selectedEvents.size;
+        
+        window.AdminComponents.showConfirmModal({
+            title: 'Supprimer les événements',
+            message: `Êtes-vous sûr de vouloir supprimer ${eventCount} événement(s) sélectionné(s) ?`,
+            type: 'danger',
+            confirmText: 'Supprimer tout',
+            onConfirm: async () => {
+                try {
+                    const db = window.FornapAuth.db;
+                    const promises = Array.from(window.FornapEventsModule.selectedEvents).map(id =>
+                        db.collection('events').doc(id).delete()
+                    );
+                    
+                    await Promise.all(promises);
+                    
+                    window.AdminComponents.showNotification('success', `${eventCount} événements supprimés`);
+                    window.FornapEventsModule.selectedEvents.clear();
+                    
+                    const deleteBtn = document.querySelector('.bulk-delete-btn');
+                    if (deleteBtn) deleteBtn.remove();
+                    
+                    await window.FornapEventsModule.loadEvents();
+                    window.FornapEventsModule.refreshEventsGrid();
+                    
+                } catch (error) {
+                    console.error('❌ Erreur suppression multiple:', error);
+                    window.AdminComponents.showNotification('error', 'Erreur lors de la suppression');
+                }
+            }
+        });
     }
 
     static exportEvents() {
-        // Implementation export
+        const headers = ['Titre', 'Catégorie', 'Date', 'Heure début', 'Lieu', 'Prix', 'Participants', 'Statut'];
+        const rows = window.FornapEventsModule.filteredEvents.map(event => [
+            event.title,
+            window.FornapEventsModule.eventCategories[event.category] || event.category,
+            window.FornapEventsModule.formatDate(event.date),
+            event.startTime || '',
+            event.location || '',
+            event.price ? event.price + '€' : 'Gratuit',
+            `${event.attendees || 0}/${event.maxAttendees || '∞'}`,
+            window.FornapEventsModule.eventStatuses[event.status] || event.status
+        ]);
+        
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `evenements_fornap_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        
+        window.AdminComponents.showNotification('success', 'Événements exportés');
     }
 
     static exportStats() {
-        // Implementation export stats
+        const stats = window.FornapEventsModule.calculateEventStats();
+        const statsData = {
+            exportDate: new Date().toISOString(),
+            totalEvents: stats.totalEvents,
+            totalAttendees: stats.totalAttendees,
+            totalRevenue: stats.totalRevenue,
+            averageAttendance: stats.averageAttendance,
+            byCategory: stats.byCategory,
+            byStatus: stats.byStatus
+        };
+        
+        const jsonData = JSON.stringify(statsData, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `stats_evenements_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        window.AdminComponents.showNotification('success', 'Statistiques exportées');
+    }
+    
+    static goToPage(pageNumber) {
+        window.FornapEventsModule.currentPage = pageNumber;
+        window.FornapEventsModule.refreshEventsGrid();
+    }
+    
+    refreshEventsGrid() {
+        const grid = document.getElementById('eventsGrid');
+        if (grid) {
+            grid.innerHTML = this.generateEventsGrid();
+        }
+
+        // Mettre à jour le compteur
+        const countElement = document.querySelector('.data-grid-count');
+        if (countElement) {
+            countElement.textContent = this.filteredEvents.length;
+        }
+
+        // Mettre à jour la pagination
+        this.updatePagination();
     }
 }
 

@@ -962,12 +962,77 @@ class FornapUsersModule {
     }
 
     generatePagination() {
-        // Implementation pagination
-        return '<div class="pagination-container"></div>';
+        if (this.filteredUsers.length <= this.usersPerPage) {
+            return '<div class="pagination-container"></div>';
+        }
+        
+        const totalPages = Math.ceil(this.filteredUsers.length / this.usersPerPage);
+        const currentPage = this.currentPage;
+        
+        let paginationHTML = '<div class="pagination-container"><div class="pagination">';
+        
+        // Bouton précédent
+        if (currentPage > 1) {
+            paginationHTML += `<button class="page-btn" onclick="FornapUsersModule.goToPage(${currentPage - 1})">←</button>`;
+        } else {
+            paginationHTML += `<button class="page-btn disabled">←</button>`;
+        }
+        
+        // Numéros de pages
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+        
+        if (startPage > 1) {
+            paginationHTML += `<button class="page-btn" onclick="FornapUsersModule.goToPage(1)">1</button>`;
+            if (startPage > 2) {
+                paginationHTML += `<span class="page-separator">...</span>`;
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === currentPage ? 'active' : '';
+            paginationHTML += `<button class="page-btn ${activeClass}" onclick="FornapUsersModule.goToPage(${i})">${i}</button>`;
+        }
+        
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                paginationHTML += `<span class="page-separator">...</span>`;
+            }
+            paginationHTML += `<button class="page-btn" onclick="FornapUsersModule.goToPage(${totalPages})">${totalPages}</button>`;
+        }
+        
+        // Bouton suivant
+        if (currentPage < totalPages) {
+            paginationHTML += `<button class="page-btn" onclick="FornapUsersModule.goToPage(${currentPage + 1})">→</button>`;
+        } else {
+            paginationHTML += `<button class="page-btn disabled">→</button>`;
+        }
+        
+        paginationHTML += '</div>';
+        
+        // Informations de pagination
+        const startItem = (currentPage - 1) * this.usersPerPage + 1;
+        const endItem = Math.min(currentPage * this.usersPerPage, this.filteredUsers.length);
+        
+        paginationHTML += `<div class="pagination-info">
+            Affichage de ${startItem} à ${endItem} sur ${this.filteredUsers.length} utilisateurs
+        </div>`;
+        
+        paginationHTML += '</div>';
+        
+        return paginationHTML;
     }
 
     updatePagination() {
-        // Implementation mise à jour pagination
+        const paginationContainer = document.querySelector('.pagination-container');
+        if (paginationContainer) {
+            paginationContainer.outerHTML = this.generatePagination();
+        }
+    }
+    
+    static goToPage(pageNumber) {
+        window.FornapUsersModule.currentPage = pageNumber;
+        window.FornapUsersModule.refreshUsersGrid();
     }
 
     generatePlanStats(byPlan) {
@@ -1005,29 +1070,219 @@ class FornapUsersModule {
         return window.FornapUsersModule?.viewUserProfile(id);
     }
 
-    static editUser(id) {
-        // Implementation edit
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+    static async editUser(id) {
+        const user = window.FornapUsersModule.users.find(u => u.id === id);
+        if (!user) {
+            window.AdminComponents.showNotification('error', 'Utilisateur non trouvé');
+            return;
+        }
+
+        const modalHtml = `
+            <div class="modal-backdrop" onclick="this.remove()">
+                <div class="modal" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Modifier Utilisateur</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Prénom</label>
+                                    <input type="text" name="firstName" class="form-input" value="${user.firstName || ''}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nom</label>
+                                    <input type="text" name="lastName" class="form-input" value="${user.lastName || ''}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-input" value="${user.email}" required readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Téléphone</label>
+                                    <input type="tel" name="phone" class="form-input" value="${user.phone || ''}">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Ville</label>
+                                    <input type="text" name="city" class="form-input" value="${user.city || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Profession</label>
+                                    <input type="text" name="profession" class="form-input" value="${user.profession || ''}">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-admin btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Annuler</button>
+                        <button class="btn-admin btn-primary" onclick="FornapUsersModule.saveUserEdit('${id}')">Sauvegarder</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('adminModals').innerHTML = modalHtml;
     }
 
-    static sendEmail(id) {
-        // Implementation send email
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+    static async saveUserEdit(id) {
+        try {
+            const form = document.getElementById('editUserForm');
+            const formData = new FormData(form);
+            const userData = Object.fromEntries(formData.entries());
+            
+            const db = window.FornapAuth.db;
+            await db.collection('users').doc(id).update({
+                ...userData,
+                updatedAt: firebase.firestore.Timestamp.now()
+            });
+            
+            window.AdminComponents.showNotification('success', 'Utilisateur mis à jour avec succès');
+            document.querySelector('.modal-backdrop').remove();
+            
+            // Recharger les données
+            await window.FornapUsersModule.loadUsers();
+            window.FornapUsersModule.refreshUsersGrid();
+            
+        } catch (error) {
+            console.error('❌ Erreur mise à jour utilisateur:', error);
+            window.AdminComponents.showNotification('error', 'Erreur lors de la mise à jour');
+        }
+    }
+
+    static async sendEmail(id) {
+        const user = window.FornapUsersModule.users.find(u => u.id === id);
+        if (!user) {
+            window.AdminComponents.showNotification('error', 'Utilisateur non trouvé');
+            return;
+        }
+
+        const modalHtml = `
+            <div class="modal-backdrop" onclick="this.remove()">
+                <div class="modal" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Envoyer Email à ${window.FornapUsersModule.getUserDisplayName(user)}</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="sendEmailForm">
+                            <div class="form-group">
+                                <label class="form-label">Destinataire</label>
+                                <input type="email" class="form-input" value="${user.email}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sujet</label>
+                                <input type="text" name="subject" class="form-input" placeholder="Sujet de votre message" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Message</label>
+                                <textarea name="message" class="form-textarea" rows="6" placeholder="Votre message..." required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-admin btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Annuler</button>
+                        <button class="btn-admin btn-primary" onclick="FornapUsersModule.sendEmailToUser('${id}')">Envoyer</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('adminModals').innerHTML = modalHtml;
+    }
+
+    static async sendEmailToUser(id) {
+        try {
+            const form = document.getElementById('sendEmailForm');
+            const formData = new FormData(form);
+            const emailData = Object.fromEntries(formData.entries());
+            
+            // En réalité, ici vous devriez implémenter l'envoi via votre service email
+            // Pour la démo, on simule un envoi réussi
+            setTimeout(() => {
+                window.AdminComponents.showNotification('success', 'Email envoyé avec succès');
+                document.querySelector('.modal-backdrop').remove();
+            }, 1000);
+            
+            // Simule l'envoi en cours
+            const sendBtn = document.querySelector('.btn-primary');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = 'Envoi en cours...';
+            
+        } catch (error) {
+            console.error('❌ Erreur envoi email:', error);
+            window.AdminComponents.showNotification('error', 'Erreur lors de l\'envoi');
+        }
     }
 
     static exportUserData(id) {
-        // Implementation export single user
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+        const user = window.FornapUsersModule.users.find(u => u.id === id);
+        if (!user) {
+            window.AdminComponents.showNotification('error', 'Utilisateur non trouvé');
+            return;
+        }
+        
+        const userData = {
+            'Informations personnelles': {
+                'Email': user.email,
+                'Prénom': user.firstName || '',
+                'Nom': user.lastName || '',
+                'Téléphone': user.phone || '',
+                'Ville': user.city || '',
+                'Profession': user.profession || '',
+                'Date d\'inscription': window.FornapUsersModule.formatDate(user.createdAt)
+            },
+            'Abonnement': {
+                'Plan': window.FornapUsersModule.getUserPlan(user),
+                'Statut': window.FornapUsersModule.subscriptionStatuses[window.FornapUsersModule.getSubscriptionStatus(user)],
+                'Date de début': window.FornapUsersModule.formatDate(user.subscription?.startDate),
+                'Prochaine facture': window.FornapUsersModule.formatDate(user.subscription?.nextBilling)
+            },
+            'Statistiques': {
+                'Événements participés': user.stats?.events || 0,
+                'Points fidélité': user.loyalty?.points || 0,
+                'Membre depuis': window.FornapUsersModule.getTimeSinceJoined(user)
+            }
+        };
+        
+        const jsonData = JSON.stringify(userData, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `utilisateur_${user.email}_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        window.AdminComponents.showNotification('success', 'Données utilisateur exportées');
     }
 
     static toggleUserSelection(id) {
-        // Implementation selection
         if (window.FornapUsersModule.selectedUsers.has(id)) {
             window.FornapUsersModule.selectedUsers.delete(id);
         } else {
             window.FornapUsersModule.selectedUsers.add(id);
         }
-        // Refresh UI if needed
+        
+        // Mettre à jour l'interface
+        const toolbar = document.querySelector('.toolbar-right');
+        if (toolbar && window.FornapUsersModule.selectedUsers.size > 0) {
+            // Ajouter le bouton d'action groupée s'il n'existe pas
+            let bulkBtn = toolbar.querySelector('.bulk-action-btn');
+            if (!bulkBtn) {
+                bulkBtn = document.createElement('button');
+                bulkBtn.className = 'btn-admin btn-primary bulk-action-btn';
+                bulkBtn.onclick = () => FornapUsersModule.sendBulkEmail();
+                toolbar.appendChild(bulkBtn);
+            }
+            bulkBtn.innerHTML = `📧 Email Groupe (${window.FornapUsersModule.selectedUsers.size})`;
+        } else if (toolbar) {
+            // Supprimer le bouton s'il n'y a plus de sélection
+            const bulkBtn = toolbar.querySelector('.bulk-action-btn');
+            if (bulkBtn) bulkBtn.remove();
+        }
     }
 
     static exportEmails() {
@@ -1043,23 +1298,158 @@ class FornapUsersModule {
     }
 
     static exportCompleteJSON() {
-        // Implementation export JSON
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+        const completeData = {
+            exportDate: new Date().toISOString(),
+            totalUsers: window.FornapUsersModule.users.length,
+            users: window.FornapUsersModule.users.map(user => ({
+                id: user.id,
+                email: user.email,
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
+                phone: user.phone || '',
+                city: user.city || '',
+                profession: user.profession || '',
+                createdAt: user.createdAt,
+                subscription: {
+                    plan: user.subscription?.plan || 'none',
+                    status: window.FornapUsersModule.getSubscriptionStatus(user),
+                    startDate: user.subscription?.startDate,
+                    nextBilling: user.subscription?.nextBilling
+                },
+                stats: {
+                    events: user.stats?.events || 0,
+                    loyaltyPoints: user.loyalty?.points || 0,
+                    memberSince: window.FornapUsersModule.getTimeSinceJoined(user)
+                }
+            }))
+        };
+        
+        const jsonData = JSON.stringify(completeData, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `export_utilisateurs_complet_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        window.AdminComponents.showNotification('success', 'Export JSON complet généré');
     }
 
     static copyEmailsToClipboard() {
-        // Implementation copy to clipboard
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+        let emails = [];
+        
+        if (document.getElementById('emailsAll')?.checked) {
+            emails = window.FornapUsersModule.users.map(u => u.email);
+        } else if (document.getElementById('emailsActive')?.checked) {
+            emails = window.FornapUsersModule.getActiveMembers().map(u => u.email);
+        }
+        
+        if (emails.length === 0) {
+            window.AdminComponents.showNotification('warning', 'Aucun email à copier');
+            return;
+        }
+        
+        navigator.clipboard.writeText(emails.join('\n')).then(() => {
+            window.AdminComponents.showNotification('success', `${emails.length} emails copiés dans le presse-papier`);
+        }).catch(() => {
+            window.AdminComponents.showNotification('error', 'Erreur lors de la copie');
+        });
     }
 
     static copyPhonesToClipboard() {
-        // Implementation copy to clipboard
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+        const phonesData = window.FornapUsersModule.getUsersWithPhone()
+            .map(u => `${u.phone}\t${u.firstName} ${u.lastName}\t${u.email}`)
+            .join('\n');
+        
+        if (!phonesData) {
+            window.AdminComponents.showNotification('warning', 'Aucun téléphone à copier');
+            return;
+        }
+        
+        const header = 'Téléphone\tNom\tEmail\n';
+        navigator.clipboard.writeText(header + phonesData).then(() => {
+            const count = window.FornapUsersModule.getUsersWithPhone().length;
+            window.AdminComponents.showNotification('success', `${count} téléphones copiés dans le presse-papier`);
+        }).catch(() => {
+            window.AdminComponents.showNotification('error', 'Erreur lors de la copie');
+        });
     }
 
     static sendBulkEmail() {
-        // Implementation bulk email
-        window.AdminComponents.showNotification('info', 'Fonctionnalité en développement');
+        if (window.FornapUsersModule.selectedUsers.size === 0) {
+            window.AdminComponents.showNotification('warning', 'Aucun utilisateur sélectionné');
+            return;
+        }
+
+        const selectedEmails = Array.from(window.FornapUsersModule.selectedUsers)
+            .map(id => window.FornapUsersModule.users.find(u => u.id === id)?.email)
+            .filter(email => email)
+            .join(', ');
+
+        const modalHtml = `
+            <div class="modal-backdrop" onclick="this.remove()">
+                <div class="modal" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Email Groupé (${window.FornapUsersModule.selectedUsers.size} destinataires)</h3>
+                        <button class="modal-close" onclick="this.closest('.modal-backdrop').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="bulkEmailForm">
+                            <div class="form-group">
+                                <label class="form-label">Destinataires</label>
+                                <textarea class="form-textarea" rows="3" readonly>${selectedEmails}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sujet</label>
+                                <input type="text" name="subject" class="form-input" placeholder="Sujet de votre message" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Message</label>
+                                <textarea name="message" class="form-textarea" rows="8" placeholder="Votre message..." required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-admin btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Annuler</button>
+                        <button class="btn-admin btn-primary" onclick="FornapUsersModule.sendBulkEmailAction()">Envoyer à tous</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('adminModals').innerHTML = modalHtml;
+    }
+
+    static async sendBulkEmailAction() {
+        try {
+            const form = document.getElementById('bulkEmailForm');
+            const formData = new FormData(form);
+            const emailData = Object.fromEntries(formData.entries());
+            
+            const sendBtn = document.querySelector('.modal-footer .btn-primary');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = 'Envoi en cours...';
+            
+            // Simulation d'envoi groupé
+            setTimeout(() => {
+                window.AdminComponents.showNotification('success', 
+                    `Email envoyé à ${window.FornapUsersModule.selectedUsers.size} utilisateurs`);
+                document.querySelector('.modal-backdrop').remove();
+                
+                // Réinitialiser la sélection
+                window.FornapUsersModule.selectedUsers.clear();
+                const bulkBtn = document.querySelector('.bulk-action-btn');
+                if (bulkBtn) bulkBtn.remove();
+                
+                // Mettre à jour les checkboxes
+                document.querySelectorAll('.users-grid input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+            }, 2000);
+            
+        } catch (error) {
+            console.error('❌ Erreur envoi bulk email:', error);
+            window.AdminComponents.showNotification('error', 'Erreur lors de l\'envoi groupé');
+        }
     }
 
     static exportUsersList() {

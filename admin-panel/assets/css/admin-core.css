@@ -265,6 +265,78 @@ body.admin-body .admin-sidebar.collapsed + .admin-main {
 }
 
 /* ========================================
+   SIDEBAR FOOTER - Info Admin
+   ======================================== */
+.sidebar-footer {
+    padding: var(--admin-spacing-lg);
+    border-top: 1px solid var(--admin-border-color);
+    margin-top: auto;
+}
+
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--admin-spacing-md);
+    padding: var(--admin-spacing-md);
+    background: var(--admin-bg-elevated);
+    border-radius: var(--admin-border-radius-md);
+    transition: all var(--admin-transition-fast);
+}
+
+.admin-user-info:hover {
+    background: var(--admin-sidebar-item-hover);
+}
+
+.admin-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: var(--admin-font-size-md);
+    border: 2px solid var(--admin-bg-elevated);
+    box-shadow: var(--admin-shadow-sm);
+    min-width: 40px;
+}
+
+.admin-user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-user-name {
+    font-weight: 600;
+    font-size: var(--admin-font-size-sm);
+    color: var(--admin-dark);
+    margin-bottom: var(--admin-spacing-xs);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-user-role {
+    font-size: var(--admin-font-size-xs);
+    color: var(--admin-gray-light);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.admin-sidebar.collapsed .admin-user-details {
+    opacity: 0;
+    width: 0;
+}
+
+.admin-sidebar.collapsed .admin-user-info {
+    justify-content: center;
+    padding: var(--admin-spacing-sm);
+}
+
+/* ========================================
    HEADER
    ======================================== */
 .admin-header {
@@ -341,6 +413,109 @@ body.admin-body .admin-sidebar.collapsed + .admin-main {
     text-align: center;
     line-height: 1.2;
     font-weight: 600;
+}
+
+/* ========================================
+   PROFILE DROPDOWN - Header
+   ======================================== */
+.admin-profile-dropdown {
+    position: relative;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: var(--admin-spacing-sm);
+    padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+    border-radius: var(--admin-border-radius-md);
+    cursor: pointer;
+    transition: all var(--admin-transition-fast);
+    font-family: var(--admin-font-family);
+    font-size: var(--admin-font-size-sm);
+    color: var(--admin-dark);
+}
+
+.profile-btn:hover {
+    background-color: var(--admin-gray-lightest);
+    transform: translateY(-1px);
+}
+
+.profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: var(--admin-font-size-sm);
+    border: 2px solid var(--admin-bg-elevated);
+    box-shadow: var(--admin-shadow-sm);
+}
+
+.profile-name {
+    font-weight: 500;
+    color: var(--admin-dark);
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--admin-bg-elevated);
+    border: 1px solid var(--admin-border-color);
+    border-radius: var(--admin-border-radius-md);
+    box-shadow: var(--admin-shadow-lg);
+    min-width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all var(--admin-transition-fast);
+    z-index: 1000;
+    margin-top: var(--admin-spacing-xs);
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    padding: var(--admin-spacing-md) var(--admin-spacing-lg);
+    color: var(--admin-dark);
+    text-decoration: none;
+    font-size: var(--admin-font-size-sm);
+    transition: all var(--admin-transition-fast);
+    border-radius: var(--admin-border-radius-sm);
+    margin: var(--admin-spacing-xs);
+}
+
+.dropdown-item:hover {
+    background-color: var(--admin-primary-light);
+    color: var(--admin-primary);
+    transform: translateX(4px);
+}
+
+.dropdown-item:last-child {
+    color: var(--admin-error);
+    border-top: 1px solid var(--admin-border-color);
+    margin-top: var(--admin-spacing-sm);
+    padding-top: var(--admin-spacing-md);
+}
+
+.dropdown-item:last-child:hover {
+    background-color: rgba(255, 59, 48, 0.1);
+    color: var(--admin-error);
 }
 
 /* ========================================
