@@ -348,7 +348,7 @@ function showExpiredMemberResult(memberResult) {
 async function completeActiveMemberProfile() {
     try {
         // Afficher le loading
-        FornapUtils.showLoading('Création de votre compte...', 'Configuration de votre profil');
+        safeShowLoading('Création de votre compte...', 'Configuration de votre profil');
         
         // Demander à l'utilisateur de créer un mot de passe
         showLegacyPasswordCreation(currentLegacyMember, 'active');
@@ -478,7 +478,7 @@ async function createLegacyAccount() {
         sessionStorage.setItem('legacyUserData', JSON.stringify(result.userData));
         sessionStorage.setItem('memberStatus', currentLegacyMember.isActive ? 'active' : 'expired');
         
-        FornapUtils.hideLoading();
+        safeHideLoading();
         
         // Rediriger selon le statut
         if (currentLegacyMember.isActive) {

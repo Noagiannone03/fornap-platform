@@ -205,6 +205,15 @@ class FornapQRService {
 
     /**
      * Migre un ancien membre vers la nouvelle collection users
+     * 
+     * IMPORTANT: Cette fonction NE SUPPRIME JAMAIS les données de la collection 'members'
+     * Elle ajoute seulement des flags de traçabilité pour conserver l'historique.
+     * 
+     * Comportement:
+     * 1. Crée un nouveau document dans 'users' avec données enrichies
+     * 2. Ajoute des métadonnées de migration dans 'members' (migratedToUsers, migratedAt, etc.)
+     * 3. Conserve TOUTES les données originales pour traçabilité
+     * 4. Met à jour timestamp d'accès lors des reconnexions futures
      */
     async migrateMemberToUsers(memberData) {
         if (!window.FornapAuth || !window.FornapAuth.isInitialized || !window.FornapAuth.db) {
@@ -217,6 +226,17 @@ class FornapQRService {
             
             if (existingUser.exists) {
                 console.log('✅ Utilisateur déjà migré dans la collection users');
+                
+                // Mettre à jour le timestamp de dernière migration dans members
+                try {
+                    await window.FornapAuth.db.collection('members').doc(memberData.uid).update({
+                        lastMigrationAccess: firebase.firestore.Timestamp.now()
+                    });
+                    console.log('📝 Timestamp d\'accès mis à jour dans collection members');
+                } catch (updateError) {
+                    console.warn('⚠️ Erreur mise à jour timestamp members:', updateError);
+                }
+                
                 return existingUser.data();
             }
 
@@ -274,7 +294,21 @@ class FornapQRService {
             // Sauvegarder dans la collection users
             await window.FornapAuth.db.collection('users').doc(memberData.uid).set(userData);
             
-            console.log('✅ Membre migré vers collection users');
+            // Marquer l'ancien document comme migré (SANS LE SUPPRIMER)
+            await window.FornapAuth.db.collection('members').doc(memberData.uid).update({
+                migratedToUsers: true,
+                migratedAt: firebase.firestore.Timestamp.now(),
+                lastMigrationUpdate: firebase.firestore.Timestamp.now(),
+                migrationMethod: 'qr-scanner',
+                migrationVersion: '1.0',
+                // Conserver l'historique original
+                originalData: {
+                    conserved: true,
+                    migrationNote: 'Données originales conservées lors de la migration'
+                }
+            });
+            
+            console.log('✅ Membre migré vers collection users (ancien document conservé avec flag)');
             return userData;
             
         } catch (error) {
@@ -306,6 +340,39 @@ class FornapQRService {
             
         } catch (error) {
             console.error('❌ Erreur création compte Firebase:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Récupère les statistiques de migration (utile pour les admins)
+     */
+    async getMigrationStats() {
+        if (!window.FornapAuth || !window.FornapAuth.isInitialized || !window.FornapAuth.db) {
+            throw new Error('Service d\'authentification non initialisé');
+        }
+
+        try {
+            const [membersSnapshot, usersSnapshot] = await Promise.all([
+                window.FornapAuth.db.collection('members').get(),
+                window.FornapAuth.db.collection('users').where('migratedFrom', '==', 'members').get()
+            ]);
+
+            const totalMembers = membersSnapshot.size;
+            const migratedMembers = membersSnapshot.docs.filter(doc => 
+                doc.data().migratedToUsers === true
+            ).length;
+            const totalNewUsers = usersSnapshot.size;
+
+            return {
+                totalOriginalMembers: totalMembers,
+                membersWithMigrationFlag: migratedMembers,
+                newUsersFromMigration: totalNewUsers,
+                migrationRate: totalMembers > 0 ? (migratedMembers / totalMembers * 100).toFixed(1) + '%' : '0%',
+                unmigrated: totalMembers - migratedMembers
+            };
+        } catch (error) {
+            console.error('❌ Erreur récupération stats migration:', error);
             throw error;
         }
     }
