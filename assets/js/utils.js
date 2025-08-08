@@ -72,9 +72,9 @@ class FornapUtils {
     }
 
     /**
-     * Affiche ou cache la modal de chargement
+     * Affiche la modal de chargement
      */
-    showLoading(show = true, title = 'Chargement...', message = 'Veuillez patienter') {
+    showLoading(title = 'Chargement...', message = 'Veuillez patienter') {
         if (!this.loadingModal) {
             this.createLoadingModal();
         }
@@ -85,10 +85,15 @@ class FornapUtils {
         if (titleElement) titleElement.textContent = title;
         if (messageElement) messageElement.textContent = message;
 
-        if (show) {
-            this.loadingModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        } else {
+        this.loadingModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Cache la modal de chargement
+     */
+    hideLoading() {
+        if (this.loadingModal) {
             this.loadingModal.classList.add('hidden');
             document.body.style.overflow = '';
         }

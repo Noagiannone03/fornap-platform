@@ -9,6 +9,100 @@ let qrScanResult = null;
 let uploadedFile = null;
 
 /**
+ * Fonction de secours pour gérer le loading
+ */
+function safeShowLoading(title = 'Chargement...', message = 'Veuillez patienter') {
+    if (window.FornapUtils && typeof window.FornapUtils.showLoading === 'function') {
+        window.FornapUtils.showLoading(title, message);
+    } else {
+        console.warn('⚠️ FornapUtils.showLoading non disponible');
+        // Créer une modal simple en fallback
+        createSimpleLoadingModal(title, message);
+    }
+}
+
+/**
+ * Fonction de secours pour cacher le loading
+ */
+function safeHideLoading() {
+    if (window.FornapUtils && typeof window.FornapUtils.hideLoading === 'function') {
+        window.FornapUtils.hideLoading();
+    } else {
+        // Fallback: chercher et cacher manuellement la modal
+        const loadingModal = document.getElementById('fornapLoadingModal') || 
+                           document.getElementById('loadingModal') || 
+                           document.getElementById('qr-loading-fallback');
+        if (loadingModal) {
+            loadingModal.classList.add('hidden');
+            loadingModal.style.display = 'none';
+            loadingModal.remove();
+        }
+        document.body.style.overflow = '';
+        console.warn('⚠️ Méthode hideLoading non trouvée, utilisation du fallback');
+    }
+}
+
+/**
+ * Fonction de secours pour afficher des messages
+ */
+function safeShowMessage(message, type = 'info') {
+    if (window.FornapUtils && typeof window.FornapUtils.showMessage === 'function') {
+        window.FornapUtils.showMessage(message, type);
+    } else {
+        console.warn('⚠️ FornapUtils.showMessage non disponible:', message);
+        // Fallback simple avec alert ou console
+        if (type === 'error') {
+            alert('Erreur: ' + message);
+        } else {
+            console.log('Message:', message);
+        }
+    }
+}
+
+/**
+ * Crée une modal de loading simple en fallback
+ */
+function createSimpleLoadingModal(title, message) {
+    // Supprimer toute modal existante
+    const existingModal = document.getElementById('qr-loading-fallback');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    const modal = document.createElement('div');
+    modal.id = 'qr-loading-fallback';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; padding: 2rem; border-radius: 8px; text-align: center; max-width: 300px;">
+            <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <h3 style="margin: 0 0 0.5rem 0; color: #333;">${title}</h3>
+            <p style="margin: 0; color: #666; font-size: 0.9rem;">${message}</p>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+/**
  * Affiche la section de scan QR code
  */
 function showQRScanner() {
@@ -38,11 +132,17 @@ function showQRScanner() {
  */
 async function initQRService() {
     try {
+        // S'assurer que FornapAuth est initialisé
+        if (!window.FornapAuth || !window.FornapAuth.isInitialized) {
+            console.log('🔄 Initialisation FornapAuth...');
+            await window.FornapAuth.init();
+        }
+        
         await window.FornapQRService.init();
         console.log('✅ Service QR scanner initialisé');
     } catch (error) {
         console.error('❌ Erreur initialisation QR service:', error);
-        FornapUtils.showMessage('error', 'Erreur d\'initialisation du scanner QR');
+        safeShowMessage('Erreur d\'initialisation du scanner QR', 'error');
     }
 }
 
@@ -79,7 +179,7 @@ function setupQRUploadZone() {
         if (files.length > 0 && files[0].type.startsWith('image/')) {
             handleFileSelection(files[0]);
         } else {
-            FornapUtils.showMessage('error', 'Veuillez sélectionner une image valide');
+            safeShowMessage('Veuillez sélectionner une image valide', 'error');
         }
     });
     
@@ -96,12 +196,12 @@ function setupQRUploadZone() {
  */
 function handleFileSelection(file) {
     if (!file.type.startsWith('image/')) {
-        FornapUtils.showMessage('error', 'Veuillez sélectionner une image (JPG, PNG)');
+        safeShowMessage('Veuillez sélectionner une image (JPG, PNG)', 'error');
         return;
     }
     
     if (file.size > 10 * 1024 * 1024) { // 10MB max
-        FornapUtils.showMessage('error', 'L\'image est trop volumineuse (maximum 10MB)');
+        safeShowMessage('L\'image est trop volumineuse (maximum 10MB)', 'error');
         return;
     }
     
@@ -144,13 +244,13 @@ function resetQRUpload() {
  */
 async function processQRCode() {
     if (!uploadedFile) {
-        FornapUtils.showMessage('error', 'Aucun fichier sélectionné');
+        safeShowMessage('Aucun fichier sélectionné', 'error');
         return;
     }
     
     try {
         // Afficher le loading
-        FornapUtils.showLoading('Analyse du QR code en cours...', 'Reconnaissance du code QR');
+        safeShowLoading('Analyse du QR code en cours...', 'Reconnaissance du code QR');
         
         console.log('🔍 Traitement du QR code...');
         
@@ -162,7 +262,7 @@ async function processQRCode() {
         const memberResult = await window.FornapQRService.processLegacyMember(qrData);
         
         // Cacher le loading
-        FornapUtils.hideLoading();
+        safeHideLoading();
         
         // Sauvegarder les résultats
         qrScanResult = qrData;
@@ -176,7 +276,7 @@ async function processQRCode() {
         }
         
     } catch (error) {
-        FornapUtils.hideLoading();
+        safeHideLoading();
         console.error('❌ Erreur traitement QR code:', error);
         
         let errorMessage = 'Erreur lors du scan du QR code';
@@ -186,7 +286,7 @@ async function processQRCode() {
             errorMessage = 'Aucun membre trouvé avec cet identifiant';
         }
         
-        FornapUtils.showMessage('error', errorMessage);
+        safeShowMessage(errorMessage, 'error');
     }
 }
 
@@ -253,12 +353,12 @@ async function completeActiveMemberProfile() {
         // Demander à l'utilisateur de créer un mot de passe
         showLegacyPasswordCreation(currentLegacyMember, 'active');
         
-        FornapUtils.hideLoading();
+        safeHideLoading();
         
     } catch (error) {
-        FornapUtils.hideLoading();
+        safeHideLoading();
         console.error('❌ Erreur complétion profil membre actif:', error);
-        FornapUtils.showMessage('error', 'Erreur lors de la configuration du profil');
+        safeShowMessage('Erreur lors de la configuration du profil', 'error');
     }
 }
 
@@ -361,13 +461,13 @@ async function createLegacyAccount() {
     const password = document.getElementById('legacyPassword').value;
     
     if (password.length < 6) {
-        FornapUtils.showMessage('error', 'Le mot de passe doit contenir au moins 6 caractères');
+        safeShowMessage('Le mot de passe doit contenir au moins 6 caractères', 'error');
         return;
     }
     
     try {
         // Afficher le loading
-        FornapUtils.showLoading('Création de votre compte...', 'Configuration de votre profil FORNAP');
+        safeShowLoading('Création de votre compte...', 'Configuration de votre profil FORNAP');
         
         // Traiter le membre avec le mot de passe
         const result = await window.FornapQRService.processLegacyMember(qrScanResult, password);
@@ -400,7 +500,7 @@ async function createLegacyAccount() {
         }
         
     } catch (error) {
-        FornapUtils.hideLoading();
+        safeHideLoading();
         console.error('❌ Erreur création compte ancien membre:', error);
         
         let errorMessage = 'Erreur lors de la création du compte';
@@ -408,7 +508,7 @@ async function createLegacyAccount() {
             errorMessage = 'Un compte existe déjà avec cette adresse email. Essayez de vous connecter.';
         }
         
-        FornapUtils.showMessage('error', errorMessage);
+        safeShowMessage(errorMessage, 'error');
     }
 }
 

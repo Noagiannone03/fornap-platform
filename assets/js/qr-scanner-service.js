@@ -138,7 +138,7 @@ class FornapQRService {
      * Récupère les données d'un ancien membre depuis la collection members
      */
     async getMemberData(uid) {
-        if (!window.FornapAuth.isInitialized || !window.FornapAuth.db) {
+        if (!window.FornapAuth || !window.FornapAuth.isInitialized || !window.FornapAuth.db) {
             throw new Error('Service d\'authentification non initialisé');
         }
 
@@ -207,7 +207,7 @@ class FornapQRService {
      * Migre un ancien membre vers la nouvelle collection users
      */
     async migrateMemberToUsers(memberData) {
-        if (!window.FornapAuth.isInitialized || !window.FornapAuth.db) {
+        if (!window.FornapAuth || !window.FornapAuth.isInitialized || !window.FornapAuth.db) {
             throw new Error('Service d\'authentification non initialisé');
         }
 
