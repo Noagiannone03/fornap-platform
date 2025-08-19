@@ -189,8 +189,15 @@ function updateProgress() {
     });
     
     // Mettre à jour les indicateurs
+    updateProgressIndicators(currentStepNumber);
+}
+
+// Fonction pour mettre à jour les indicateurs
+function updateProgressIndicators(currentStepNumber) {
     for (let i = 1; i <= 5; i++) {
         const indicator = document.getElementById(`step${i}`);
+        if (!indicator) continue;
+        
         const circle = indicator.querySelector('.indicator-circle');
         
         indicator.classList.remove('active', 'completed');
@@ -205,6 +212,19 @@ function updateProgress() {
             gsap.to(circle, { scale: 1, duration: 0.3, ease: "power2.out" });
         }
     }
+}
+
+// Fonction compatible avec qr-journey.js pour mettre à jour une étape spécifique
+function updateProgressStep(stepNumber) {
+    const progressWidth = ((stepNumber - 1) / 4) * 100;
+    
+    gsap.to('#progressFill', {
+        width: `${progressWidth}%`,
+        duration: 0.6,
+        ease: "power2.out"
+    });
+    
+    updateProgressIndicators(stepNumber);
 }
 
 // Fonctions de navigation
@@ -429,8 +449,20 @@ function selectPlan(planId) {
     });
     
     setTimeout(() => {
-        showSection('paymentSection');
-        displaySelectedPlan();
+        // Vérifier si c'est un ancien membre actif pour éviter le paiement
+        const isLegacy = sessionStorage.getItem('isLegacyMember') === 'true';
+        const memberStatus = sessionStorage.getItem('memberStatus');
+        
+        if (isLegacy && memberStatus === 'active') {
+            // Ancien membre actif -> directement aux questions (pas de paiement)
+            console.log('🎯 Ancien membre actif - passage aux questions sans paiement');
+            showSection('gettingToKnowSection');
+            updateProgressStep(4);
+        } else {
+            // Nouveau membre ou ancien membre expiré -> paiement
+            showSection('paymentSection');
+            displaySelectedPlan();
+        }
     }, 600);
 }
 
@@ -641,16 +673,35 @@ async function finalizeOnboarding() {
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         hideLoadingModal();
-        showSection('finalSection');
         
-        // Animation finale
-        const finalIcon = document.getElementById('finalIcon');
-        gsap.set(finalIcon, { scale: 0 });
-        gsap.to(finalIcon, {
-            scale: 1,
-            duration: 1,
-            ease: "bounce.out"
-        });
+        // Vérifier si c'est un ancien membre actif pour redirection directe
+        const isLegacy = sessionStorage.getItem('isLegacyMember') === 'true';
+        const memberStatus = sessionStorage.getItem('memberStatus');
+        
+        if (isLegacy && memberStatus === 'active') {
+            // Ancien membre actif -> directement au dashboard
+            console.log('✅ Ancien membre actif - redirection dashboard');
+            showMessage('Profil complété ! Redirection vers votre dashboard...', 'success');
+            setTimeout(() => {
+                // Nettoyer les données de session
+                sessionStorage.removeItem('isLegacyMember');
+                sessionStorage.removeItem('memberStatus');
+                sessionStorage.removeItem('legacyMemberData');
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        } else {
+            // Nouveau membre ou ancien expiré -> section finale normale
+            showSection('finalSection');
+            
+            // Animation finale
+            const finalIcon = document.getElementById('finalIcon');
+            gsap.set(finalIcon, { scale: 0 });
+            gsap.to(finalIcon, {
+                scale: 1,
+                duration: 1,
+                ease: "bounce.out"
+            });
+        }
         
     } catch (error) {
         hideLoadingModal();
@@ -664,6 +715,26 @@ function goToDashboard() {
     setTimeout(() => {
         window.location.href = 'dashboard.html';
     }, 1500);
+}
+
+// Fonction pour adapter les sections de questions aux anciens membres
+function adaptQuestionsForLegacyMember() {
+    const isLegacy = sessionStorage.getItem('isLegacyMember') === 'true';
+    
+    if (!isLegacy) return;
+    
+    // Mettre à jour les titres pour les anciens membres
+    const knowStep1Title = document.querySelector('#knowStep1 .form-header h2');
+    const knowStep2Title = document.querySelector('#knowStep2 .form-header h2');
+    const knowStep3Title = document.querySelector('#knowStep3 .form-header h2');
+    const knowStep4Title = document.querySelector('#knowStep4 .form-header h2');
+    
+    if (knowStep1Title) knowStep1Title.textContent = "Complétez votre profil - Dans quelle ville êtes-vous basé ?";
+    if (knowStep2Title) knowStep2Title.textContent = "Qu'est-ce qui vous a motivé à revenir chez FORNAP ?";
+    if (knowStep3Title) knowStep3Title.textContent = "Quelle est votre profession actuelle ?";
+    if (knowStep4Title) knowStep4Title.textContent = "Comment nous aviez-vous découverts à l'époque ?";
+    
+    console.log('✅ Questions adaptées pour ancien membre');
 }
 
 // Vérifier la présélection de forfait depuis membership

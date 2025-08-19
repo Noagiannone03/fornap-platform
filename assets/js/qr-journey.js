@@ -480,21 +480,17 @@ async function createLegacyAccount() {
         
         safeHideLoading();
         
-        // Rediriger selon le statut
+        // Rediriger selon le statut - RESTER SUR PAYMENT.HTML
         if (currentLegacyMember.isActive) {
-            // Membre actif -> aller au profil setup pour compléter les infos manquantes
-            window.location.href = 'profile-setup.html?legacy=active';
+            // Membre actif -> compléter les infos manquantes directement
+            console.log('✅ Membre actif - passage aux questions de profil');
+            preFillUserData(currentLegacyMember.memberData);
+            showSection('gettingToKnowSection');
+            updateProgressStep(4);
         } else {
-            // Membre expiré -> aller vers la sélection de forfait avec données pré-remplies
-            sessionStorage.setItem('preFillData', JSON.stringify({
-                firstName: currentLegacyMember.memberData.firstName,
-                lastName: currentLegacyMember.memberData.lastName,
-                email: currentLegacyMember.memberData.email,
-                phone: currentLegacyMember.memberData.phone,
-                isLegacyMember: true
-            }));
-            
-            // Retour à la sélection de forfait
+            // Membre expiré -> sélection forfait puis questions
+            console.log('⏰ Membre expiré - passage à la sélection de forfait');
+            preFillUserData(currentLegacyMember.memberData);
             showSection('planSection');
             updateProgressStep(3);
         }
@@ -510,6 +506,55 @@ async function createLegacyAccount() {
         
         safeShowMessage(errorMessage, 'error');
     }
+}
+
+/**
+ * Pré-remplit les données utilisateur avec celles de l'ancien membre
+ */
+function preFillUserData(memberData) {
+    console.log('📝 Pré-remplissage des données:', memberData);
+    
+    // Marquer comme ancien membre pour adapter le comportement
+    sessionStorage.setItem('isLegacyMember', 'true');
+    sessionStorage.setItem('legacyMemberData', JSON.stringify(memberData));
+    
+    // Pré-remplir les champs d'inscription (si on revient en arrière)
+    const firstNameField = document.getElementById('signupFirstName');
+    const lastNameField = document.getElementById('signupLastName');
+    const emailField = document.getElementById('signupEmail');
+    const phoneField = document.getElementById('signupPhone');
+    
+    if (firstNameField) firstNameField.value = memberData.firstName || '';
+    if (lastNameField) lastNameField.value = memberData.lastName || '';
+    if (emailField) emailField.value = memberData.email || '';
+    if (phoneField) phoneField.value = memberData.phone || '';
+    
+    // Sauvegarder dans le profil global
+    userProfile = {
+        firstName: memberData.firstName || '',
+        lastName: memberData.lastName || '',
+        email: memberData.email || '',
+        phone: memberData.phone || '',
+        isLegacyMember: true,
+        legacyData: memberData
+    };
+    
+    console.log('✅ Données pré-remplies pour ancien membre');
+}
+
+/**
+ * Vérifie si c'est un ancien membre et adapte le comportement
+ */
+function isLegacyMember() {
+    return sessionStorage.getItem('isLegacyMember') === 'true';
+}
+
+/**
+ * Récupère les données de l'ancien membre
+ */
+function getLegacyMemberData() {
+    const data = sessionStorage.getItem('legacyMemberData');
+    return data ? JSON.parse(data) : null;
 }
 
 /**
